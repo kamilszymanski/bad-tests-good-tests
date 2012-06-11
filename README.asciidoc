@@ -1,0 +1,4 @@
+== Basic Info
+The source code of book devoted to tests.
+
+You can think about this as about an additional, very practical and based on real-life issues, chapter of my previous book *Practical Unit Testing with TestNG and Mockito* (see http://practicalunittesting.com)
