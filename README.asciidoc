@@ -1,9 +1,19 @@
 == Basic Info
 This project contains the source code (the text) of my book devoted to tests. Codename: '"Bad Tests, Good Test"'.
 
-The main idea of this (short) book, is to present typical issues, bad practices and anti-patterns that I witness frequently when browsing and reviewing test code, and to present how to improve the test code.
+The main idea of this (short) book is to present typical issues, bad practices and anti-patterns that I witness frequently when browsing and reviewing test code, and to present how to improve the test code.
 
 You can think about this book as about an additional chapter (very practical and based on real-life issues) of my previous book *Practical Unit Testing with TestNG and Mockito* (see http://practicalunittesting.com).
 
+The idea comes from my talk titled '"Bad Tests, Good Tests"' given on http://geecon.org[GeeCON 2012] conference.
+
 == It is Free, Yes!
-This book is free. I will make it available on my website (in different formats - PDF, ePub, mobi), probably using http://www.paywithatweet.com service. I also think about the printed version, why not?
+This book is free. I will make it available on my website in different formats. I also think about the printed version, why not?
+
+== Want to Help? Great!
+Basically you can do few things:
+* review the content and comment on it,
+* improve the language (e.g. find typos),
+* provide me with test examples (see kaczanowscy.pl/tomek/2012-04/show-me-your-ugly-test-code[here]),
+
+The book is free so I can't pay you, but I will mention your contributions so you will get fameous (chicks love fameous people!).
