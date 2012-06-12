@@ -1,0 +1,26 @@
+include::bookinfo.txt[]
+//include::dedication.txt[]
+
+//include::about_author.txt[]
+//include::acknowledgements.txt[]
+include::preface.txt[]
+
+include::text.txt[]
+
+//:numbered!:
+
+//include::appendix_automated_tests.txt[]
+
+//include::bibliography.txt[]
+
+//include::glossary.txt[]
+
+
+[index]
+Index
+=====
+
+//include::thank_you.txt[]
+
+//indexsee:[fluent interface,FEST]
+//indexseesec:[test doubles,dummy,dummy]

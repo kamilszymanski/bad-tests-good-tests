@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--<xsl:param name="xref.with.number.and.title" select="0"/> -->
+<!-- <xsl:param name="local.l10n.xml" select="document('')"/> -->
+<l:i18n xmlns:l="http://docbook.sourceforge.net/xmlns/l10n/1.0">
+  <l:l10n language="en">
+    <!-- TOC title -->
+    <l:gentext key="ListofExamples" text="List of Listings"/>
+    
+    <!-- Title over each listing -->
+    <l:context name="title">
+      <l:template name="example" text="Listing %n. %t"/>
+    </l:context>
+    
+    <!-- References to Tables, Figures and Listings -->
+    <l:context name="xref-number-and-title">
+      <l:template name="table" text="Table %n"/>
+      <l:template name="figure" text="Figure %n"/>
+      <l:template name="example" text="Listing %n"/>
+      <l:template name="section" text="Section %n"/>
+    </l:context>
+
+
+  </l:l10n>
+</l:i18n>
