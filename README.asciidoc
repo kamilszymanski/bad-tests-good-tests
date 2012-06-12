@@ -14,8 +14,9 @@ Printed version? Yeah, I think about it, but it won't be free - printing costs, 
 
 == Want to Help? Great!
 Basically you can do few things:
+
 * review the content and comment on it,
-* improve the language (e.g. find typos),
+* improve the language (e.g. find typos, correct bugs, make it sound better etc.),
 * provide me with test examples (see http://kaczanowscy.pl/tomek/2012-04/show-me-your-ugly-test-code[here]),
 
-The book is free so I can't pay you, but I will mention your contributions so you will get fameous (chicks love fameous people!).
+The book is free so I can't pay you for your efforts, but I will mention your contributions so you will get fameous (chicks love fameous people!).
