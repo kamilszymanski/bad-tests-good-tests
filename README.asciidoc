@@ -8,7 +8,9 @@ You can think about this book as about an additional chapter (very practical and
 The idea comes from my talk titled '"Bad Tests, Good Tests"' given on http://geecon.org[GeeCON 2012] conference.
 
 == It is Free, Yes!
-This book is free. I will make it available on my website in different formats. I also think about the printed version, why not?
+This book is free. I will make it available on my website in different formats.
+
+Printed version? Yeah, I think about it, but it won't be free - printing costs, you know... :(
 
 == Want to Help? Great!
 Basically you can do few things:
