@@ -3,7 +3,7 @@ This project contains the source code (the text) of my book devoted to tests. Co
 
 The main idea of this (short) book is to present typical issues, bad practices and anti-patterns that I witness frequently when browsing and reviewing test code, and to present how to improve the test code.
 
-You can think about this book as about an additional chapter (very practical and based on real-life issues) of my previous book *Practical Unit Testing with TestNG and Mockito* (see http://practicalunittesting.com).
+You can think about this book as about an additional chapter (very practical and based on real-life issues) of my previous book http://practicalunittesting.com[Practical Unit Testing with TestNG and Mockito].
 
 The idea comes from my talk titled '"Bad Tests, Good Tests"' given on http://geecon.org[GeeCON 2012] conference.
 
@@ -14,6 +14,6 @@ This book is free. I will make it available on my website in different formats. 
 Basically you can do few things:
 * review the content and comment on it,
 * improve the language (e.g. find typos),
-* provide me with test examples (see kaczanowscy.pl/tomek/2012-04/show-me-your-ugly-test-code[here]),
+* provide me with test examples (see http://kaczanowscy.pl/tomek/2012-04/show-me-your-ugly-test-code[here]),
 
 The book is free so I can't pay you, but I will mention your contributions so you will get fameous (chicks love fameous people!).
