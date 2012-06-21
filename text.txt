@@ -2,6 +2,16 @@ Content
 -------
 TODO
 
+TODO What you should know.
+To really benefit from reading this book you should:
+
+* have some experience in writing tests, especially unit tests,
+* know a testing framework; preferably TestNG, but any other will also be fine (but you have to scan TestNG documentation to understand code samples),
+* be interested in improving your tests-writing skills,
+* understand the value of clean test code.
+
+The source I recommend is my book (well, of course!) but to be honest you can learn most of it by doing a research on your own (web has it all, but you have to find it first!).
+
 == Why Bother?
 * does it work?
 * changes
@@ -117,7 +127,7 @@ Why? Because:
 
 Keeping to this SRP for tests is very simple for unit tests, but not always applicable for other kind of tests.
 
-Still, I observe it being breached very often. Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
+Still, I observe it being breached frequently. Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
 
 ----
 @DataProvider
