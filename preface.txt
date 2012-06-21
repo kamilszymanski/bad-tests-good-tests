@@ -1,7 +1,11 @@
 [preface]
 Preface
 -------
+TODO
 
 [float]
-==== TODO
-TODO
+==== Examples
+All examples discussed in this book come from real code of real applications. However they were:
+
+* obfuscated - to protect the innocents,
+* truncated - so they are easier to understand.

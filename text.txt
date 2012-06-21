@@ -2,7 +2,183 @@ Content
 -------
 TODO
 
-[[sec_TODO]]
-== TODO some section
-indexterm:[term A,subterm A]TODO
+== Why Bother?
+* does it work?
+* changes
+* documentation
+* quality
 
+== Introduction
+
+From the dark ages of testing - tests provided by Bartosz.
+
+Conclusions:
+
+* it is everyday job,
+** (vs. follow the leader, and commented out smoke test)
+* do not generate, write them!,
+* master your tools (or at least learn the basics),
+* they should inform about the reason they failed.
+
+== Autogeneration
+
+----
+public void testSetGetTimestamp() throws Exception {
+    // JUnitDoclet begin method setTimestamp getTimestamp
+    java.util.Calendar[] tests = {new GregorianCalendar(), null};
+
+    for (int i = 0; i < tests.length; i++) {
+    	adapter.setTimestamp(tests[i]);
+    	assertEquals(tests[i], adapter.getTimestamp());
+    }
+    // JUnitDoclet end method setTimestamp getTimestamp
+}
+
+public void testSetGetParam() throws Exception {
+    // JUnitDoclet begin method setParam getParam
+    String[] tests = {"a", "aaa", "---", "23121313", "", null};
+
+    for (int i = 0; i < tests.length; i++) {
+    	adapter.setParam(tests[i]);
+    	assertEquals(tests[i], adapter.getParam());
+    }
+    // JUnitDoclet end method setParam getParam
+}
+----
+
+== Flickering Tests
+TODO "definition"
+
+----
+LoggingPropertyConfigurator configurator 
+    = mock(LoggingPropertyConfigurator.class);
+BaseServletContextListener baseServletContextListener 
+    = new BaseServletContextListener(configurator);
+
+@Test public void shouldLoadConfigProperties() {
+    baseServletContextListener.contextInitialized(null);
+    verify(configurator).configure(any(Properties.class));
+}
+
+@Test(expected = LoggingInitialisationException.class)
+public void shouldThrowLoggingException() {
+    System.setProperty("logConfig", "nonExistingFile");
+    baseServletContextListener.contextInitialized(null);
+}
+----
+
+== Mock'em All!
+TODO use the front door
+
+----
+@Test
+public void shouldAddTimeZoneToModelAndView() {
+	//given
+	UserFacade userFacade = mock(UserFacade.class);
+	ModelAndView modelAndView = mock(ModelAndView.class);
+	given(userFacade.getTimezone()).willReturn("timezone X");
+
+	//when
+	new UserDataInterceptor(userFacade)
+		.postHandle(null, null, null, modelAndView);
+
+	//then
+	verify(modelAndView).addObject("timezone", "timezone X"); 
+}
+----
+
+== Time Means Troubles (Always!)
+
+----
+public String getZendeskUrl(User user, String timestamp) {
+	String name=user.getFullName();
+
+	String url=baseUrl
+		+"name="+URLEncoder.encode(name, "UTF-8")
+		+"&timestamp="+timestamp;
+	return url;
+}
+
+public String getZendeskUrl(User user) {
+	Date date=new Date();
+	Long time=(date.getTime()/1000); //convert ms to seconds
+	String timestamp=time.toString();
+	return getZendeskUrl(user, timestamp);
+}
+----
+
+== TODO SRP for Tests
+We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[SRP, see http://en.wikipedia.org/wiki/Single_responsibility_principle], which basically says that every class should take care of one thing. I think it is very valuable to think about tests in terms of SRP. In case of tests, each test method should conform to the following rule: '"Each test method should verify one scenario"'.
+
+Why? Because:
+
+* such test methods are pretty simple to understand,
+* if they fail you know *exactly* which functionality of your software does not work.
+
+Keeping to this SRP for tests is very simple for unit tests, but not always applicable for other kind of tests.
+
+Still, I observe it being breached very often. Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
+
+----
+@DataProvider
+public Object[][] data() {
+  return new Object[][] {
+    {"48", true}, {"+48", true}, {"++48", true}, 
+    {"+48503", true}, {"+4", false}, {"++4", false},
+    {"", false}, {null, false}, {"  ", false}, };
+}
+
+@Test(dataProvider = "data")
+public void testQueryVerification(String query, boolean expected) {
+    assertEquals(expected, FieldVerifier.isValidQuery(query));
+}
+----
+At the first sight, it may seem like the test is really focused on one thing (on the verification of query validity), but if you look closer you will see some alarming signals:
+
+* its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
+* it has some kind of logic: assertions depends on passed +boolean+ flag (see <<sec_no_logic>>).
+
+[[sec_no_logic]]
+== Logic in Tests
+TODO
+
+== Happy Path
+TODO
+
+== Naming is the King
+TODO
+
+* user_1
+* domain1
+* do not make me learn the API
+  * statics
+  * builders
+
+[[sec_should]]
+=== Should is Better than Test
+* the names of test methods
+
+== Avoid Private Methods
+* assertions
+* setup
+
+== Excessive SetUp
+TODO merge with previous one?
+
+== Things to Remember
+
+* Single Responsibility Principle for tests
+* Names are important!
+* Test behaviour, not methods!
+* Ask yourself "what is the purpose of this test?", "what is really important?"
+* Think about readability (just say it)
+* Test-last does not work
+
+== Know Your Tool
+TODO
+
+== Randomness
+TODO
+
+== Help
+Send me your tests!

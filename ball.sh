@@ -25,7 +25,8 @@ asciidoc -a icons -d book -a toc2 -a toclevels=3 -n -o $TARGET/book.html $MAIN_F
 
 echo ""
 echo "DOCBOOK"
-asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --atribute print=true --verbose --out-file $TARGET/book.xml $MAIN_FILE
+asciidoc --backend docbook --doctype book --attribute icons --verbose --out-file $TARGET/book.xml $MAIN_FILE
+#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --atribute print=true --verbose --out-file $TARGET/book.xml $MAIN_FILE
 #asciidoc --backend docbook --doctype book --attribute icons --verbose --out-file $TARGET/book.xml $MAIN_FILE
 
 #
