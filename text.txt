@@ -61,7 +61,13 @@ public void testSetGetParam() throws Exception {
 ----
 
 == Flickering Tests
-TODO "definition"
+Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are green, next time they are red, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
+
+This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
+
+But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from green to red without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
+
+TODO
 
 ----
 LoggingPropertyConfigurator configurator 
@@ -196,3 +202,10 @@ TODO
 
 == Help
 Send me your tests!
+
+== TODO Book Teaser
+TODO
+
+TODO cover img
+
+http://practicalunittesting.com
