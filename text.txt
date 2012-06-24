@@ -2,9 +2,10 @@ Content
 -------
 TODO
 
-TODO no proofreading (so far, but you can help0
+The book has not been proofreaded! There are probably many typos and many language mistakes (my apologies!).
 
 TODO What you should know.
+
 To really benefit from reading this book you should:
 
 * have some experience in writing tests, especially unit tests,
@@ -65,11 +66,11 @@ public void testSetGetParam() throws Exception {
 ----
 
 == Flickering Tests
-Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are green, next time they are red, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
+Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
 
 This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
 
-But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from green to red without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
+But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
 
 Let us have a look at the following example. The test presented below verifies whether log4j{empty}pass:[]footnote:[http://logging.apache.org/log4j/] configuration code works fine. If some system property (+logConfig+) is available, it should load file specified by this property. If the property is not set it should load some default values.
 
@@ -90,7 +91,7 @@ public void shouldThrowLoggingException() {
     baseServletContextListener.contextInitialized(null);
 }
 ----
-This test used to be green for months. Then, suddenly, it turned red. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time... The reason was, that this test relied on the order of execution. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was available in when +shouldLoadDefaultProperties+ test was executed, which altered the behaviour of SUT and made this test fail.
+This test used to be [green]#green# for months. Then, suddenly, it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time... The reason was, that this test relied on the order of execution. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was available in when +shouldLoadDefaultProperties+ test was executed, which altered the behaviour of SUT and made this test fail.
 
 And why did the order of execution changed? Well, it does not really matter. In general test frameworks do not guarantee the order of execution (unless you explicitely ask for it) so you should not rely on this.
 
