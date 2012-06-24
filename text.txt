@@ -106,7 +106,7 @@ To a man with a hammer everything looks like a nail.
 _______________________
 This is something I observe frequently among developers who has only recently discovered the pleasures of mocking. :) They tend to overuse all kind of test doubles even when it is not really the best option. Let us see an example.
 
-The code below intends to verify whether some data is added to +modelAndView+ object. Yes, you heard it right: it verifies whether something is *added*. Even the method name states this explicitly.
+The code below intends to verify whether some data is added to +modelAndView+ object{empty}pass:[]footnote:[This is +ModelAndView+ from Spring MVC framework.]. Yes, you heard it right: it verifies whether something is *added*. Even the method name states this explicitly.
 
 ----
 @Test
@@ -126,7 +126,7 @@ public void shouldAddTimeZoneToModelAndView() {
 ----
 This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called.
 
-Below you can see an improved version of this test.
+Below you can see an improved version of this test. It treates SUT more like a black box and only cares about its output.
 
 ----
 @Test
@@ -223,6 +223,8 @@ TODO
 
 == Excessive SetUp
 TODO merge with previous one?
+
+builders
 
 == Things to Remember
 
