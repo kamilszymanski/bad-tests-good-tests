@@ -37,7 +37,7 @@ Conclusions:
 ** (vs. follow the leader, and commented out smoke test)
 * do not generate, write them!,
 * master your tools (or at least learn the basics),
-* they should inform about the reason they failed.
+* tests should inform about the reason they failed.
 
 == Autogeneration
 
@@ -100,24 +100,51 @@ Now, how to fix it. Basically there are two solutions:
 * or imopse strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
 
 == Mock'em All!
-TODO use the front door
+[quote, Abraham Maslow]
+_______________________
+To a man with a hammer everything looks like a nail.
+_______________________
+This is something I observe frequently among developers who has only recently discovered the pleasures of mocking. :) They tend to overuse all kind of test doubles even when it is not really the best option. Let us see an example.
+
+The code below intends to verify whether some data is added to +modelAndView+ object. Yes, you heard it right: it verifies whether something is *added*. Even the method name states this explicitly.
 
 ----
 @Test
 public void shouldAddTimeZoneToModelAndView() {
-	//given
-	UserFacade userFacade = mock(UserFacade.class);
-	ModelAndView modelAndView = mock(ModelAndView.class);
-	given(userFacade.getTimezone()).willReturn("timezone X");
+  //given
+  UserFacade userFacade = mock(UserFacade.class);
+  ModelAndView modelAndView = mock(ModelAndView.class);
+  given(userFacade.getTimezone()).willReturn("timezone X");
 
-	//when
-	new UserDataInterceptor(userFacade)
-		.postHandle(null, null, null, modelAndView);
+  //when
+  new UserDataInterceptor(userFacade)
+    .postHandle(null, null, null, modelAndView);
 
-	//then
-	verify(modelAndView).addObject("timezone", "timezone X"); 
+  //then
+  verify(modelAndView).addObject("timezone", "timezone X"); 
 }
 ----
+This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called.
+
+Below you can see an improved version of this test.
+
+----
+@Test
+public void shouldAddTimeZoneToModelAndView() {
+  //given
+  UserFacade userFacade = mock(UserFacade.class);
+  ModelAndView modelAndView = new ModelAndView();
+  given(userFacade.getTimezone()).willReturn("timezone X");
+
+  //when
+  new UserDataInterceptor(userFacade)
+      .postHandle(null, null, null, modelAndView);
+
+  //then
+  assertThat(modelAndView).constains("timezone", "timezone X");
+}
+----
+As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
 
 == Time Means Troubles (Always!)
 
