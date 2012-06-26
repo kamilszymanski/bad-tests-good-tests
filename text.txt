@@ -73,6 +73,8 @@ public void testSetGetParam() throws Exception {
 ----
 TODO comment some more, link to test behaviour not methods.
 
+TODO thanks Bartosz
+
 == Flickering Tests
 Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
 
