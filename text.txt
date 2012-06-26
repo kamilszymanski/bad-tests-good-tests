@@ -17,6 +17,8 @@ The source I recommend is my book (well, of course!) but to be honest you can le
 
 TODO about +setUp()+ what I mean by this
 
+TODO Differences with THE book. Here more strict view, no discussion of possible options, no explanations. Zero or one. Stop or go. White or black. No shades of grey.
+
 == Why Bother?
 * does it work?
 * changes
@@ -40,6 +42,11 @@ Conclusions:
 * tests should inform about the reason they failed.
 
 == Autogeneration
+Unit tests are simple, right? All they do is they set some object, call its methods, and verifies results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
+
+...well, it simply does not work, you know. If code coverage is what you are after (you really shouldn't be, but that's another story), then autogeneration of test code can help, but if you want to have some serious tests, then throw all such ideas away.
+
+Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
 
 ----
 public void testSetGetTimestamp() throws Exception {
@@ -64,6 +71,7 @@ public void testSetGetParam() throws Exception {
     // JUnitDoclet end method setParam getParam
 }
 ----
+TODO comment some more, link to test behaviour not methods.
 
 == Flickering Tests
 Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
