@@ -44,7 +44,7 @@ Conclusions:
 == Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verifies results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
 
-...well, it simply does not work, you know. If code coverage is what you are after (you really shouldn't be, but that's another story), then autogeneration of test code can help, but if you want to have some serious tests, then throw all such ideas away.
+...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule. Which really mean, that you should not do it. Howgh!
 
 Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
 
@@ -71,9 +71,9 @@ public void testSetGetParam() throws Exception {
     // JUnitDoclet end method setParam getParam
 }
 ----
-TODO comment some more, link to test behaviour not methods.
-
 TODO thanks Bartosz
+
+So now repeat after me: '"I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
 
 == Flickering Tests
 Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
@@ -106,6 +106,7 @@ This test used to be [green]#green# for months. Then, suddenly, it turned [red]#
 And why did the order of execution changed? Well, it does not really matter. In general test frameworks do not guarantee the order of execution (unless you explicitely ask for it) so you should not rely on this.
 
 Now, how to fix it. Basically there are two solutions:
+
 * clean +logConfig+ system property variable before +shouldLoadDefaultProperties+ is executed (if you have more test here then maybe putting this into some +setUp()+ method would be a good idea),
 * or imopse strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
 
