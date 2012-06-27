@@ -4,7 +4,12 @@ TODO
 
 The book has not been proofreaded! There are probably many typos and many language mistakes (my apologies!).
 
+THIS IS WORK IN PROGRESS!
+About TODO - it means some part/sentence/paragraph is not finished
+
 TODO What you should know.
+
+TODO not "bad" but rather "imperfect"
 
 To really benefit from reading this book you should:
 
@@ -211,6 +216,9 @@ At the first sight, it may seem like the test is really focused on one thing (on
 [[sec_no_logic]]
 == Logic in Tests
 TODO
+
+== What You Want To Test?
+TODO integration DB test - adding user, checking if there is one - works fine with rollback, but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the numbe of users in DB has increased by 1.
 
 == Happy Path
 TODO
