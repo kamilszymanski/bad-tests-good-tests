@@ -46,6 +46,56 @@ Conclusions:
 * master your tools (or at least learn the basics),
 * tests should inform about the reason they failed.
 
+== It is a Full Time Job
+Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
+
+First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test, at the time I joined this project, looked as follows:
+
+----
+class SystemAdminSmokeTest extends GroovyTestCase {
+
+void testSmoke() {
+// do not remove below code
+// def ds = new org.h2.jdbcx.JdbcDataSource(
+//     URL: 'jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=Oracle',
+//     user: 'sa', password: '')
+//
+//     def jpaProperties = new Properties()
+//     jpaProperties.setProperty(
+//			'hibernate.cache.use_second_level_cache', 'false')
+//     jpaProperties.setProperty(
+//			'hibernate.cache.use_query_cache', 'false')
+//
+//     def emf = new LocalContainerEntityManagerFactoryBean(
+//        dataSource: ds, persistenceUnitName: 'my-domain',
+//        jpaVendorAdapter: new HibernateJpaVendorAdapter(
+//            database: Database.H2,  showSql: true,
+//            generateDdl: true), jpaProperties: jpaProperties)
+
+   ... 
+}
+----
+Well, it is not gonna inform anyone about the state of the system... I guess there was a time when this test used to work. But then some changes came and it was commented out (I bet it was commented out only '"for a very short time"'....) and it was never brought to life again. A pity, yes. And a rather discouraging sign to anyone joining the team{empty}pass:[]footnote:[Which was misleading BTW, because the project and the team were doing pretty well!].
+
+Another example is even more depressing. In one of the modules of some project I found this test in +src/test/java+ directory:
+
+----
+@Test
+public class ExampleTest {
+
+	public void testExample() {
+		assertTrue(true);
+	}
+}
+----
+I think you've already guessed the end of this story. Yes, that was the only test there...
+
+And what can we learn from these two failures? Few things:
+
+* Do not live with '"broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
+* Writing and maintaining tests is an effort which has to be taken by the whole team (and this effor must be also supported, or at least not hindered, by all stakeholders).
+* Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
+
 == Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verifies results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
 
@@ -235,6 +285,7 @@ TODO
 [[sec_should]]
 === Should is Better than Test
 * the names of test methods
+TODO in relation to "test behaviour not methods"
 
 == Avoid Private Methods
 * assertions
