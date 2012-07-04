@@ -25,10 +25,13 @@ TODO about +setUp()+ what I mean by this
 TODO Differences with THE book. Here more strict view, no discussion of possible options, no explanations. Zero or one. Stop or go. White or black. No shades of grey.
 
 == Why Bother?
-* does it work?
-* changes
-* documentation
-* quality
+This book is not meant to explain all the reasons of writing tests but there are few things we should know. In short, there are three main reasons for writing tests{empty}pass:[]footnote:[Please forgive the simplifications - I want to make it short!]:
+
+* If we have a complete set of tests, and they all pass, then we know that our application works.
+* Making changes is much easier if we have tests. They will inform us if we break some functionality.
+* Tests are probably the only documentation we have which stays up-to-date during the whole life of ours software.
+
+You should recall these reasons for writing tests when looking at the examples of *bad* tests presented in this book. Ask questions like '"does it test anything?"', '"is it maintainable"', '"is it easy to understand?"' etc.
 
 == Introduction
 I would like to start our journey through various tests by going few years back. The tests discussed in this section were written in years 2004-2006. They were never a part of any serious test harness (i.e. no regular execution on CI server).
