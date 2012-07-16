@@ -284,17 +284,26 @@ At the first sight, it may seem like the test is really focused on one thing (on
 == Logic in Tests
 TODO
 
+== Use Smart Values
+* use of 2's power
+* do not use same values, because you will not know if it works well or not (CW example XYZFactory constructor)
+
 == What You Want To Test?
-TODO integration DB test - adding user, checking if there is one - works fine with rollback, but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the numbe of users in DB has increased by 1.
+TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the numbe of users in DB has increased by 1.
 
 == Happy Path
 TODO
 
 == Naming is the King
+This one is interesting, because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests, we do it much worse. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
+
 TODO
 
 * user_1
 * domain1
+
+TODO
+
 * do not make me learn the API
   * statics
   * builders
@@ -326,7 +335,8 @@ builders
 TODO
 
 == Randomness
-TODO
+TODO ref Jaroslav Tulach
+TODO ref Carrot Search
 
 == Help
 Send me your tests!
