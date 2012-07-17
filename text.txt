@@ -18,7 +18,7 @@ To really benefit from reading this book you should:
 * be interested in improving your tests-writing skills,
 * understand the value of clean test code.
 
-The source I recommend is my book{empty}pass:[]footnote:[See http://practicalunittesting.com] (well, of course!) but to be honest you can learn most of it by doing a research on your own (web has it all, but you have to find it first!).
+The source I recommend is my book{empty}pass:[]footnote:[See http://practicalunittesting.com] (well, of course!) but to be honest you can learn most of it by doing a research on your own (web has it all, but you have to find it first and it takes time!).
 
 TODO about +setUp()+ what I mean by this
 
@@ -355,6 +355,11 @@ assertThat(client).isVip().and().hasDiscount(0.2)twitter
 ----
 
 And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
+
+=== Cost of Custom Assertions
+There is a question which could be asked by an inquisitive reader. Custom assertions contain some code, even some logic. How can I be sure that there is no mistake there?
+
+Ok, I admit. I do not test my assertions. This comes from the fact that the logic of custom assertions is very limited (if any at all).
 
 TODO question how do you test your custom assertions? I don't. 1) It is moving lines from test (which wouldn't have been tested anyway) 2) they are dead simple
 
