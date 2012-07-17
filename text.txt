@@ -33,6 +33,8 @@ This book is not meant to explain all the reasons of writing tests but there are
 
 You should recall these reasons for writing tests when looking at the examples of *bad* tests presented in this book. Ask questions like '"does it test anything?"', '"is it maintainable"', '"is it easy to understand?"' etc.
 
+TODO Whatever you do, do it good. If it is worth doing, it is worth doing well. Numerous accounts of people who introduced tests to their development process... and failed!
+
 == Introduction
 I would like to start our journey through various tests by going few years back. The tests discussed in this section were written in years 2004-2006. In fact, they are full of atrocities of the worst kind. Any single of them could kill a code-clean acolyte. ;) I've received these tests Bartosz{empty}pass:[]footnote:[You can follow Bartosz at https://twitter.com/#!/bocytko] who mentions some of their properties:
 
@@ -347,10 +349,12 @@ And what can be done about it.
 TODO rule of a thumb: whenever your assertions are growing beyond your safety limit (2 lines? 3 lines? 5 lines? I do not know, it is *yours safety limit* not mine) then introduce custom assertions instead. In fact, it seems reasonable to come with custom assertions for the main objects from your domain (because you will probably have many tests which involve them - both on unit and integration level).
 
 And how to come with good custom assertions method? My trick is simply to write it so I am happy while reading this. So, without actully having any custom assertion implemented I write a line like this in my test code:
+
 ----
-assertThat(clinet).isVip().and().hasDiscount(0.2)
+assertThat(client).isVip().and().hasDiscount(0.2)twitter
 ----
-or something similar. And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
+
+And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
 
 TODO question how do you test your custom assertions? I don't. 1) It is moving lines from test (which wouldn't have been tested anyway) 2) they are dead simple
 
@@ -367,6 +371,8 @@ builders
 * Ask yourself "what is the purpose of this test?", "what is really important?"
 * Think about readability (just say it)
 * Test-last does not work
+* Private methods for assertions do not work
+* Tests work only if you treat them as first-class citizens
 
 == Know Your Tool
 TODO
