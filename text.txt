@@ -288,6 +288,8 @@ TODO
 avoid by using some features of your testing framework - annotations data provider instead of for loops (TODO ref) and concurrent with annotations
 
 == Use Smart Values
+TODO minimize the risk of having your tests pass by accident. Also improve the readability.
+
 * use of 2's power
 * do not use same values, because you will not know if it works well or not (CW example XYZFactory constructor)
 
@@ -301,7 +303,7 @@ But what is a '"happy path"' testing anyway? For our purpose, it is enough to sa
 
 Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for you application. If your application does not handle such simple cases than it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
-TODO
+TODO what example here?
 
 == Naming is the King
 This one is interesting, because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests, we do it much worse. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
@@ -368,6 +370,8 @@ TODO merge with previous one?
 
 builders
 
+TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
+
 == Things to Remember
 
 * Single Responsibility Principle for tests
@@ -392,6 +396,6 @@ Send me your tests!
 == TODO Book Teaser
 TODO
 
-TODO cover img
+image::images/put_cover.jpg[width="800"]
 
 http://practicalunittesting.com
