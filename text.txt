@@ -337,8 +337,22 @@ And all is good, at least for some time. You write more tests still reusing this
 TODO normal assertState() method
 ----
 
+Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes TODO almost 10 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations).
+
+And what can be done about it.
+
 * assertions
 * setup
+
+TODO rule of a thumb: whenever your assertions are growing beyond your safety limit (2 lines? 3 lines? 5 lines? I do not know, it is *yours safety limit* not mine) then introduce custom assertions instead. In fact, it seems reasonable to come with custom assertions for the main objects from your domain (because you will probably have many tests which involve them - both on unit and integration level).
+
+And how to come with good custom assertions method? My trick is simply to write it so I am happy while reading this. So, without actully having any custom assertion implemented I write a line like this in my test code:
+----
+assertThat(clinet).isVip().and().hasDiscount(0.2)
+----
+or something similar. And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
+
+TODO question how do you test your custom assertions? I don't. 1) It is moving lines from test (which wouldn't have been tested anyway) 2) they are dead simple
 
 == Excessive SetUp
 TODO merge with previous one?
