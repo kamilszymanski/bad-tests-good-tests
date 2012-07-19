@@ -308,9 +308,44 @@ TODO what example here?
 == Naming is the King
 This one is interesting, because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests, we do it much worse. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
 
+The first example presents a simple case of a test related to permission-checking module. The next listing shows a small fragment of this test - a data provider which feeds test methods with data.
+
+----
+@DataProvider
+public static Object[][] userPermissions() {
+    return new Object[][]{
+        {"user_1", READ},
+        {"user_2", READ},
+        {"user_2", WRITE},
+        {"user_3", READ},
+        {"user_3", WRITE},
+        {"user_3", DELETE}
+    };
+}
+----
+
+As you can see it creates three users - +user_1+, +user_2+, +user_3+. Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting ling: '"+user_3 was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually he should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
+
+And the cure? See below.
+
+----
+@DataProvider
+public static Object[][] userPermissions() {
+    return new Object[][]{
+        {"guest", READ},
+        {"logged", READ},
+        {"logged", WRITE},
+        {"admin", READ},
+        {"admin", WRITE},
+        {"admin", DELETE}
+    };
+}
+----
+
+A guest can only read, logged users can also write, and admin has all permissions. Now the error message - e.g. '"+admin+ was expected to have +DELETE+ permission"' make sense.
+
 TODO
 
-* user_1
 * domain1
 
 TODO
