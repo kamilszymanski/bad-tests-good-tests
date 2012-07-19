@@ -5,12 +5,12 @@ The main idea of this (short) book is to present typical issues, bad practices a
 
 You can think about this book as about an additional chapter (very practical and based on real-life issues) of my previous book http://practicalunittesting.com[Practical Unit Testing with TestNG and Mockito].
 
-The idea comes from my talk titled '"Bad Tests, Good Tests"' given on http://geecon.org[GeeCON 2012] conference.
+The idea comes from my talk titled '"Bad Tests, Good Tests"' given on http://geecon.org[GeeCON 2012] conference (and later polished and presented again on other conferences as well).
 
 == It is Free, Yes!
 This book is free. I will make it available on my website in different formats.
 
-Printed version? Yeah, I think about it, but it won't be free - printing costs, you know... :(
+Printed version? Yeah, I think about it but it won't be free - printing costs, you know... :(
 
 == Want to Help? Great!
 Basically you can do few things:
@@ -20,3 +20,8 @@ Basically you can do few things:
 * provide me with test examples (see http://kaczanowscy.pl/tomek/2012-04/show-me-your-ugly-test-code[here]),
 
 The book is free so I can't pay you for your efforts, but I will mention your contributions so you will get fameous (chicks love fameous people!).
+
+== Build
+You need to install AsciiDoc[http://www.methods.co.nz/asciidoc] first.
+
+Run +generateHtml.sh+ script file. The HTML book will be created in +target+ folder.
