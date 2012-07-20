@@ -324,7 +324,7 @@ public static Object[][] userPermissions() {
 }
 ----
 
-As you can see it creates three users - +user_1+, +user_2+, +user_3+. Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting ling: '"+user_3 was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually he should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
+As you can see it connects three users (+user_1+, +user_2+, +user_3+) with some permissions (+READ+, +WRITE+, +DELETE+). Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting like: '"+user_3 was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually +user_3+ should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
 
 And the cure? See below.
 
@@ -342,7 +342,19 @@ public static Object[][] userPermissions() {
 }
 ----
 
-A guest can only read, logged users can also write, and admin has all permissions. Now the error message - e.g. '"+admin+ was expected to have +DELETE+ permission"' make sense.
+A guest can only read, logged users can also write, and admin has all permissions. Now the error message - e.g. '"+admin+ was expected to have +DELETE+ permission"' makes sense.
+
+Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
+
+----
+TODO
+----
+
+What I hate about this are the names of domain objects suffixed with numbers. They bring no information about the state (role, properties) of the objects and make assertions quite mysterious:
+
+----
+TODO assertion message here
+----
 
 TODO
 
