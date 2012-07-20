@@ -356,9 +356,21 @@ What I hate about this are the names of domain objects suffixed with numbers. Th
 TODO assertion message here
 ----
 
-TODO
+Why do we expect TODO +domain4+ to have exactly TODO? To understand this we need to go back to where it was created and read it line by line. We can do a little better if we use a more descriptive name for our domains. This is shown below.
 
-* domain1
+----
+TODO
+----
+
+Now the assertion looks better. We expect TODO to have TODO, which seems reasonable.
+
+BTW. While refactoring this test, I have found an interesting thing. Look at the original code once again. Can you see it?
+
+----
+TODO
+----
+
+Well, maybe you spotted it, but I hadn't when I worked with the code (ok, you knew there is something wrong there, and I hadn't). Only when I started renaming thing I noticed that +domain3+ is used where +domain4+ should had been used. It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result), but still it illustrates very well what happens if all variables names differ only so slightly. It is very simple to mix things up.
 
 TODO
 
@@ -370,6 +382,9 @@ TODO
 === Should is Better than Test
 * the names of test methods
 TODO in relation to "test behaviour not methods"
+
+== Say No to Complex Assertions
+TODO example from domain1 where for loop was used to get the data to be asserted
 
 == Avoid Assertions using Private Methods
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
