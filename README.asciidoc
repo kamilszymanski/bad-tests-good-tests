@@ -22,6 +22,6 @@ Basically you can do few things:
 The book is free so I can't pay you for your efforts, but I will mention your contributions so you will get fameous (chicks love fameous people!).
 
 == Build
-You need to install AsciiDoc[http://www.methods.co.nz/asciidoc] first.
+You need to install http://www.methods.co.nz/asciidoc[AsciiDoc] first.
 
 Run +generateHtml.sh+ script file. The HTML book will be created in +target+ folder.
