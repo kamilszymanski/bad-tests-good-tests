@@ -236,10 +236,31 @@ public void shouldAddTimeZoneToModelAndView() {
 ----
 As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
 
+[[sec_time_means_troubles]]
 == Time Means Troubles (Always!)
+TIP: As a rule *never* use +System.currentTimeMillis()+ or +new Date()+ in your production code. Add an additional layer of abstraction - e.g. a +DateTimeProvider+ interface will let you test your time-dependent methods with ease.
+
+Let us see what happens when you do not follow this advice.
+
+An obvious example would look like this:
+
+[role="pseudocode"]
+----
+time = System.currentTimeMillis();
+
+if (time.isAfter(5, PM)) {
+	... do some afternoon activity
+}
+else {
+	... do somethig else
+}
+----
+Well, this one is obvious - you can't test all paths util you control the value of time variable.
+
+But let us see a real, slightly more subtle example. Let us take a look at this fragment of production code (the +Util+ class):
 
 ----
-public String getZendeskUrl(User user, String timestamp) {
+public String getUrl(User user, String timestamp) {
     String name=user.getFullName();
 
     String url=baseUrl
@@ -248,13 +269,60 @@ public String getZendeskUrl(User user, String timestamp) {
     return url;
 }
 
-public String getZendeskUrl(User user) {
+public String getUrl(User user) {
     Date date=new Date();
     Long time=(date.getTime()/1000); //convert ms to seconds
     String timestamp=time.toString();
     return getZendeskUrl(user, timestamp);
 }
 ----
+
+Testing of such methods should be straightforward - they return some +String+ which we could analyze and verify its correctness. Alas, because the +new Date()+ was used, the programmer responsible for this code was not able to verify the resulting URL. Instead, he came up with the following test:
+
+----
+@Test
+public void shouldUseTimestampMethod() {
+        //given
+	Util util = new Util();
+        Util spyUtil = spy(util);
+
+        //when
+        spyUtil.getUrl(user);
+
+        //then
+        verify(spyUtil).getUrl(eq(user), anyString());
+}
+----
+Oh my, this is bad for few reasons. This test:
+
+* tests implementation instead of behaviour,
+* uses partial mocking (+spy+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it),
+* verifies interactions instead of returned values.
+
+And all of this because the production code does not handle properly time!
+
+TIP: See <<sec_fix_the_code_first>> for some more examples of writing tests instead of fixing the code first!
+
+After we redesign the production code by replacing call to +new Date()+ with a call to some collaborator, our test starts looking pretty nice:
+
+----
+@Test
+public void shouldAddTimestampToGeneratedUrl() {
+	//given
+	Util util = new ....
+	TimeProvider timeProvider = mock(TimeProvider.class);
+	when(timeProvider.getTime()).thenReturn("12345");
+	util.set(timeProvider);
+
+	//when
+	String url = util.getUrl(user);
+
+	//then
+	assertThat(url).contains("timestamp=12345");
+}
+----
+
+TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl+ method does not use mocks but a stub only!].
 
 == TODO SRP for Tests
 We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[SRP, see http://en.wikipedia.org/wiki/Single_responsibility_principle], which basically says that every class should take care of one thing. I think it is very valuable to think about tests in terms of SRP. In case of tests, each test method should conform to the following rule: '"Each test method should verify one scenario"'.
@@ -540,6 +608,7 @@ All this does not mean that the nasty low-level details have miracouleously vani
 TODO
 ----
 
+[[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
 
 example from CW - complicated factoryWhatever test
