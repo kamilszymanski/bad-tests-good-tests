@@ -1,3 +1,7 @@
+// TODO all source code with tabs
+
+TODO about the author
+
 Content
 -------
 TODO
@@ -209,10 +213,11 @@ public void shouldAddTimeZoneToModelAndView() {
   verify(modelAndView).addObject("timezone", "timezone X"); 
 }
 ----
-This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called.
+This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called!
 
 Below you can see an improved version of this test. It treates SUT more like a black box and only cares about its output.
 
+[role="pseudocode"]
 ----
 @Test
 public void shouldAddTimeZoneToModelAndView() {
@@ -226,7 +231,7 @@ public void shouldAddTimeZoneToModelAndView() {
       .postHandle(null, null, null, modelAndView);
 
   //then
-  assertThat(modelAndView).constains("timezone", "timezone X");
+  assertThat(modelAndView).contains("timezone", "timezone X");
 }
 ----
 As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
@@ -285,7 +290,10 @@ At the first sight, it may seem like the test is really focused on one thing (on
 [[sec_no_logic]]
 == Logic in Tests
 TODO
+
 avoid by using some features of your testing framework - annotations data provider instead of for loops (TODO ref) and concurrent with annotations
+
+TODO refer to SRP - boolean is also kind of logic
 
 == Use Smart Values
 TODO minimize the risk of having your tests pass by accident. Also improve the readability.
@@ -294,7 +302,11 @@ TODO minimize the risk of having your tests pass by accident. Also improve the r
 * do not use same values, because you will not know if it works well or not (CW example XYZFactory constructor)
 
 == What You Want To Test?
-TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the numbe of users in DB has increased by 1.
+TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the number of users in DB has increased by 1.
+
+TODO copy from quizz.txt
+
+TIP: Make sure the test does exactly what its (method) name promises.
 
 == Happy Path
 The issue of writing '"happy path"' tests is so common, that it is probably the most popular antipattern of all.
@@ -447,6 +459,94 @@ TODO example from DaoTestHelper - construction of objects with few BigDecimal pa
 
 == Know Your Tool
 TODO
+
+[[sec_thread_sleep]]
+Thread.sleep()
+--------------
+TODO any example of such things?
+
+* got selenium one - mention it can leverage what frameworks provide
+* need something else to introduce awaitility
+
+Test Which Knows Too Much
+-------------------------
+Why tests are brittle? Because we put too many details into them. See the following example (this is a slightly shorthened test which from some mailing list discussion).
+----
+public void createSurvey() throws InterruptedException {		
+	//CREATE SURVEY
+	WebElement allproject = driver.findElement(By.xpath("//*[@id='projectnav']/ul/li[2]/a"));
+	allproject.click();
+	
+	Thread.sleep(5000);
+	
+	WebElement myfolder = driver.findElement(By.linkText("John Doe"));
+	myfolder.click();
+		
+	Thread.sleep(5000);
+		
+	WebElement myProject = driver.findElement(By.linkText("My project"));
+	myProject.click();
+		
+	Thread.sleep(5000);
+		
+	WebElement createsurveylink = driver.findElement(By.xpath("//*[@id='bcontrol']/body/form[1]/table[2]/tbody/tr/td[2]/a[1]/img"));
+	createsurveylink.click();
+				
+	Thread.sleep(5000);
+		
+	WebElement surveyname = driver.findElement(By.xpath("//*[@id='bcontrol']/body/form/table[4]/tbody/tr[2]/td[3]/input"));
+	surveyname.sendKeys("Test Survey created on " + new Date());
+		
+	WebElement surveynameconfirm = driver.findElement(By.xpath("//*[@id='bcontrol']/body/form/table[1]/tbody/tr[2]/td[3]/a[2]/img"));
+	surveynameconfirm.click();
+		
+	Thread.sleep(5000);
+}
+----
+Before we get to the main point, let us discuss the idea of having +Thread.sleep()+ calls in your tests once again. We already did this in <<sec_thread_sleep>> but here situation is slightly different. The main reason of making the test so sloooooooow is because we are not sure when the browser will finish rendering the page so we can proceed the next click. True, we do not know that, so a defensive strategy is to set up some high values (5 seconds in this case) to stay on the safe side. It works, but makes your tests execution time horrible!
+
+So, what can we do about it?  We can't make browser speed up, but we can wait actively, that is wait and repeatedly verify whether we can move do the next click. TODO about internal selenium mechanisms and about awaitility
+
+TODO about Page objects
+
+So, putting these two together, the resulting test could look like this (it is hard to me to guess what was the business requirement of the test presented above, but I guess it was something like this):
+
+----
+public void shouldCreateSurvey() {
+	Date date = new Date();
+
+	ProjectsPage projectsPage = mainDashboard.goToProjectsPage();
+
+	projectsPage.openProject("My project");
+
+	SurverEditionPage surverEditionPage = projectsPage.createSurvey("Test Survery created on " + date);
+
+	// there were no assertions in the original tests (which was rather weird...),
+	// but I guess something like this would make sense
+	String surveyName = surveyEditionPage.getEditedSurveyName();
+
+	assertThat(surveyName).isEqualTo("Test Survey created on " + date);
+}
+----
+What can we see here? Few things:
+
+* most of the work is delegated to various +xyzPage+ objects which handle things like XPath access to various elements,
+* no +Thread.sleep()+ - this is also handled internally by +xyzPage+ objects,
+* this test would survive refactorings as long as the general flow of actions remains unchanged.
+
+All this does not mean that the nasty low-level details have miracouleously vanished. No, as we already mentioned, they were moved to +xyzPage+ classes. For example, the +ProjectsPage+ class could look like the following:
+
+----
+TODO
+----
+
+== Fix the Code Then Write Tests
+
+example from CW - complicated factoryWhatever test
+
+should fix the code, not try to somehow test it
+
+TODO of course test-first is better
 
 == Randomness
 TODO ref Jaroslav Tulach
