@@ -1,11 +1,34 @@
 [preface]
 Preface
 -------
-TODO
+So you want to write great tests? Ah, so do I! :) I have some experience in writing tests, and I would like to share it with you.
+
+Stay focused, stay sharp, distill what you read through your own experiences, and choose what seems right and valuable for you.
 
 [float]
 ==== Examples
-All examples discussed in this book come from real code of real applications. However they were:
+All examples discussed in this book come from real code of real applications.
 
-* obfuscated - to protect the innocents,
-* truncated - so they are easier to understand.
+Some of them were obfuscated in order to '"protect the innocents"'. ;)
+
+Some of the code exemples presented in the book were significantly truncated, so only their '"essence"' was left, and all the cluttering ware removed. This makes the examples easier to understand but at the same time it makes some of the discussed issues look not so important. However they *are* important in real life scenarios, where you have to deal with numerous much more complicated tests. 
+
+[float]
+==== Pseudocode
+Some code snippets are marked with *pseudocode* tag in upper right corner, like this:
+
+[role="pseudocode"]
+----
+objectX.doSomething();
+if (something) {
+    ...
+}
+----
+
+This means that this snippet of code might not compile.
+
+TODO make pseudocode fragments print well in html, PDF and ePub versions
+
+[float]
+==== Icons
+TODO about icons - copy from the book
