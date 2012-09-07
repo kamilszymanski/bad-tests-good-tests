@@ -543,6 +543,12 @@ TODO in relation to "test behaviour not methods"
 == Say No to Complex Assertions
 TODO example from domain1 where for loop was used to get the data to be asserted
 
+TODO example SSHAssert
+
+TODO refer to test data builders - this is the other side of the same coin
+
+TIP: Let your tests speak with domain language, not in implementation terms.
+
 == Avoid Assertions using Private Methods
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
 
