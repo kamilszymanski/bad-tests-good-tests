@@ -339,21 +339,56 @@ Still, I observe it being breached frequently. Let us have a look at an example.
 ----
 @DataProvider
 public Object[][] data() {
-  return new Object[][] {
-    {"48", true}, {"+48", true}, {"++48", true}, 
-    {"+48503", true}, {"+4", false}, {"++4", false},
-    {"", false}, {null, false}, {"  ", false}, };
+	return new Object[][] { {"48", true}, {"+48", true}, 
+		{"++48", true}, {"+48503", true}, {"+4", false},
+		{"++4", false}, {"", false},
+		{null, false}, {"  ", false}, };
 }
 
 @Test(dataProvider = "data")
 public void testQueryVerification(String query, boolean expected) {
-    assertEquals(expected, FieldVerifier.isValidQuery(query));
+	assertEquals(expected, FieldVerifier.isValidQuery(query));
 }
+
 ----
 At the first sight, it may seem like the test is really focused on one thing (on the verification of query validity), but if you look closer you will see some alarming signals:
 
 * its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
-* it has some kind of logic: assertions depends on passed +boolean+ flag (see <<sec_no_logic>>).
+** also the name of data provider - +data+ - smells really bad,
+* it has some kind of logic: assertions depends on passed +expected+ boolean flag (see <<sec_no_logic>>).
+
+To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what fuctionality of my software is broken just by reading the ame of the failed test method?"'.
+
+----
+@DataProvider
+public Object[][] validQueries() {
+	return new Object[][] { {"48"}, {"48123"}, 
+		{"+48"}, {"++48"}, {"+48503"}};
+}
+
+@Test(dataProvider = "validQueries")
+public void shouldRecognizeValidQueries(String validQuery) {
+	assertTrue(FieldVerifier.isValidQuery(validQuery));
+}
+----
+
+----
+@DataProvider
+public Object[][] invalidQueries() {
+	return new Object[][] { 
+		{"+4"}, {"++4"}, 
+		{""}, {null}, {"  "} };
+}
+
+@Test(dataProvider = "invalidQueries")
+public void shouldRejectInvalidQueries(String invalidQuery) {
+	assertFalse(FieldVerifier.isValidQuery(invalidQuery));
+}
+----
+
+TIP: Watch the method names. Are they intention-revealing?
+
+TIP: No logic in tests! Even the simplest one is evil!
 
 [[sec_no_logic]]
 == Logic in Tests
@@ -364,10 +399,52 @@ avoid by using some features of your testing framework - annotations data provid
 TODO refer to SRP - boolean is also kind of logic
 
 == Use Smart Values
-TODO minimize the risk of having your tests pass by accident. Also improve the readability.
+Try to minimize the risk of having your tests pass by accident. And always work to imporve the readability.
+
+TODO
 
 * use of 2's power
-* do not use same values, because you will not know if it works well or not (CW example XYZFactory constructor)
+* do not use same values, because you will not know if it works well or not
+
+Let us consider the following factory method:
+
+----
+public PayoutCalculator create() {
+	BigDecimal minMargin = settings.getMinMargin();
+	BigDecimal maxMargin = settings.getMaxMargin();
+	BigDecimal premiumShare = settings.getPremiumShare();
+	return new PayoutCalculator(minMargin, maxMargin, premiumShare);
+}
+----
++settings+ is a collaborator, and as such should be stubbed in test.
+
+This test does exactly this:
+
+----
+public class PayoutCalculatorFactoryTest {
+	PayoutSettingsService settings = mock(PayoutSettingsService.class);
+
+	@Test
+	public void shouldCreatePayoutCalculator() {
+		//given
+		given(settings.getMinMargin()).willReturn(new BigDecimal(20));
+		given(settings.getMaxMargin()).willReturn(new BigDecimal(50));
+		given(settings.getPremiumShare()).willReturn(new BigDecimal(50));
+
+		//when
+		PayoutCalculator calculator = new PayoutCalculatorFactory(settings).create();
+
+		//then
+		assertThat(calculator)
+			.isEqualTo(new PayoutCalculator(new BigDecimal(20), new BigDecimal(50), new BigDecimal(50)));
+	}
+}
+----
+Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). To minimize the risk use different values. The following code shows this (also there is some refactoring done so the values are extracted as +static final+ fields):
+
+----
+TODO solution
+----
 
 == What You Want To Test?
 TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the number of users in DB has increased by 1.
