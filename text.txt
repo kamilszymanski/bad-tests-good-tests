@@ -481,7 +481,7 @@ public static Object[][] userPermissions() {
 }
 ----
 
-As you can see it connects three users (+user_1+, +user_2+, +user_3+) with some permissions (+READ+, +WRITE+, +DELETE+). Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting like: '"+user_3 was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually +user_3+ should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
+As you can see it connects three users (+user_1+, +user_2+, +user_3+) with some permissions (+READ+, +WRITE+, +DELETE+). Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting like: '"+user_3+ was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually +user_3+ should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
 
 And the cure? See below.
 
