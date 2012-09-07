@@ -558,9 +558,9 @@ TODO
 test with assertState but inline, and with less assertions.
 ----
 
-So far so good. Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written. '"Reuse is good"' you think and you do the most obvious thing - you create a private method and call it from both tests (and later from more tests).
+So far so good. Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written. '"Reuse is good"' you think and you do the most obvious thing - you create a +private+ method and call it from both tests (and later from more tests).
 
-And all is good, at least for some time. You write more tests still reusing this one assertion method. But soon you encounter problems. The assertions in the method are not exactly what you need in some particular test. They are very close to what you want, but not exactly. '"Reuse is good"' you say and make your private method more generic so it can handle more test cases. The result is presented below:
+And all is good, at least for some time. You write more tests still reusing this one assertion method. But soon you encounter problems. The assertions in the method are not exactly what you need in some particular test cases. They are very close to what you want, but not exactly. '"Reuse is good"' you say and make your private method more generic so it can handle more test cases. The result is presented below:
 
 ----
 TODO normal assertState() method
@@ -578,7 +578,7 @@ TODO rule of a thumb: whenever your assertions are growing beyond your safety li
 And how to come with good custom assertions method? My trick is simply to write it so I am happy while reading this. So, without actully having any custom assertion implemented I write a line like this in my test code:
 
 ----
-assertThat(client).isVip().and().hasDiscount(0.2)twitter
+assertThat(client).isVip().and().hasDiscount(0.2)
 ----
 
 And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
