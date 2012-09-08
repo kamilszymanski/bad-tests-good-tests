@@ -31,4 +31,16 @@ TODO make pseudocode fragments print well in html, PDF and ePub versions
 
 [float]
 ==== Icons
-TODO about icons - copy from the book
+The following icons appear within the text:
+
+TIP: A helpful tip.
+
+NOTE: An additional note.
+
+WARNING: Warning, danger ahead!
+
+All three icons were designed by Webdesigner Depot (http://www.webdesignerdepot.com/).
+
+[float]
+==== Book Site
+The official book site is on http://practicalunittesting.com. Please visit it for news and information on downloadable extras etc.
