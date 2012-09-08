@@ -531,9 +531,44 @@ Well, maybe you spotted it, but I hadn't when I worked with the code (ok, you kn
 
 TODO
 
-* do not make me learn the API
-  * statics
-  * builders
+=== What do True and False Stand For
+If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
+
+----
+server = new MockServer(responseMap, true,
+		new URL(SERVER_ROOT).getPort(), false);
+----
+This single line of code is responsible for creation of some +MockServer+. It is later used in test code.
+
+Nice, but what the heck does +true+ and +false+ mean here? What kind of server are we creating?
+
+Well, I do not expect you to have JavaDocs for +MockServer+ (which sounds like a utility class create especially for testing purposes), which means you need to browse the source code to find out. This is not a major problem (but may be - depending on the complexity of +MockServer+ class), however this is a nuissance. And it means that this test does not play the role of documentation very well. In order to understand the test case we need to browse another documents (i.e. source code). This is not a tragedy, but this is not good either.
+
+And what can we do about this? There are at least two options.
+
+First, we could create some static variables, with intention-revealing names, like this:
+
+----
+private static final boolean RESPONSE_IS_A_FILE = true;
+private static final boolean NO_SSL = false;
+
+server = new MockServer(responseMap, RESPONSE_IS_A_FILE,
+		new URL(SERVER_ROOT).getPort(), NO_SSL);
+
+----
+Now there is no doubt what kind of server is created. It does not use SSL and responds with a file. Better, isn't it? And we haven't had to work very hard to achieve this effect.
+
+Second approach requires some more work. Yeah, you guessed it already - we could use a test data builder idea and express very clearly what kind of server is required. For example like this:
+----
+server = new MockServerBuilder()
+		.withResponse(responseMap)
+		.withResponseType(FILE)
+		.withUrl(SERVER_ROOT)
+		.withoutSsl().create();
+----
+Is this approach better than the previous one? Definitely it requires more work. Probably the more complex, and more frequently created, the class in question is, the more benefit test data builders would bring us.
+
+TODO ref to test data builders chapter
 
 [[sec_should]]
 === Should is Better than Test
