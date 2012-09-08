@@ -236,6 +236,8 @@ public void shouldAddTimeZoneToModelAndView() {
 ----
 As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
 
+TIP: Excited that you can mock everything, huh? Slow down and make sure that you really need to verify interactions. Chances are you don't.
+
 [[sec_time_means_troubles]]
 == Time Means Troubles (Always!)
 TIP: As a rule *never* use +System.currentTimeMillis()+ or +new Date()+ in your production code. Add an additional layer of abstraction - e.g. a +DateTimeProvider+ interface will let you test your time-dependent methods with ease.
@@ -389,6 +391,8 @@ public void shouldRejectInvalidQueries(String invalidQuery) {
 TIP: Watch the method names. Are they intention-revealing?
 
 TIP: No logic in tests! Even the simplest one is evil!
+
+TODO another example: complex assertions
 
 [[sec_no_logic]]
 == Logic in Tests
@@ -736,8 +740,8 @@ should fix the code, not try to somehow test it
 TODO of course test-first is better
 
 == Randomness
-TODO ref Jaroslav Tulach
-TODO ref Carrot Search
+TODO ref Randomized Tests{empty}pass:[]footnote:[http://wiki.apidesign.org/wiki/RandomizedTests] by Jaroslav Tulach
+TODO ref RandomizedTesting{empty}pass:[]footnote:[http://labs.carrotsearch.com/randomizedtesting.html] by Carrot Search Labs
 
 == Help
 Send me your tests!
