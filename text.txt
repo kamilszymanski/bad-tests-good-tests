@@ -486,7 +486,26 @@ TODO solution
 == What You Want To Test?
 TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the number of users in DB has increased by 1.
 
-TODO copy from quizz.txt
+----
+@Test
+public void shouldAddAUser() {
+	User user = new User();
+	userService.save(user);
+	assertEquals(dao.getNbOfUsers(), 1);
+}
+----
+
+----
+@Test
+public void shouldAddAUser() {
+	int nb = dao.getNbOfUsers();
+	User user = new User();
+	userService.save(user);
+	assertEquals(dao.getNbOfUsers(), nb + 1);
+}
+----
+
+TODO
 
 TIP: Make sure the test does exactly what its (method) name promises.
 
