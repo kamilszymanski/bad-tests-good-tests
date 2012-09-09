@@ -153,40 +153,73 @@ TODO
 * master your tools (or at least learn the basics),
 * tests should inform about the reason they failed.
 
+////
 == Flickering Tests
 Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
 
 This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
 
 But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
+////
+
+== Hidden Dependencies Between Tests
+A rule of thumb is to keep tests independent from each other. If we forget about this we can bring serious problems on our heads.
 
 Let us have a look at the following example. The test presented below verifies whether log4j{empty}pass:[]footnote:[http://logging.apache.org/log4j/] configuration code works fine. If some system property (+logConfig+) is available, it should load file specified by this property. If the property is not set it should load some default values.
 
 ----
 LoggingPropertyConfigurator configurator 
-    = mock(LoggingPropertyConfigurator.class);
+	= mock(LoggingPropertyConfigurator.class);
 BaseServletContextListener baseServletContextListener 
-    = new BaseServletContextListener(configurator);
+	= new BaseServletContextListener(configurator);
 
-@Test public void shouldLoadDefaultProperties() {
-    baseServletContextListener.contextInitialized(null);
-    verify(configurator).configure(any(Properties.class));
+@Test
+public void shouldLoadDefaultProperties() {
+	baseServletContextListener.contextInitialized(null);
+	verify(configurator).configure(any(Properties.class));
 }
 
 @Test(expected = LoggingInitialisationException.class)
 public void shouldThrowLoggingException() {
-    System.setProperty("logConfig", "nonExistingFile");
-    baseServletContextListener.contextInitialized(null);
+	System.setProperty("logConfig", "nonExistingFile");
+	baseServletContextListener.contextInitialized(null);
 }
 ----
-This test used to be [green]#green# for months. Then, suddenly, it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time... The reason was, that this test relied on the order of execution. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was available in when +shouldLoadDefaultProperties+ test was executed, which altered the behaviour of SUT and made this test fail.
+This test used to be [green]#green# for months. Then, suddenly, it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time... The reason was, that this test relied on the order of execution. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was available when +shouldLoadDefaultProperties+ test was executed which altered the behaviour of SUT and made this test fail.
 
 And why did the order of execution changed? Well, it does not really matter. In general test frameworks do not guarantee the order of execution (unless you explicitely ask for it) so you should not rely on this.
 
-Now, how to fix it. Basically there are two solutions:
+TIP: Be extra cautious when modifying 'global state' (system properties, database etc.) in your tests. This can influence other tests.
 
-* clean +logConfig+ system property variable before +shouldLoadDefaultProperties+ is executed (if you have more test here then maybe putting this into some +setUp()+ method would be a good idea),
-* or imopse strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
+Now, how to fix it. Basically there are two solutions.
+
+First, you can imopse strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
+
+[role="pseudocode"]
+----
+@Test
+public void shouldLoadDefaultProperties() { ... }
+
+@Test(expected = LoggingInitialisationException.class,
+	dependesOnMethod = "shouldLoadDefaultProperties")
+public void shouldThrowLoggingException() { ... }
+----
+
+This works as long as there are no more tests which outcome also depend on the value of +logConfig+ system property. If such tests are added you need to remember to also specify their relation (their depedency) to these existing tests.
+
+Another option is to clean +logConfig+ system property variable before +shouldLoadDefaultProperties+ is executed (if you have more test here then maybe putting this into some +setUp()+ method would be a good idea),
+
+[role="pseudocode"]
+----
+@BeforeMethod
+public void cleanSystemProperties() {
+	System.setProperty("logConfig", null);
+}
+
+// the rest of the code remains unchanged
+----
+
+TIP: Keep your tests independent from each other. Or at least make the dependency explicit!
 
 == Mock'em All!
 [quote, Abraham Maslow]
