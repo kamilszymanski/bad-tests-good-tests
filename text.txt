@@ -162,7 +162,7 @@ This can really turn your hair grey! Usually, such indeterministic behaviour is 
 But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
 ////
 
-== Hidden Dependencies Between Tests
+== Do Not Modify Global State
 A rule of thumb is to keep tests independent from each other. If we forget about this we can bring serious problems on our heads.
 
 Let us have a look at the following example. The test presented below verifies whether log4j{empty}pass:[]footnote:[http://logging.apache.org/log4j/] configuration code works fine. If some system property (+logConfig+) is available, it should load file specified by this property. If the property is not set it should load some default values.
