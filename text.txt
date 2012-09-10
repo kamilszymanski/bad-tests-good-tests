@@ -483,8 +483,8 @@ Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumSha
 TODO solution
 ----
 
-== What You Want To Test?
-TODO integration DB test - adding user, checking if there is one - works fine with rollback (no it does not, because one day you need to add some users to the system, so there is always at least one in the database and it stops working), but then the need occurs to add a "fake" user for some specific purposes - your tests need to be rewritten. The thing is you verified the wrong thing. You verified if there is exactly one user in DB, when in fact what should be verified is whether the number of users in DB has increased by 1.
+== Database Assumptions
+Take a look at this test:
 
 ----
 @Test
@@ -495,6 +495,17 @@ public void shouldAddAUser() {
 }
 ----
 
+Well, the test looks like an integration test (seems like +userService+ and +dao+ talk with real database), which adds a new user to the database.
+
+What is bothering me here is that:
+
+1. it does not really verify if the user was added,
+2. it makes some assumptions regarding the state of the database before it is executed,
+
+Regarding the first point, this should be probably done by verifying that the user in the database is equal to the +user+ object. This can be straigforward provided that +userService+ or +dao+ provides appropriate method(s) to fetch the user, or can require much more work (e.g. writing custom JDBC queries directly to database and parsing results in your test code... yuck!).
+
+As for the second issue the solution is quite simple - replace absolute values with relative ones:
+
 ----
 @Test
 public void shouldAddAUser() {
@@ -504,8 +515,13 @@ public void shouldAddAUser() {
 	assertEquals(dao.getNbOfUsers(), nb + 1);
 }
 ----
+Now the content of the test method reflects its name (+shouldAddUser+). Good.
 
-TODO
+And BTW. I believe that in many cases such check is good enough to make sure that the user was really added to the database (without really checking whether it is exactly the same user - which should be the case provided that your services and daos are performing simple CRUD operations).
+
+It happened that the assumption on database state (i.e. the assumption that there are no users at all) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases, do not show them on reports etc.). After creating a database patch we observerd (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all.
+
+TIP: Do not make assumptions about the database content. Use relative rather than absolute values.
 
 TIP: Make sure the test does exactly what its (method) name promises.
 
