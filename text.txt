@@ -535,7 +535,7 @@ Let me stress one thing though. Such tests are not evil. There is nothing wrong 
 TODO what example here?
 
 == Naming is the King
-This one is interesting, because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests, we do it much worse. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
+This is interesting because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
 
 The first example presents a simple case of a test related to permission-checking module. The next listing shows a small fragment of this test - a data provider which feeds test methods with data.
 
@@ -576,10 +576,17 @@ A guest can only read, logged users can also write, and admin has all permission
 Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
 
 ----
-TODO
+Domain domain1 = daoTestHelper.someUtilityMethodWhichCreatesDomain(...)
+daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain1, "PL", 1);
+daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain1, "US", 1);
+Domain domain2 = daoTestHelper.someUtilityMethodWhichCreatesDomain(...)
+daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain2, "PL", 4);
+daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain2, "US", 8);
+
+// and so on till domain5 or so
 ----
 
-What I hate about this are the names of domain objects suffixed with numbers. They bring no information about the state (role, properties) of the objects and make assertions quite mysterious:
+What I hate about this are the names of domain objects suffixed with numbers (+domain1+, +domain2+ etc.). They bring no information about the state (role, properties) of the objects and make assertions quite mysterious:
 
 ----
 TODO assertion message here
