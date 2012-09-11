@@ -15,6 +15,8 @@ TODO What you should know.
 
 TODO not "bad" but rather "imperfect"
 
+TODO about the idea of the book - only "bad" tests that I have seen myself
+
 To really benefit from reading this book you should:
 
 * have some experience in writing tests, especially unit tests,
@@ -359,7 +361,7 @@ public void shouldAddTimestampToGeneratedUrl() {
 
 TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl+ method does not use mocks but a stub only!].
 
-== TODO SRP for Tests
+== SRP for Tests
 We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[SRP, see http://en.wikipedia.org/wiki/Single_responsibility_principle], which basically says that every class should take care of one thing. I think it is very valuable to think about tests in terms of SRP. In case of tests, each test method should conform to the following rule: '"Each test method should verify one scenario"'.
 
 Why? Because:
@@ -390,7 +392,8 @@ At the first sight, it may seem like the test is really focused on one thing (on
 
 * its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
 ** also the name of data provider - +data+ - smells really bad,
-* it has some kind of logic: assertions depends on passed +expected+ boolean flag (see <<sec_no_logic>>).
+* it has some kind of logic: assertions depends on passed +expected+ boolean flag.
+//(see <<sec_no_logic>>).
 
 To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what fuctionality of my software is broken just by reading the ame of the failed test method?"'.
 
@@ -425,23 +428,20 @@ TIP: Watch the method names. Are they intention-revealing?
 
 TIP: No logic in tests! Even the simplest one is evil!
 
-TODO another example: complex assertions
+TODO would be nice to have some other examples of this - not everyone uses data providers / parameterized tests
 
+////
 [[sec_no_logic]]
 == Logic in Tests
-TODO
+TODO need some good examples of this
 
 avoid by using some features of your testing framework - annotations data provider instead of for loops (TODO ref) and concurrent with annotations
 
 TODO refer to SRP - boolean is also kind of logic
+////
 
 == Use Smart Values
-Try to minimize the risk of having your tests pass by accident. And always work to imporve the readability.
-
-TODO
-
-* use of 2's power
-* do not use same values, because you will not know if it works well or not
+Try to minimize the risk of having your tests pass by accident. And always work to improve the readability.
 
 Let us consider the following factory method:
 
@@ -480,8 +480,31 @@ public class PayoutCalculatorFactoryTest {
 Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). To minimize the risk use different values. The following code shows this (also there is some refactoring done so the values are extracted as +static final+ fields):
 
 ----
-TODO solution
+public class PayoutCalculatorFactoryTest {
+	PayoutSettingsService settings = mock(PayoutSettingsService.class);
+	
+	private static final BigDecimal MIN_MARGIN = new BigDecimal(20);
+	private static final BigDecimal MAX_MARGIN = new BigDecimal(30);
+	private static final BigDecimal PREMIUM_SHARE = new BigDecimal(40);
+
+	@Test
+	public void shouldCreatePayoutCalculator() {
+		//given
+		given(settings.getMinMargin()).willReturn(MIN_MARGIN);
+		given(settings.getMaxMargin()).willReturn(MAX_MARGIN);
+		given(settings.getPremiumShare()).willReturn(PREMIUM_SHARE);
+
+		//when
+		PayoutCalculator calculator = new PayoutCalculatorFactory(settings).create();
+
+		//then
+		assertThat(calculator)
+			.isEqualTo(new PayoutCalculator(MIN_MARGIN, MAX_MARGIN, PREMIUM_SHARE);
+	}
+}
 ----
+
+TIP: Avoid using same numbers/strings for different variables/properties in your tests method! Often power of 2 are quite convenient (they do not sum up to each other easily).
 
 == Database Assumptions
 Take a look at this test:
