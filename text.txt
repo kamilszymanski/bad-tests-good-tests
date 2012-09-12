@@ -392,10 +392,14 @@ At the first sight, it may seem like the test is really focused on one thing (on
 
 * its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
 ** also the name of data provider - +data+ - smells really bad,
-* it has some kind of logic: assertions depends on passed +expected+ boolean flag.
+* it has some kind of logic: assertions depends on passed +expected+ boolean flag,
+* a "generic" assertion - +assertEquals+ - is used to verify the outcome.
+
 //(see <<sec_no_logic>>).
 
-To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what fuctionality of my software is broken just by reading the ame of the failed test method?"'.
+To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what fuctionality of my software is broken just by reading the name of the failed test method?"'.
+
+Here is the same tests (meaning, test which verifies exactly the same scenarios) but divided into two parts:
 
 ----
 @DataProvider
@@ -408,9 +412,7 @@ public Object[][] validQueries() {
 public void shouldRecognizeValidQueries(String validQuery) {
 	assertTrue(FieldVerifier.isValidQuery(validQuery));
 }
-----
 
-----
 @DataProvider
 public Object[][] invalidQueries() {
 	return new Object[][] { 
@@ -423,6 +425,7 @@ public void shouldRejectInvalidQueries(String invalidQuery) {
 	assertFalse(FieldVerifier.isValidQuery(invalidQuery));
 }
 ----
+This version is longer, but more readable, easier to understand (no boolean flag), and it follows the SRP rule. What I really like here are the names - all of them describe very well the purpose of elements. We have a data provider which provides +validQueries+, and a test method which takes +validQuery+ as a parameter.
 
 TIP: Watch the method names. Are they intention-revealing?
 
