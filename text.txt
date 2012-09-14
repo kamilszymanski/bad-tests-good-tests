@@ -361,6 +361,7 @@ public void shouldAddTimestampToGeneratedUrl() {
 
 TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl+ method does not use mocks but a stub only!].
 
+[[sec_srp]]
 == SRP for Tests
 We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[SRP, see http://en.wikipedia.org/wiki/Single_responsibility_principle], which basically says that every class should take care of one thing. I think it is very valuable to think about tests in terms of SRP. In case of tests, each test method should conform to the following rule: '"Each test method should verify one scenario"'.
 
@@ -431,7 +432,32 @@ TIP: Watch the method names. Are they intention-revealing?
 
 TIP: No logic in tests! Even the simplest one is evil!
 
-TODO would be nice to have some other examples of this - not everyone uses data providers / parameterized tests
+// TODO would be nice to have some other examples of this - not everyone uses data providers / parameterized tests
+
+And now, a counter example. Yes, after I have tried to convince you that it is good to split tests into smaller ones (each testing a unique test case), I will show an example of the opposite approach.
+
+Take a look at the test method below:
+
+----
+TODO CW CampaignBid/shouldRecognizeDomain
+----
+
+It verifies two things, namely:
+
+* whether +CampaignBid+ is capable of recognizing the same domain (which it was constructed with - I haven't presented the constructor, but it takes +Domain+ as one of parameters),
+* whether +CampaignBid+ is capable of recognizing domains which are different from the one it was constructed with.
+
+Should we split it in two tests then? My answer is no.
+
+In contrast to the previous example, there are not many cases to test here, so the test method is very concise and simple to understand. In other words, the size of this method (taking into account the number of test cases it verifies, not only number of lines it has) has not exceeded my private safety limit. And thus, I do not feel like having two testing methods instead.
+
+But if you feel differently, then here comes the two-methods version:
+
+----
+TODO
+----
+
+TIP: Rules are to be broken. ;)
 
 ////
 [[sec_no_logic]]
@@ -679,6 +705,11 @@ TODO ref to test data builders chapter
 === Should is Better than Test
 * the names of test methods
 TODO in relation to "test behaviour not methods"
+
+TODO testOperation example
+TODO testQuery example - breaks SRP <<sec_srp>>
+
+Take a look at this example. As the method name says it '"tests query"'. 
 
 == Say No to Complex Assertions
 TODO example from domain1 where for loop was used to get the data to be asserted
