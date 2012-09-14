@@ -195,7 +195,7 @@ TIP: Be extra cautious when modifying 'global state' (system properties, databas
 
 Now, how to fix it. Basically there are two solutions.
 
-First, you can imopse strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
+First, you can impose strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
 
 [role="pseudocode"]
 ----
@@ -235,17 +235,17 @@ The code below intends to verify whether some data is added to +modelAndView+ ob
 ----
 @Test
 public void shouldAddTimeZoneToModelAndView() {
-  //given
-  UserFacade userFacade = mock(UserFacade.class);
-  ModelAndView modelAndView = mock(ModelAndView.class);
-  given(userFacade.getTimezone()).willReturn("timezone X");
+	//given
+	UserFacade userFacade = mock(UserFacade.class);
+	ModelAndView modelAndView = mock(ModelAndView.class);
+	given(userFacade.getTimezone()).willReturn("timezone X");
 
-  //when
-  new UserDataInterceptor(userFacade)
-    .postHandle(null, null, null, modelAndView);
+	//when
+	new UserDataInterceptor(userFacade)
+		.postHandle(null, null, null, modelAndView);
 
-  //then
-  verify(modelAndView).addObject("timezone", "timezone X"); 
+	//then
+	verify(modelAndView).addObject("timezone", "timezone X"); 
 }
 ----
 This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called!
@@ -256,17 +256,17 @@ Below you can see an improved version of this test. It treates SUT more like a b
 ----
 @Test
 public void shouldAddTimeZoneToModelAndView() {
-  //given
-  UserFacade userFacade = mock(UserFacade.class);
-  ModelAndView modelAndView = new ModelAndView();
-  given(userFacade.getTimezone()).willReturn("timezone X");
+	//given
+	UserFacade userFacade = mock(UserFacade.class);
+	ModelAndView modelAndView = new ModelAndView();
+	given(userFacade.getTimezone()).willReturn("timezone X");
 
-  //when
-  new UserDataInterceptor(userFacade)
-      .postHandle(null, null, null, modelAndView);
+	//when
+	new UserDataInterceptor(userFacade)
+		.postHandle(null, null, null, modelAndView);
 
-  //then
-  assertThat(modelAndView).contains("timezone", "timezone X");
+	//then
+	assertThat(modelAndView).contains("timezone", "timezone X");
 }
 ----
 As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
@@ -298,19 +298,19 @@ But let us see a real, slightly more subtle example. Let us take a look at this 
 
 ----
 public String getUrl(User user, String timestamp) {
-    String name=user.getFullName();
+	String name=user.getFullName();
 
-    String url=baseUrl
-        +"name="+URLEncoder.encode(name, "UTF-8")
-        +"&timestamp="+timestamp;
-    return url;
+	String url=baseUrl
+		+"name="+URLEncoder.encode(name, "UTF-8")
+		+"&timestamp="+timestamp;
+	return url;
 }
 
 public String getUrl(User user) {
-    Date date=new Date();
-    Long time=(date.getTime()/1000); //convert ms to seconds
-    String timestamp=time.toString();
-    return getZendeskUrl(user, timestamp);
+	Date date=new Date();
+	Long time=(date.getTime()/1000); //convert ms to seconds
+	String timestamp=time.toString();
+	return getZendeskUrl(user, timestamp);
 }
 ----
 
