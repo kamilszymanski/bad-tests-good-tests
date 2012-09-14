@@ -1,6 +1,14 @@
 // TODO all source code with tabs
 
-TODO about the author
+[preface]
+About the Author
+----------------
+
+*Tomek Kaczanowski* is a technical team leader from Krakow, Poland. He has a strong interest in code quality, testing and automation - preferably all three together. Combining technical with soft skills, he also ventures into the realms of mentoring, teaching, lecturing and article writing, not to mention preaching sermons to the unconverted in the hope of redeeming them (or at least their code)! He hates doing things manually, and is allergic to empty +src/test/java+ directories.
+
+Tomek believes that by working with legacy code, and improving it, he can make the world a better place. To his disappointment, the world does not seem to care all that much about his efforts.
+
+Apart from all this weirdness, he is a pretty normal person – a husband, father of two, and cat owner.
 
 Content
 -------
