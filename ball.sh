@@ -14,10 +14,11 @@ echo "VERSION: $VER"
 
 rm -r $TARGET/bad_tests_*.*
 rm -f $TARGET/*.html
-rm -rf $TARGET/img
+rm -rf $TARGET/images
 rm -rf $TARGET/book_*
-mkdir -p $TARGET/img
-cp $BOOKDIR/images/*.png $TARGET/img
+mkdir -p $TARGET/images
+cp $SRCDIR/images/*.png $TARGET/images
+cp $SRCDIR/images/*.jpg $TARGET/images
 
 echo ""
 echo "HTML"
