@@ -660,7 +660,10 @@ TODO
 
 Well, maybe you spotted it, but I hadn't when I worked with the code (ok, you knew there is something wrong there, and I hadn't). Only when I started renaming thing I noticed that +domain3+ is used where +domain4+ should had been used. It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result), but still it illustrates very well what happens if all variables names differ only so slightly. It is very simple to mix things up.
 
-TODO
+TODO img
+
+.Conclusion
+It is the same like with classes. At first you begin with useless names like +ClientDAOImpl+ but then you learn that you can have much more intention-revealing names. +HibernateClientDAO+, +InMemoryClientDAO+, +HighPerformanceClientDAO+ or whatever describes this particular implementation. There is always something to say about your class. I believe the same applies to the variables used in tests. I often start with +campaignA+ and +campaignB+ but then it occuress to me that these should be really +campaign+ and +campaignWithSameAdvertiser+ (while in other test method I have +campaign+ and +campaignWithDifferentAdvertiser+). Try it, it makes your test code so much more readable!
 
 === What do True and False Stand For
 If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
