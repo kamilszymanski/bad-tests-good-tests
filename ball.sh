@@ -16,13 +16,16 @@ rm -r $TARGET/bad_tests_*.*
 rm -f $TARGET/*.html
 rm -rf $TARGET/images
 rm -rf $TARGET/book_*
-mkdir -p $TARGET/images
+mkdir -p $TARGET/images/icons
+mkdir -p $TARGET/images/icons_html
 cp $SRCDIR/images/*.png $TARGET/images
 cp $SRCDIR/images/*.jpg $TARGET/images
+cp $SRCDIR/images/icons/*.png $TARGET/images/icons
+cp $SRCDIR/images/icons_html/*.png $TARGET/images/icons_html
 
 echo ""
 echo "HTML"
-asciidoc -a icons -d book -a toc2 -a toclevels=3 -n -o $TARGET/book.html $MAIN_FILE
+asciidoc -a icons -a iconsdir=images/icons_html -d book -a toc2 -a toclevels=3 -n -o $TARGET/book.html $MAIN_FILE
 
 echo ""
 echo "DOCBOOK"
