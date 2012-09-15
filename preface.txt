@@ -39,8 +39,8 @@ NOTE: An additional note.
 
 WARNING: Warning, danger ahead!
 
-All three icons were designed by Webdesigner Depot (http://www.webdesignerdepot.com/).
+All three icons were designed by http://www.webdesignerdepot.com/[Webdesigner Depot].
 
 [float]
 ==== Book Site
-The official book site is on http://practicalunittesting.com. Please visit it for news and information on downloadable extras etc.
+Please visit the TODO http://practicalunittesting.com[official book site] for news and information on downloadable extras etc.
