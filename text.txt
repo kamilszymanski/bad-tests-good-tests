@@ -873,6 +873,29 @@ All this does not mean that the nasty low-level details have miracouleously vani
 TODO
 ----
 
+== Asserting Too Much
+TODO comparison of objects with +equals+
+TODO csv lines comparison
+
+----
+TODO does not seem like a test to me
+public void invalidTxShouldBeCanceled() {
+	String fileContent = 
+		FileUtils.getContentOfFile("response.csv");
+	assertTrue(fileContent.contains(
+		"CANCEL,123,123cancel,billing_id_123_cancel,SUCCESS,"));
+}
+----
+
+----
+public void invalidTxShouldBeCanceled() {
+	String fileContent = 
+		FileUtils.getContentOfFile("response.csv");
+	TxDTOAssert.assertThat(fileContent)
+		.hasTransaction("123cancel").withResultCode(SUCCESS);
+}
+----
+
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
 
