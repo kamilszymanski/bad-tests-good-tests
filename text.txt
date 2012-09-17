@@ -25,7 +25,7 @@ TODO not "bad" but rather "imperfect"
 
 TODO about the idea of the book - only "bad" tests that I have seen myself  - some advices repeat/overlap with each other
 
-TODO SUT used from time to time
+From time to time I use term 'SUT' which denotes 'System Under Test', that is the thing being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
 
 To really benefit from reading this book you should:
 
