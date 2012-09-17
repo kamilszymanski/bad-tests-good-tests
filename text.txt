@@ -23,7 +23,9 @@ TODO What you should know.
 
 TODO not "bad" but rather "imperfect"
 
-TODO about the idea of the book - only "bad" tests that I have seen myself
+TODO about the idea of the book - only "bad" tests that I have seen myself  - some advices repeat/overlap with each other
+
+TODO SUT used from time to time
 
 To really benefit from reading this book you should:
 
@@ -875,26 +877,35 @@ TODO
 
 == Asserting Too Much
 TODO comparison of objects with +equals+
-TODO csv lines comparison
+
+Take a look at this test. Only the last lines of it are presented, but believe me - it was a really complicated end-to-end test. It involved the SUT (the whole system) receive some requests and generate answers in form of CSV files.
 
 ----
-TODO does not seem like a test to me
 public void invalidTxShouldBeCanceled() {
+	... some complicated test here
+
+	// then
 	String fileContent = 
 		FileUtils.getContentOfFile("response.csv");
 	assertTrue(fileContent.contains(
 		"CANCEL,123,123cancel,billing_id_123_cancel,SUCCESS,"));
 }
 ----
+Look at the method name - +invalidTxShouldBeCanceled+ (hint: 'Tx' stands for 'transaction') - and at the assertion made. Hm, do they match? Do you feel like the assertion really verifies if the invalid transaction was canceled? Well, it probably does, but it seem to test much more than this. In fact it verifies if the answer about the outcome of transaction processing was given according to some format of data.
 
+Another variant, which I would recommend, relies on - surprise, surprise! - custom annotations.
 ----
 public void invalidTxShouldBeCanceled() {
+	... some complicated test here
+
+	// then
 	String fileContent = 
 		FileUtils.getContentOfFile("response.csv");
 	TxDTOAssert.assertThat(fileContent)
 		.hasTransaction("123cancel").withResultCode(SUCCESS);
 }
 ----
+I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfuly (meaning, the cancelation of this transaction succeeded)'. 
 
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
