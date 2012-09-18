@@ -907,6 +907,62 @@ public void invalidTxShouldBeCanceled() {
 ----
 I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfuly (meaning, the cancelation of this transaction succeeded)'. 
 
+== Avoid Overspecified Tests
+The code below - copied from Mockito mailing list - is definitely breaking one of the rules of mocking: "mock only types you own". But what it also does is that it is so very detailed that it describes every single bit of the production code (I say it without actually seeing the production code, but I bet this is the case!). This is bad. The test code is so tightly coupled to implementation that you can't introduce any changes there without breaking it.
+
+And what does it really test? Well, everything and nothing at all at the same time. It verifies all the interactions between the SUT and its collaborators, but it even goes further: it stubs the SUT and then it verifies if it was stubbed! This is really useless unless your goal is to test Mockito's stubbing abilities (do not do that, thousands of people has already proved Mockito works fine!).
+
+----
+@Mock
+private DataSource dataSource;
+
+@Mock
+private Mock connection;
+
+@Mock
+private Mock statement;
+
+@Mock
+private ResultSet resultSet;
+
+@Test
+public void test() throws Exception{
+	MockitoAnnotations.initMocks(this);
+	systemUnderTest = new OracleDAOImpl();
+	systemUnderTest.setDBConnectionManager(connectionManager);
+	Set<NACustomerDTO> set = new HashSet<NACustomerDTO>();
+	when(connectionManager.getDataSource()).thenReturn(dataSource);
+	when(dataSource.getConnection()).thenReturn(connection);
+	when(connection.createStatement()).thenReturn(statement);
+	when(statement.executeQuery(anyString())).thenReturn(resultSet);
+	when(resultSet.next()).thenReturn(false);
+	when(resultSet.getLong(1)).thenReturn(1L);
+	when(resultSet.getString(2)).thenReturn("7178");
+       
+	doNothing().when(resultSet).close();
+       
+	stub(systemUnderTest.getNACustomers()).toReturn(set); <1>
+	final Set<NACustomerDTO> result = systemUnderTest.getNACustomers();
+       
+ 	verify(connectionManager).getDataSource();
+ 	verify(dataSource).getConnection();
+ 	verify(connection).createStatement();
+	verify(statement).executeQuery(anyString());
+	verify(resultSet).next();
+	verify(resultSet).getLong(1);
+	verify(resultSet).getString(2);
+       
+	assertNotNull(result); <2>
+       
+	//verify(connectionManager).getDataSource().getConnection();
+	 verify(connectionManager).getDataSource().getConnection();
+}
+----
+<1> Stubbing of the SUT.
+<2> This line verifies whether the stubbing was successful.
+
+TIP: Writing test for exisiting code is *NOT* about repeating it line by line!
+
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
 
