@@ -17,11 +17,12 @@ rm -f $TARGET/*.html
 rm -rf $TARGET/images
 rm -rf $TARGET/book_*
 mkdir -p $TARGET/images/icons
-mkdir -p $TARGET/images/icons_html
+mkdir -p $TARGET/images/icons_html/callouts
 cp $SRCDIR/images/*.png $TARGET/images
 cp $SRCDIR/images/*.jpg $TARGET/images
 cp $SRCDIR/images/icons/*.png $TARGET/images/icons
 cp $SRCDIR/images/icons_html/*.png $TARGET/images/icons_html
+cp $SRCDIR/images/icons_html/callouts/*.png $TARGET/images/icons_html/callouts
 
 echo ""
 echo "HTML"
