@@ -913,20 +913,16 @@ The code below - copied from Mockito mailing list - is definitely breaking one o
 And what does it really test? Well, everything and nothing at all at the same time. It verifies all the interactions between the SUT and its collaborators, but it even goes further: it stubs the SUT and then it verifies if it was stubbed! This is really useless unless your goal is to test Mockito's stubbing abilities (do not do that, thousands of people has already proved Mockito works fine!).
 
 ----
-@Mock
-private DataSource dataSource;
+@Mock private DataSource dataSource;
 
-@Mock
-private Mock connection;
+@Mock private Mock connection;
 
-@Mock
-private Mock statement;
+@Mock private Mock statement;
 
-@Mock
-private ResultSet resultSet;
+@Mock private ResultSet resultSet;
 
 @Test
-public void test() throws Exception{
+public void test() throws Exception {
 	MockitoAnnotations.initMocks(this);
 	systemUnderTest = new OracleDAOImpl();
 	systemUnderTest.setDBConnectionManager(connectionManager);
@@ -954,8 +950,7 @@ public void test() throws Exception{
        
 	assertNotNull(result); <2>
        
-	//verify(connectionManager).getDataSource().getConnection();
-	 verify(connectionManager).getDataSource().getConnection();
+	verify(connectionManager).getDataSource().getConnection();
 }
 ----
 <1> Stubbing of the SUT.
