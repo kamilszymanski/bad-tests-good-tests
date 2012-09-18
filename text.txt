@@ -675,6 +675,7 @@ TODO img
 .Conclusion
 It is the same like with classes. At first you begin with useless names like +ClientDAOImpl+ but then you learn that you can have much more intention-revealing names. +HibernateClientDAO+, +InMemoryClientDAO+, +HighPerformanceClientDAO+ or whatever describes this particular implementation. There is always something to say about your class. I believe the same applies to the variables used in tests. I often start with +campaignA+ and +campaignB+ but then it occuress to me that these should be really +campaign+ and +campaignWithSameAdvertiser+ (while in other test method I have +campaign+ and +campaignWithDifferentAdvertiser+). Try it, it makes your test code so much more readable!
 
+[[sec_intention_revealing]]
 === What do True and False Stand For
 If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
 
@@ -719,10 +720,76 @@ TODO ref to test data builders chapter
 * the names of test methods
 TODO in relation to "test behaviour not methods"
 
-TODO testOperation example
-TODO testQuery example - breaks SRP <<sec_srp>>
+Take a look at the following example (looks like Groovy judging by the lack of semicolons):
+----
+@Test
+public void testOperation() {
+	configureRequest("/validate")
+	rc = new RequestContext(parser, request)
+	assert rc.getConnector() == null
+	assert rc.getOperation().equals("validate")
+}
+----
+Now what is the purpose of this test? The name says it should +testOperation+ which is rather vague. What kind of operation? What behaviour is expected? I do not understand this test, but I think it more about testing of +validate+ requests and not about some +operation+.
+
+The thing is, that the documentational value of this test is zero, or even less. It rather brings confusion than clarifies anything.
 
 Take a look at this example. As the method name says it '"tests query"'. 
+
+----
+@Test
+public void testQuery(){
+	when(q.getResultList()).thenReturn(null);
+	assertNull(dao.findByQuery(Transaction.class, q, false));
+	assertNull(dao.findByQuery(Operator.class, q, false));
+	assertNull(dao.findByQuery(null, null, false));
+
+	List result = new LinkedList();
+	when(q.getResultList()).thenReturn(result);
+	assertEquals(dao.findByQuery(Transaction.class, q, false), result);
+	assertEquals(dao.findByQuery(Operator.class, q, false), result);
+	assertEquals(dao.findByQuery(null, null, false), null);
+
+	when(q.getSingleResult()).thenReturn(null);
+	assertEquals(dao.findByQuery(Transaction.class, q, true).size(), 0);
+	assertEquals(dao.findByQuery(Operator.class, q, true).size(), 0);
+	assertEquals(dao.findByQuery(null, null, true), null);
+
+	when(q.getSingleResult()).thenReturn(t);
+	assertSame(dao.findByQuery(Transaction.class, q, true).get(0), t);
+	when(q.getSingleResult()).thenReturn(o);
+	assertSame(dao.findByQuery(Operator.class, q, true).get(0), o);
+	when(q.getSingleResult()).thenReturn(null);
+	assertSame(dao.findByQuery(null, null, true), null);
+}
+----
+This test definitely breaks SRP (see <<sec_srp>>) and uses some magical switches (who tells me what +true+ and +false+ stand for? - see <<sec_intention_revealing>>) but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
+
+I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull+ or with +shouldReturnSingleValueReturnedByDao+ and so on, but you won't end up with +shouldTestQuery+ unless you are really trying to anger me. ;)
+
+So the test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think this are the best tests ever written...):
+
+----
+public void shouldReturnNullListWhenDaoReturnsNull {
+	....
+}
+
+public void shouldReturnEmptyListWhenDaoReturnsIt {
+	....
+}
+
+public void shouldReturnNullSingleResultWhenDaoReturnsNull {
+	....
+}
+
+public void shouldReturnSingleResultReturnedByDao {
+	....
+}
+----
+
+TIP: Start with +should+. Think about scenario. Do not use +test+ prefix.
+
+TIP: Using +q+, +o+ and +t+ for variable names is a bad idea.
 
 == Say No to Complex Assertions
 TODO example from domain1 where for loop was used to get the data to be asserted
