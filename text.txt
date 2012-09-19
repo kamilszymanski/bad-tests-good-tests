@@ -1060,6 +1060,12 @@ public void test() throws Exception {
 
 TIP: Writing test for exisiting code is *NOT* about repeating it line by line!
 
+Ok, that would be unfair to leave this test like this. I think we deserve at least few hints about testing your DAO layer.
+
+The rule of thumb is, that your DAOs are something you should rather not unit test. Why? Because there is usually no logic there (DAO should be a thin wrapper over database stuff). Instead have integration tests which set up a real database. If your DAO is not vendor-specific, it can be any database which is convenient for testig - e.g. H2{empty}pass:[]footnote:[http://www.h2database.com]. Then verify that the entites inserted and fetched by your DAOs are what you expect them to be. Concentrate on the complicated stuff (provided that your DAO layer have such). Do not test simple CRUD functionality that your ORM is doing for you (if there is something wrong here - which is very unlikely - you will find out when running end-to-end tests).
+
+TIP: Go search on http://stackoverflow.com/search?q=dao%20testing[Stack Overflow] for '"dao testing"' - you will find many good tips there.
+
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
 
