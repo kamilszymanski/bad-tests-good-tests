@@ -449,7 +449,19 @@ And now, a counter example. Yes, after I have tried to convince you that it is g
 Take a look at the test method below:
 
 ----
-TODO CW CampaignBid/shouldRecognizeDomain
+@Test
+public void shouldRecognizeSameCampaign() {
+	//given
+	Campaign otherCampaign = mock(Campaign.class);
+	Campaign campaign = mock(Campaign.class);
+
+	//when
+	CampaignBid cBid = new CampaignBid(campaign, VALID_BID);
+
+	//then
+	assertThat(cBid.hasSameCampaign(otherCampaign)).isFalse();
+	assertThat(cBid.hasSameCampaign(campaign)).isTrue();
+}
 ----
 
 It verifies two things, namely:
@@ -461,10 +473,33 @@ Should we split it in two tests then? My answer is no.
 
 In contrast to the previous example, there are not many cases to test here, so the test method is very concise and simple to understand. In other words, the size of this method (taking into account the number of test cases it verifies, not only number of lines it has) has not exceeded my private safety limit. And thus, I do not feel like having two testing methods instead.
 
-But if you feel differently, then here comes the two-methods version:
+Let us have a look at two-methods version for comparison:
 
 ----
-TODO
+@Test
+public void shouldRecognizeSameCampaign() {
+	//given
+	Campaign campaign = mock(Campaign.class);
+
+	//when
+	CampaignBid cBid = new CampaignBid(campaign, VALID_BID);
+
+	//then
+	assertThat(cBid.hasSameCampaign(campaign)).isTrue();
+}
+
+@Test
+public void shouldRecognizeDifferentCampaign() {
+	//given
+	Campaign otherCampaign = mock(Campaign.class);
+	Campaign campaign = mock(Campaign.class);
+
+	//when
+	CampaignBid cBid = new CampaignBid(campaign, VALID_BID);
+
+	//then
+	assertThat(cBid.hasSameCampaign(otherCampaign)).isFalse();
+}
 ----
 
 TIP: Rules are to be broken. ;)
