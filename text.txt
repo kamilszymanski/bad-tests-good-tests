@@ -926,6 +926,8 @@ TIP: Let your tests speak with domain language, not in implementation terms.
 
 [[sec_assertions_vs_private_methods]]
 === Avoid Assertions using Private Methods
+TODO assertions from Martin which were hard to undrestand
+
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
 
 ----
