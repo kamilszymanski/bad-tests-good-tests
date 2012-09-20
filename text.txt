@@ -555,7 +555,8 @@ public class PayoutCalculatorFactoryTest {
 
 		//then
 		assertThat(calculator)
-			.isEqualTo(new PayoutCalculator(new BigDecimal(20), new BigDecimal(50), new BigDecimal(50)));
+			.isEqualTo(new PayoutCalculator(new BigDecimal(20), 
+			new BigDecimal(50), new BigDecimal(50)));
 	}
 }
 ----
@@ -760,8 +761,9 @@ TODO ref to test data builders chapter
 
 [[sec_should]]
 === Should is Better than Test
-* the names of test methods
-TODO in relation to "test behaviour not methods" <<sec_test_behaviour>>
+Once upon a time, where His Majesty King JUnit the Third ruled the land of Java testing, we were all forced to prefix our test methods with +test+ word. Somehow this custom survived the death of the king{empty}pass:[]footnote:[Some people says it was his younger brother - JUnit the Fourth - who killed him. Others say it was barbarians from TestNG who did this. Whatever. He is dead. Period.]. Which is really troublesome as we will soon see.
+
+// TODO in relation to "test behaviour not methods" <<sec_test_behaviour>>
 
 Take a look at the following example (looks like Groovy judging by the lack of semicolons):
 ----
