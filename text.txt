@@ -509,6 +509,10 @@ public void shouldRecognizeDifferentCampaign() {
 TIP: Rules are to be broken. ;)
 
 ////
+another SRP-violating example: http://stackoverflow.com/questions/4152539/how-do-i-test-exceptions-in-a-parameterized-test
+////
+
+////
 [[sec_no_logic]]
 == Logic in Tests
 TODO need some good examples of this
@@ -804,7 +808,13 @@ public void testQuery(){
 	assertSame(dao.findByQuery(null, null, true), null);
 }
 ----
-This test definitely breaks SRP (see <<sec_srp>>) and uses some magical switches (who tells me what +true+ and +false+ stand for? - see <<sec_intention_revealing>>) but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
+This test:
+
+* definitely breaks SRP (see <<sec_srp>>),
+* uses some magical switches (who tells me what +true+ and +false+ stand for? - see <<sec_intention_revealing>>),
+* uses cryptic variables name (q+, +o+ and +t+)
+
+but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
 
 And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
 
@@ -831,8 +841,6 @@ public void shouldReturnSingleResultReturnedByDao {
 ----
 
 TIP: Start with +should+. Think about scenario. Do not use +test+ prefix.
-
-TIP: Using +q+, +o+ and +t+ for variable names is a bad idea.
 
 [[sec_test_behaviour]]
 == Test Behaviour Not Methods
