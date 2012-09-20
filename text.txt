@@ -124,7 +124,7 @@ And what can we learn from these two failures? Few things:
 === Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
 
-...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule. Which really mean, that you should not do it. Howgh!
+...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean, that you should not do it. Howgh!
 
 Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
 
@@ -346,7 +346,7 @@ public void shouldUseTimestampMethod() {
 ----
 Oh my, this is bad for few reasons. This test:
 
-* tests implementation instead of behaviour,
+* tests implementation instead of behaviour (see <<sec_test_behaviour>>),
 * uses partial mocking (+spy+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it),
 * verifies interactions instead of returned values.
 
@@ -757,7 +757,7 @@ TODO ref to test data builders chapter
 [[sec_should]]
 === Should is Better than Test
 * the names of test methods
-TODO in relation to "test behaviour not methods"
+TODO in relation to "test behaviour not methods" <<sec_test_behaviour>>
 
 Take a look at the following example (looks like Groovy judging by the lack of semicolons):
 ----
@@ -773,7 +773,9 @@ Now what is the purpose of this test? The name says it should +testOperation+ wh
 
 The thing is, that the documentational value of this test is zero, or even less. It rather brings confusion than clarifies anything.
 
-Take a look at this example. As the method name says it '"tests query"'. 
+As shown by this example the first problem with test method prefixed with +test+ is that they tend to test 'something'.
+
+Take a look at the next example which uncovers another downside of +test+ naming pattern. As the name of this test method says it '"tests query"'. 
 
 ----
 @Test
@@ -804,9 +806,11 @@ public void testQuery(){
 ----
 This test definitely breaks SRP (see <<sec_srp>>) and uses some magical switches (who tells me what +true+ and +false+ stand for? - see <<sec_intention_revealing>>) but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
 
+And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
+
 I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull+ or with +shouldReturnSingleValueReturnedByDao+ and so on, but you won't end up with +shouldTestQuery+ unless you are really trying to anger me. ;)
 
-So the test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think this are the best tests ever written...):
+The test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think this are the best tests ever written...):
 
 ----
 public void shouldReturnNullListWhenDaoReturnsNull {
@@ -829,6 +833,10 @@ public void shouldReturnSingleResultReturnedByDao {
 TIP: Start with +should+. Think about scenario. Do not use +test+ prefix.
 
 TIP: Using +q+, +o+ and +t+ for variable names is a bad idea.
+
+[[sec_test_behaviour]]
+== Test Behaviour Not Methods
+TODO
 
 == Say No to Complex Assertions
 TODO example from domain1 where for loop was used to get the data to be asserted
