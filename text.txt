@@ -19,6 +19,8 @@ The book has not been proofreaded! There are probably many typos and many langua
 THIS IS WORK IN PROGRESS!
 About TODO - it means some part/sentence/paragraph is not finished
 
+TODO about using assertThat
+
 TODO What you should know.
 
 TODO not "bad" but rather "imperfect"
@@ -848,16 +850,82 @@ TIP: Start with +should+. Think about scenario. Do not use +test+ prefix.
 == Test Behaviour Not Methods
 TODO
 
-== Say No to Complex Assertions
-TODO example from domain1 where for loop was used to get the data to be asserted
+== Assertions
 
-TODO example SSHAssert
+=== Say No to Complex Assertions
+In unit tests assertions are usually not a problem. Your tests are focused and test one thing so there is usually only one assertion and everything is clear. However it is much worse with integration and end-to-end tests in which the assertion part could be huge.
+
+Let us have a look at an example of such situation. This test verifies whether a certain artifact (+WAR+ file) was copied to some remote server.
+----
+public void shouldPreDeployApplication() {
+	// given
+	Artifact artifact = mock(Artifact.class);
+	when(artifact.getFileName()).thenReturn("war-artifact-2.0.war");
+	ServerConfiguration config 
+		= new ServerConfiguration(ADDRESS, USER, KEY_FILE, TOMCAT_PATH, TEMP_PATH);
+	Tomcat tomcat = new Tomcat(HTTP_TOMCAT_URL, config);
+	String destDir = new File(".").getCanonicalPath() + SLASH + "target" + SLASH;
+	new File(destDir).mkdirs();
+
+	// when
+	tomcat.preDeploy(artifact, new FakeWar(WAR_FILE_LENGTH));
+
+	//then
+	JSch jsch = new JSch();
+	jsch.addIdentity(KEY_FILE);
+	Session session = jsch.getSession(USER, ADDRESS, 22);
+	session.setConfig("StrictHostKeyChecking", "no");
+	session.connect();
+	Channel channel = session.openChannel("sftp");
+	session.setServerAliveInterval(92000);
+	channel.connect();
+	ChannelSftp sftpChannel = (ChannelSftp) channel;
+
+	sftpChannel.get(TEMP_PATH + SLASH + artifact.getFileName(), destDir);
+	sftpChannel.exit();
+
+	session.disconnect();
+
+	File downloadedFile = new File(destDir, artifact.getFileName());
+
+	assertThat(downloadedFile).exists().hasSize(WAR_FILE_LENGTH);
+}
+----
+As you can see the 'then' part is pretty huge and rather unpleasant. It contains a lot of implementation details which clutter the view. It is not so simple to read the test and understand the scenario it verifies.
+
+How to make it better? Many of us would extract assertion part as private method. Ok, this would be better, but as we see in a minute (see <<sec_assertions_vs_private_methods>>) it can lead to some problems as well, so let us do something different.
+
+----
+public void shouldPreDeployApplication() {
+	//given
+	Artifact artifact = mock(Artifact.class);
+	when(artifact.getFileName()).thenReturn(ARTIFACT_FILE_NAME);
+	ServerConfiguration config 
+		= new ServerConfiguration(ADDRESS, USER, KEY_FILE, TOMCAT_PATH, TEMP_PATH);
+	Tomcat tomcat = new Tomcat(HTTP_TOMCAT_URL, config);
+
+	// when
+	tomcat.preDeploy(artifact, new FakeWar(WAR_FILE_LENGTH));
+
+	// then
+	SSHServerAssert.assertThat(ARTIFACT_FILE_NAME)
+		.existsOnServer(config).hasSize(WAR_FILE_LENGTH);
+}
+----
+Better, isn't it? Now the test code speaks in terms of the requested functionality and not in terms of implementation. Good.
+
+My advice is that when you see the assertion part of your test code growing, you should stop and write the assertion as you would like it to be. Then replace all the current asserting code with this one-liner and try to implement your custom assertion. It is easier then you think (no matter if you use Hamcrest or FEST Fluent Assertions).
+
+TIP: Just say it. Write the assertions as you would like it to be. Then implement it.
+
+TODO example from domain1 where for loop was used to get the data to be asserted
 
 TODO refer to test data builders - this is the other side of the same coin
 
 TIP: Let your tests speak with domain language, not in implementation terms.
 
-== Avoid Assertions using Private Methods
+[[sec_assertions_vs_private_methods]]
+=== Avoid Assertions using Private Methods
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
 
 ----
