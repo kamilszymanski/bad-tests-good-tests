@@ -918,11 +918,55 @@ My advice is that when you see the assertion part of your test code growing, you
 
 TIP: Just say it. Write the assertions as you would like it to be. Then implement it.
 
-TODO example from domain1 where for loop was used to get the data to be asserted
+Let us see another example of overly complicated assertions.
+
+As you can see below an indexing variable +i+ is used to navigate through the resulting list. Assertions are rather cryptic. At least for me it is not obvious that the third element of this list should have twelve views.
+----
+@Test
+public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
+	//given
+	... some complicated set-up here
+
+	//when
+	List<DomainObject> result = someDao.getStatistics(campaign, true, 100, 0);
+
+	//then
+	int i = 0;
+	assertThat(result.size()).isEqualTo(5);
+	assertThat(result.get(i).getCampaignId()).isEqualTo(campaign.getId());
+	assertThat(result.get(i++).getViews()).isEqualTo(16);
+	assertThat(result.get(i++).getViews()).isEqualTo(12);
+	assertThat(result.get(i++).getViews()).isEqualTo(3);
+	assertThat(result.get(i++).getViews()).isEqualTo(0);
+	assertThat(result.get(i++).getViews()).isEqualTo(0);
+}
+----
+
+As usual when it comes to making assertions more readable we can use private methods (not really recommended - see <<sec_assertions_vs_private_methods>>) or write our custom assertions. Since in this case the test verifies some very important part of the system, I decided it was worthwile to implement custom assertion. The result is shown on the next listing.
+
+----
+@Test
+public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
+	//given
+	... some complicated set-up here
+
+	//when
+	List<DomainObject> result = someDao.getStatistics(campaign, WITH_EXCLUDED, 100, 0);
+
+	//then
+	assertThat(result).hasStatisticsForDomains(5).allStatisticsAreForCampaign(campaign.getId());
+	assertThat(result).isSortedByViews();
+	assertThat(result).hasResultsForDomain(domainWith3Views, 3);
+	assertThat(result).hasResultsForDomain(domainWith12Views, 12);
+	assertThat(result).hasResultsForDomain(deletedDomainWith16Views, 16);
+	assertThat(result).hasResultsForDomain(domainWith0Views, 0);
+	assertThat(result).hasResultsForDomain(deletedDomainWith0Views, 0);
+}
+----
 
 TODO refer to test data builders - this is the other side of the same coin
 
-TIP: Let your tests speak with domain language, not in implementation terms.
+TIP: Let your tests (and assertions) speak with domain language, not in implementation terms.
 
 [[sec_assertions_vs_private_methods]]
 === Avoid Assertions using Private Methods
