@@ -155,8 +155,19 @@ public void testSetGetParam() throws Exception {
 ----
 So now repeat after me: '"I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
 
-=== No assertions, manual verification
-TODO
+=== No Assertions
+These few lines of code are copied from a horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
+
+----
+IResult result = format.execute();
+System.out.println(result.size());
+Iterator iter = result.iterator();
+while (iter.hasNext()) {
+	IResult r = (IResult) iter.next();
+	System.out.println(r.getMessage());
+}
+----
+This is of course wrong. Tests should never require us to do any kind of manual intervention. No logs browsing, no querying databases. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
 
 === Conclusions
 TODO 
