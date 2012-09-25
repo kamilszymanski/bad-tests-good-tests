@@ -99,7 +99,8 @@ zip $FINAL_PATH.zip $FINAL_PATH
 
 echo ""
 echo "PDF 7.5 x 9.25"
-cp $TARGET/book.xml $TARGET/book_ready.xml
+asciidoc --backend docbook --doctype book --attribute icons --attribute print --verbose --out-file $TARGET/book_print.xml $MAIN_FILE
+cp $TARGET/book_print.xml $TARGET/book_ready.xml
 sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book_ready.xml
 sed -i 's/TAG_PRINTED/, TODO printed by CreateSpace createspace.com/g' $TARGET/book_ready.xml
 sed -i "s/TAG_VERSION/print_$VER/g" $TARGET/book_ready.xml
