@@ -10,37 +10,12 @@ Tomek believes that by working with legacy code, and improving it, he can make t
 
 Apart from all this weirdness, he is a pretty normal person – a husband, father of two, and cat owner.
 
-Content
--------
-TODO
+Work in progress
+----------------
+image::images/work_in_progress.png[width="200", float="right"]
+The book has not been proofreaded (yet)! There are probably many typos and many language mistakes (my apologies!).
 
-The book has not been proofreaded! There are probably many typos and many language mistakes (my apologies!).
-
-THIS IS WORK IN PROGRESS!
-About TODO - it means some part/sentence/paragraph is not finished
-
-Throughout the book I use frequently FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] instead of those provided by JUnit or TestNG. Some time ago I discovered that they suit me better than anything else. Additionally their use solves the problem of difference in parameters order between JUnit and TestNG.
-
-TODO What you should know.
-
-Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. I think they are rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
-
-TODO about the idea of the book - only "bad" tests that I have seen myself  - some advices repeat/overlap with each other
-
-From time to time I use term 'SUT' which denotes 'System Under Test', that is the thing being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
-
-To really benefit from reading this book you should:
-
-* have some experience in writing tests, especially unit tests,
-* know a testing framework; preferably TestNG, but any other will also be fine (but you have to scan TestNG documentation to understand code samples),
-* be interested in improving your tests-writing skills,
-* understand the value of clean test code.
-
-The source I recommend is my book{empty}pass:[]footnote:[See http://practicalunittesting.com] (well, of course!) but to be honest you can learn most of it by doing a research on your own (web has it all, but you have to find it first and it takes time!).
-
-TODO about +setUp()+ what I mean by this
-
-TODO Differences with THE book. Here more strict view, no discussion of possible options, no explanations. Zero or one. Stop or go. White or black. No shades of grey.
+THIS IS WORK IN PROGRESS! Whenever you see a *TODO* word it means that this particular part/sentence/paragraph is not finished.
 
 == Why Bother?
 This book is not meant to explain all the reasons of writing tests but there are few things we should know. In short, there are three main reasons for writing tests{empty}pass:[]footnote:[Please forgive the simplifications - I want to make it short!]:
