@@ -19,11 +19,11 @@ The book has not been proofreaded! There are probably many typos and many langua
 THIS IS WORK IN PROGRESS!
 About TODO - it means some part/sentence/paragraph is not finished
 
-TODO about using assertThat
+Throughout the book I use frequently FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] instead of those provided by JUnit or TestNG. Some time ago I discovered that they suit me better than anything else. Additionally their use solves the problem of difference in parameters order between JUnit and TestNG.
 
 TODO What you should know.
 
-TODO not "bad" but rather "imperfect"
+Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. I think they are rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
 
 TODO about the idea of the book - only "bad" tests that I have seen myself  - some advices repeat/overlap with each other
 
@@ -168,6 +168,17 @@ while (iter.hasNext()) {
 }
 ----
 This is of course wrong. Tests should never require us to do any kind of manual intervention. No logs browsing, no querying databases. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
+
+A better version is presented below. Obviously I have no clue what are the expected values, so I made it up.
+----
+IResult result = format.execute();
+assertThat(result.size()).isEqualTo(3);
+Iterator iter = result.iterator();
+while (iter.hasNext()) {
+	IResult r = (IResult) iter.next();
+	assertThat(r.getMessage()).contains("error");
+}
+----
 
 === Conclusions
 TODO 
