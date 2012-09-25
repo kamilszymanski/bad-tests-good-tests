@@ -26,7 +26,9 @@ This book is not meant to explain all the reasons of writing tests but there are
 
 You should recall these reasons for writing tests when looking at the examples of *bad* tests presented in this book. Ask questions like '"does it test anything?"', '"is it maintainable"', '"is it easy to understand?"' etc.
 
-TODO Whatever you do, do it good. If it is worth doing, it is worth doing well. Numerous accounts of people who introduced tests to their development process... and failed!
+The worrying thing about writing tests is that there are numerous accounts of people who introduced tests to their development process... and failed! Why? I guess mainly because they lacked knowledge and understanding on how to write good tests. Tests, which are an asset and not a burden.
+
+TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. Remember this phrases as you write tests!
 
 == Introduction
 I would like to start our journey through various tests by going few years back. The tests discussed in this section were written in years 2004-2006. In fact, they are full of atrocities of the worst kind. Any single of them could kill a code-clean acolyte. ;) I've received these tests Bartosz{empty}pass:[]footnote:[You can follow Bartosz at https://twitter.com/#!/bocytko] who mentions some of their properties:
