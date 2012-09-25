@@ -7,6 +7,7 @@ MAIN_FILE=$SRCDIR/book.txt
 RESDIR=$SRCDIR/resources
 TARGET=$SRCDIR/target
 BACKUP=$SRCDIR/backup
+ZIPDIR=$TARGET/zip
 BOOKDIR=$SRCDIR/book
 VER=$(date +"%Y%m%d_%H%M")
 echo ""
@@ -16,6 +17,8 @@ rm -r $TARGET/bad_tests_*.*
 rm -f $TARGET/*.html
 rm -rf $TARGET/images
 rm -rf $TARGET/book_*
+rm -rf $TARGET/zip
+mkdir -p $ZIPDIR
 mkdir -p $TARGET/images/icons
 mkdir -p $TARGET/images/icons_html/callouts
 cp $SRCDIR/images/*.png $TARGET/images
@@ -64,9 +67,11 @@ xmllint --nonet --noout --valid $TARGET/book_ready.xml
 xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path $SRCDIR/images/icons/ --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type A4 --output $TARGET/book.fo $RESDIR/custom-docbook_a4.xsl $TARGET/book_ready.xml
 
 fop -fo $TARGET/book.fo -pdf $TARGET/book_a4.pdf
-cp $TARGET/book_a4.pdf $TARGET/bad_tests_good_tests_A4_$VER.pdf
+FINAL_PATH=$TARGET/bad_tests_good_tests_A4_$VER.pdf
+cp $TARGET/book_a4.pdf $FINAL_PATH
 #gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$TARGET/book_pdf_a4.pdf /home/tomek/book/img/cover_a4.pdf $TARGET/book_pre_a4.pdf
 
+zip $FINAL_PATH.zip $FINAL_PATH
 
 #pdfjoin /home/tomek/book/img/cover_a4.pdf $TARGET/book_pre_a4.pdf --outfile $TARGET/book_pdf_a4.pdf
 #a2x -a pdfa4=true -a icons --icons-dir $ICONSDIR -k -f pdf -a docinfo1 -d book --xsltproc-opts "--stringparam header.column.widths \"1 4 1\" --stringparam paper.type A4 --stringparam generate.toc \"book toc,title,table,figure\" --param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $BOOKDIR/book.txt -v -D $TARGET
@@ -84,9 +89,11 @@ echo "US XSLTPROC"
 xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path $ICONSDIR --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type USletter --output $TARGET/book.fo $RESDIR/custom-docbook_usletter.xsl $TARGET/book_ready.xml
 echo "US FOP"
 fop -fo $TARGET/book.fo -pdf $TARGET/book_usletter.pdf
-cp $TARGET/book_usletter.pdf $TARGET/bad_tests_good_tests_USLetter_$VER.pdf
+FINAL_PATH=$TARGET/bad_tests_good_tests_USLetter_$VER.pdf
+cp $TARGET/book_usletter.pdf $FINAL_PATH
 #gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$TARGET/book_pdf_usletter.pdf /home/tomek/book/img/cover_usletter.pdf $TARGET/book_pre_usletter.pdf
 
+zip $FINAL_PATH.zip $FINAL_PATH
 
 #pdfjoin /home/tomek/book/img/cover_usletter.pdf $TARGET/book_pre_usletter.pdf --outfile $TARGET/book_pdf_usletter.pdf
 
@@ -102,7 +109,10 @@ xmllint --nonet --noout --valid $TARGET/book_ready.xml
 xsltproc --stringparam page.margin.inner 0.87in --stringparam page.margin.outer 0.50in --stringparam double.sided 1 --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/book/book/images/icons/ --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam page.width 7.5in --stringparam page.height 9.25in --output $TARGET/book.fo $RESDIR/custom-docbook.xsl $TARGET/book_ready.xml
 
 fop -fo $TARGET/book.fo -pdf $TARGET/book_paper.pdf
-cp $TARGET/book_paper.pdf $TARGET/bad_tests_good_tests_paper_$VER.pdf
+FINAL_PATH=$TARGET/bad_tests_good_tests_paper_$VER.pdf
+cp $TARGET/book_paper.pdf $FINAL_PATH
+
+zip $FINAL_PATH.zip $FINAL_PATH
 
 
 #stats.sh
@@ -125,9 +135,12 @@ sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book-docinfo.xml
 sed -i 's/TAG_PRINTED//g' $TARGET/book-docinfo.xml
 sed -i "s/TAG_VERSION/epub_$VER/g" $TARGET/book-docinfo.xml
 a2x -k -f epub -a docinfo --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_epub/" --fop $MAIN_FILE -v -D $TARGET
-cp $TARGET/book.epub $TARGET/bad_tests_good_tests_$VER.epub
+FINAL_PATH=$TARGET/bad_tests_good_tests_$VER.epub
+cp $TARGET/book.epub $FINAL_PATH
 #a2x -k -f epub -a docinfo1 --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path images/icons/ --stringparam callout.graphics.path images/icons/callouts/ --stringparam navig.graphics.path images/icons/" --fop $SRCDIR/book/book.txt -v -D $TARGET
 #a2x -k -f epub -a docinfo1 --icons --icons-dir ../images/icons/ -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path /home/tomek/book/book/images/icons/ --stringparam callout.graphics.path /home/tomek/book/book/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/book/book/images/icons/" --fop $SRCDIR/book/book.txt -v -D $TARGET
+
+zip $FINAL_PATH.zip $FINAL_PATH
 
 echo ""
 echo "ePub for Kindle"
@@ -137,6 +150,9 @@ sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book-docinfo.xml
 sed -i 's/TAG_PRINTED//g' $TARGET/book-docinfo.xml
 sed -i "s/TAG_VERSION/epub_$VER/g" $TARGET/book-docinfo.xml
 a2x -k -f epub -a docinfo --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_kindle/" --fop $MAIN_FILE -v -D $TARGET
-mv $TARGET/book.epub $TARGET/book_for_kindle.epub
+FINAL_PATH=$TARGET/bad_tests_good_tests_kindle_$VER.epub
+cp $TARGET/book.epub $FINAL_PATH
 
-
+echo ""
+echo "moving zips"
+mv $TARGET/*.zip $ZIPDIR

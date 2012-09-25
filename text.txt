@@ -12,7 +12,7 @@ Apart from all this weirdness, he is a pretty normal person – a husband, fathe
 
 Work in progress
 ----------------
-image::images/work_in_progress.png[width="200", float="right"]
+image::images/72/work_in_progress.png[width="200", float="right"]
 The book has not been proofreaded (yet)! There are probably many typos and many language mistakes (my apologies!).
 
 THIS IS WORK IN PROGRESS! Whenever you see a *TODO* word it means that this particular part/sentence/paragraph is not finished.
