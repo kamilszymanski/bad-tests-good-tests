@@ -35,30 +35,78 @@ The worrying thing about writing tests is that there are numerous accounts of pe
 
 TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. Remember this phrases as you write tests!
 
-== Introduction
-I would like to start our journey through various tests by going few years back. The tests discussed in this section were written in years 2004-2006. In fact, they are full of atrocities of the worst kind. Any single of them could kill a code-clean acolyte. ;) I've received these tests Bartosz{empty}pass:[]footnote:[You can follow Bartosz at https://twitter.com/#!/bocytko] who mentions some of their properties:
+== No Assertions
+These few lines of code are copied from a very old and horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
 
-* The tests were written in 2004-2006.
-* They were never a part of any serious test harness (i.e. no regular execution on CI server).
-* Some tests do not even compile.
-* In some tests you can read a comment that "WARNING: test requires the divide param to be set to 20" but the code is so ugly, that there is no way to inject this value.
-* Some test data are available in form of serialized objects (+*.ser+) that can not be currently deserialized, because the classes have changed.
-* The project is now in maintenance.
+----
+IResult result = format.execute();
+System.out.println(result.size());
+Iterator iter = result.iterator();
+while (iter.hasNext()) {
+	IResult r = (IResult) iter.next();
+	System.out.println(r.getMessage());
+}
+----
+This is of course wrong. Tests should never require us to do any kind of manual intervention. No logs browsing, no querying databases. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
 
-[NOTE]
-.Cast the first stone...
-=====================================================================
-The reason we look at these tests is not to have a laugh at developers who have written them. I do not doubt they did the best they could. I wonder myself wheter in 2004 I was able to write better tests, or even whether I was able to write any tests at all... There are two reasons I discuss these ancient tests. Firstly, let us see how much more educated and experienced we (as a community of developers) are in the area of tests. Secondly, there is much to learn even from such imperfect tests.
-=====================================================================
+A better version is presented below. Obviously I have no clue what are the expected values, so I made it up.
+----
+IResult result = format.execute();
+assertThat(result.size()).isEqualTo(3);
+Iterator iter = result.iterator();
+while (iter.hasNext()) {
+	IResult r = (IResult) iter.next();
+	assertThat(r.getMessage()).contains("error");
+}
+----
 
-Ok, so now let's dive into the dark ages of testing and see what we can learn from it.
+////
+== Flickering Tests
+Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
 
-=== It is a Full Time Job
-TODO thanks Bartosz
+This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
 
+But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
+////
+
+== Autogeneration
+Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
+
+...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean, that you should not do it. Howgh!
+
+Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
+
+----
+public void testSetGetTimestamp() throws Exception {
+    // JUnitDoclet begin method setTimestamp getTimestamp
+    java.util.Calendar[] tests = {new GregorianCalendar(), null};
+
+    for (int i = 0; i < tests.length; i++) {
+    	adapter.setTimestamp(tests[i]);
+    	assertEquals(tests[i], adapter.getTimestamp());
+    }
+    // JUnitDoclet end method setTimestamp getTimestamp
+}
+
+public void testSetGetParam() throws Exception {
+    // JUnitDoclet begin method setParam getParam
+    String[] tests = {"a", "aaa", "---", "23121313", "", null};
+
+    for (int i = 0; i < tests.length; i++) {
+    	adapter.setParam(tests[i]);
+    	assertEquals(tests[i], adapter.getParam());
+    }
+    // JUnitDoclet end method setParam getParam
+}
+----
+So now repeat after me: '"I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
+
+TIP: Do *NOT* autogenerate neither the test code, nor it skeleton.
+
+== It is a Full Time Job
 Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
 
-First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test, at the time I joined this project, looked as follows:
+First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows:
 
 ----
 class SystemAdminSmokeTest extends GroovyTestCase {
@@ -104,81 +152,6 @@ And what can we learn from these two failures? Few things:
 * Do not live with '"broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
 * Writing and maintaining tests is an effort which has to be taken by the whole team (and this effort must be also supported, or at least not hindered, by all stakeholders).
 * Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
-
-=== Autogeneration
-Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
-
-...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean, that you should not do it. Howgh!
-
-Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
-
-----
-public void testSetGetTimestamp() throws Exception {
-    // JUnitDoclet begin method setTimestamp getTimestamp
-    java.util.Calendar[] tests = {new GregorianCalendar(), null};
-
-    for (int i = 0; i < tests.length; i++) {
-    	adapter.setTimestamp(tests[i]);
-    	assertEquals(tests[i], adapter.getTimestamp());
-    }
-    // JUnitDoclet end method setTimestamp getTimestamp
-}
-
-public void testSetGetParam() throws Exception {
-    // JUnitDoclet begin method setParam getParam
-    String[] tests = {"a", "aaa", "---", "23121313", "", null};
-
-    for (int i = 0; i < tests.length; i++) {
-    	adapter.setParam(tests[i]);
-    	assertEquals(tests[i], adapter.getParam());
-    }
-    // JUnitDoclet end method setParam getParam
-}
-----
-So now repeat after me: '"I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton. I will not autogenerate nor the test code, neither its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
-
-=== No Assertions
-These few lines of code are copied from a horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
-
-----
-IResult result = format.execute();
-System.out.println(result.size());
-Iterator iter = result.iterator();
-while (iter.hasNext()) {
-	IResult r = (IResult) iter.next();
-	System.out.println(r.getMessage());
-}
-----
-This is of course wrong. Tests should never require us to do any kind of manual intervention. No logs browsing, no querying databases. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
-
-A better version is presented below. Obviously I have no clue what are the expected values, so I made it up.
-----
-IResult result = format.execute();
-assertThat(result.size()).isEqualTo(3);
-Iterator iter = result.iterator();
-while (iter.hasNext()) {
-	IResult r = (IResult) iter.next();
-	assertThat(r.getMessage()).contains("error");
-}
-----
-
-=== Conclusions
-TODO 
-
-* it is an everyday effort,
-** (vs. follow the leader, and commented out smoke test)
-* do not generate, write them!,
-* master your tools (or at least learn the basics),
-* tests should inform about the reason they failed.
-
-////
-== Flickering Tests
-Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
-
-This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
-
-But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
-////
 
 == Do Not Modify Global State
 For unit tests a rule of thumb is to keep them independent from each other. It is not so bad if we introduce a dependency on purpose (and explicitly declare it e.g. using TestNG +dependsOnMethod+ feature). A worse scenario is when we are not aware of the dependency ourselves. This can bring serious problems on our heads.
