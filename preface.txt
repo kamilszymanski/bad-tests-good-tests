@@ -65,3 +65,7 @@ The source I recommend is my book{empty}pass:[]footnote:[See http://practicaluni
 [float]
 ==== Book Site
 Please visit the TODO http://practicalunittesting.com[official book site] for news and information on downloadable extras etc.
+
+[float]
+==== Contributors
+Thanks to Bartosz, Martin, TODO who else?
