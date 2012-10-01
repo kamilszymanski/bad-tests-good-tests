@@ -365,7 +365,10 @@ Why? Because:
 
 NOTE: Writing tests which fullfil the SRP principle is very simple for unit tests, but not always applicable for other kind of tests.
 
-Still, I observe it being breached frequently. Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
+Still, I observe it being breached frequently. In this section we will take a closer look at some examples.
+
+=== True and False
+Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
 
 ----
 @DataProvider
@@ -425,8 +428,39 @@ TIP: Watch the method names. Are they intention-revealing?
 
 TIP: No logic in tests! Even the simplest one is evil!
 
-// TODO would be nice to have some other examples of this - not everyone uses data providers / parameterized tests
+=== Testing All of Method's Responsibility
+Now another example of a test doing too much. Let us look at the tested method first. This is a part of a TODO controller which handles the request of new user registration.
 
+----
+TODO
+----
+
+Now let us have a look at the original test.
+
+----
+TODO
+----
+
+As you can see it verifies exactly what the tested method does. Which means it verifies two expectations:
+
+* that an email will be sent to appropriate users of the system,
+* that TODO
+
+And this is why my advice would be to split the test into two tests. Like this:
+
+----
+TODO
+----
+
+----
+TODO
+----
+
+// TODO smaller setup?
+
+TIP: A simple rule to follow: '"One method, multiple behaviours? -> multiple tests"'.
+
+=== A Counter Example
 And now, a counter example. Yes, after I have tried to convince you that it is good to split tests into smaller ones (each testing a unique test case), I will show an example of the opposite approach.
 
 Take a look at the test method below:
@@ -996,6 +1030,10 @@ Secondly, custom assertions are often written after you have already written ass
 TODO merge with previous one?
 
 builders
+
+TODO use builders instead of adding of constructor to your domain model classes
+
+TIP: Do not create methods or fields used only by test code.
 
 TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
 
