@@ -985,9 +985,12 @@ And then I implement it. Of course sometimes it happens that I need to deviate f
 === Cost of Custom Assertions
 There is a question which could be asked by an inquisitive reader. Custom assertions contain some code, even some logic. How can I be sure that there is no mistake there?
 
-Ok, I admit. I do not test my custom assertions. This comes from the fact that the logic of custom assertions is very limited (if any at all).
+Ok, I admit. I do not test my custom assertions. This comes from few facts.
 
-TODO question how do you test your custom assertions? I don't. 1) It is moving lines from test (which wouldn't have been tested anyway) 2) they are dead simple
+First of all the logic of custom assertions is *very* limited (if any at all). Usually they boil down to fetching some properties of an object and comparing it with expected result. Writing custom assertions for your domain objects you will rarely find a need for a +for+ loop there or anything more complicated. It often happens that the majority of code is devoted to the creation of custom error messages. +
+This looks different for custom assertions which are more related to integration tests - like the one discussed in <<sec_asserting_too_much>>. In such case you can consider writing of tests for your assertions.
+
+Secondly, custom assertions are often written after you have already written assertions in your tests. This is rather natural. At some point of writing your test you realize that the assertion part of it is getting too big and/or too complicated. Then you create your custom assertion class and copy there parts of your assertions. This usually happens when you verified your assertions working (by running tests). 
 
 == Excessive SetUp
 TODO merge with previous one?
@@ -1093,6 +1096,7 @@ All this does not mean that the nasty low-level details have miracouleously vani
 TODO
 ----
 
+[[sec_asserting_too_much]]
 == Asserting Too Much
 TODO comparison of objects with +equals+
 
