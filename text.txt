@@ -429,34 +429,98 @@ TIP: Watch the method names. Are they intention-revealing?
 TIP: No logic in tests! Even the simplest one is evil!
 
 === Testing All of Method's Responsibility
-Now another example of a test doing too much. Let us look at the tested method first. This is a part of a TODO controller which handles the request of new user registration.
+Now another example of a test doing too much. Let us look at the tested method first. This is a part of the +UserRegisterController+ class.
 
 ----
-TODO
+public ModelAndView registerUser(UserData userData, BindingResult result, HttpServletRequest request) {
+	if (result.hasErrors()) {
+		return showRegisterForm(request, false);
+	}
+
+	User savedUser = userService.saveNewUser(userData.toEntity());
+	mailSender.sendRegistrationInfo(savedUser);
+	return new ModelAndView("redirect:/signin");
+}
+----
+
+Let us assume that all tests presented below have the following variables initialized properly;
+
+----
+// sut
+UserRegisterController userRegisterController = ... // object created;
+
+// mocks
+UserData userData = mock(UserData.class);
+UserService userService = mock(UserService.class);
+BindingResult bindingResult = mock(BindingResult.class);
+User user = mock(User.class);
 ----
 
 Now let us have a look at the original test.
 
-----
-TODO
-----
-
-As you can see it verifies exactly what the tested method does. Which means it verifies two expectations:
-
-* that an email will be sent to appropriate users of the system,
-* that TODO
-
-And this is why my advice would be to split the test into two tests. Like this:
+NOTE: I had to simplify the original test to make the essence of what we discuss here more clear. Unfortunately this also made the effect of the changes we will introduce less visible. :(
 
 ----
-TODO
+@Test
+public void shouldReturnRedirectViewAndSendEmail() {
+	//given
+	given(bindingResult.hasErrors()).willReturn(false);
+	given(userData.toEntity()).willReturn(user);
+	given(userService.saveNewUser(eq(userData.toEntity()))).willReturn(user);
+
+	//when
+	ModelAndView userRegisterResult = userRegisterController.registerUser(userData, bindingResult, request);
+
+	//then
+	assertThat(userRegisterResult.getViewName()).isEqualTo("redirect:/signin");
+	verify(mailSender).sendRegistrationInfo(user);
+}
 ----
 
+As you can see this test verifies exactly what the tested method does. Which means it verifies two expectations:
+
+* that the +sendRegistrationInfo+ of the +mailSender+ object will be invoked with specific parameter (+user+ object),
+* that the user (the user who fill in the registration form, not the +user+ object!) will be redirected to specific page.
+
+It also indirectly verifies whether the +user+ object is stored by the +userService+ collaborator.
+
+This is not bad. In fact this test does a decent job. My advice however would be to split it into two parts, like this:
+
 ----
-TODO
+@Test
+public void shouldRedirectToSigninPageWhenBindingResultsHasNoErrors() {
+	//given
+	given(bindingResult.hasErrors()).willReturn(false);
+
+	//when
+	ModelAndView redirectMav = userRegisterController.registerUser(userData, bindingResult, request);
+
+	//then
+	assertThat(redirectMav.getViewName()).isEqualTo("redirect:/signin");
+}
 ----
 
-// TODO smaller setup?
+This first test verifies solely whether the redirect is fine.
+
+----
+@Test
+public void shouldNotifyAboutNewUserRegistration() {
+	//given
+	given(bindingResult.hasErrors()).willReturn(false);
+	given(userData.toEntity()).willReturn(user);
+	given(userService.saveNewUser(eq(userData.toEntity()))).willReturn(user);
+
+	//when
+	biddingRegisterController.registerSubmit(userData, bindingResult, request);
+
+	//then
+	verify(mailSender).sendRegistrationInfo(user);
+----
+The second test verifies whether the +sendRegistrationInfo+ method of the +mailSender+ object was invoked.
+
+Is it better now? I would say it is. Both test methods are more focused. Each of them occupied with the verification of only one requirement. There is some chance that some modifications of the +registerSubmit+ method implementation would not fail both tests. I like it.
+
+I find it hard to find good reasons for splitting tests in such way. I believe a good way to explain the reason is by analogy to the good rule of keeping your methods (in production code) focused. This is the implementation of the same pattern. You should keep things small and focused. Both in production and in test code.
 
 TIP: A simple rule to follow: '"One method, multiple behaviours? -> multiple tests"'.
 
