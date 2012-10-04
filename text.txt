@@ -599,6 +599,96 @@ avoid by using some features of your testing framework - annotations data provid
 TODO refer to SRP - boolean is also kind of logic
 ////
 
+== Be Generic
+Once upon a time there was a servlet which took two parameters - packet and type. If both were present in a request then the servlet asked its collaborator - +packetDataProcessor+ - to process a specific packet. If one or both of the parameters were missing no processing should occur. Simple, isn't it?
+
+Let us start with a "happy path" test which verifies the behaviour of the servlet when both parameters are present (and valid).
+----
+@Test
+public void shouldProcessPacket() throws IOException, ServletException {
+	//given
+	given(request.getParameter(PacketApiServlet.PACKET_PARAMETER)).willReturn(PACKET);
+	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
+
+	//when
+	servlet.doGet(request, response);
+
+	//then
+	verify(packetDataProcessor).process(PACKET, TYPE);
+}
+----
+This one looks good to me. I would probably give it a little more descriptive name, but apart from this minor issue, it is perfect.
+
+But let us look at the next tests.
+----
+@Test
+public void shouldNotProcessIfPacketParameterIsMissing() throws IOException, ServletException {
+	//given
+	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
+
+	//when
+	servlet.doGet(request, response);
+
+	//then
+	verify(packetDataProcessor, never()).process(PACKET, TYPE);
+}
+----
+So this is a "negative" case. One of the required parameters is missing and there should be no processing. Seems ok, but... there is one thing bothering me. Why the verification assumes that the +packetDataProcessor+ could be asked to process +PACKET+? This value does not appear anywhere in the test so why the verification uses it? Aha! It does not appear in the test, but it surely is still in the head of the developer who wrote previous test (see the previous listing).
+
+Anyway, this is too specific. I would suggest that this test took a form of '"if one of the required parameters is missing then +packetDataProcessor+ should process nothing"', which, after translation into Java/Mockito/JUnit language looks like this:
+
+----
+@Test
+public void shouldProcessIfPacketParameterIsMissing() throws IOException, ServletException {
+	//given
+	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
+
+	//when
+	servlet.doGet(request, response);
+
+	//then
+	verifyZeroInteractions(packetDataProcessor);
+}
+----
+
+Another example from the same test class. This time it is about the servlet's behaviour after a processing error. 
+----
+@Test
+public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOException, ServletException {
+	//given
+	given(request.getParameter(PacketApiServlet.PACKET_PARAMETER)).willReturn(PACKET);
+	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
+	doThrow(NullPointerException.class).when(packetDataProcessor).process(PACKET,TYPE);
+
+	//when
+	servlet.doGet(request, response);
+
+	//then
+	verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}
+----
+This test verifies the behaviour of the servlet in case of the +NullPointerException+ thrown when processing. Hmm... why from the plethora of exceptions +NPE+ was selected? It is hard to say. I took a look into the implementation of +packetDataProcessor+ and found out that it throws some parsing exceptions when trying to process a garbaged data. Having a test which concentrates on +NPE+ solely does not tell us what happens when different exceptions are thrown. Which is bad.
+
+Similarly to the previous example this test is too specific. Instead of verifying whether status code 500 is set in case of the +NullPointerException+ it really should verify whether this status code is returned in case of *any* exception during processing (as shown below).
+
+----
+@Test
+public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOException, ServletException {
+	//given
+	given(request.getParameter(PacketApiServlet.PACKET_PARAMETER)).willReturn(PACKET);
+	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
+	doThrow(Exception.class).when(packetDataProcessor).process(PACKET,TYPE);
+
+	//when
+	servlet.doGet(request, response);
+
+	//then
+	verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+}
+----
+
+TIP: Do not be too specific. It will make your test less valuable by examining only a subset of test cases.
+ 
 == Use Smart Values
 Try to minimize the risk of having your tests pass by accident. And always work to improve the readability.
 
