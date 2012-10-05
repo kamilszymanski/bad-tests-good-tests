@@ -1205,6 +1205,48 @@ TIP: Do not create methods or fields used only by test code.
 
 TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
 
+To finish, let us see yet another example which shows how use of multi-parameter constructors can bring confusion to your test code. Below two beginning of test methods from the same test class are presented:
+
+----
+@Test
+public void shouldCreateUserAndFindHimById() {
+	//given
+	User user = new User("elvis2", "elvis@is.alive");
+	...
+}
+
+@Test
+public void shouldUpdateUser() {
+	// given
+	User user = new User("elvis@com.pl", "elvis3");
+	...
+}
+----
+Hm... what is going on here? What is the first parameter - email or name? Because you can not see into the production code I will tell you. It is the email And the second parameter is (surprise, surprise!) a password. Yes, a password. Wasn't that clear to you? Nor to me. :) That is what happens when you use silly values for parameters and you use multi-parameters constructors instead of builders.
+
+NOTE: I was really surprised to see a mistake in use of the two-parameters only constructore! I thought such mistakes happen if you have more then 5 parameters or so...
+
+A better version would create user objects like this:
+----
+User user = new User(USER_EMAIL, USER_PASSWORD);
+----
+, like this (to demonstrate that *any* users would do):
+----
+User user = new UserBuilder().standardUser();
+----
+, like this (if only email is important):
+----
+User user = new UserBuilder().standardUser()
+	.but().withEmail("elvis@presley.com");
+----
+, or like this (if both parameters have some significance to the test case):
+----
+User user = new UserBuilder().standardUser()
+	.but().withEmail("elvis@presley.com")
+	.and().withPassword("sivle");
+----
+A lot of options to choose from. Depending on the context and your likings select the most suitable one.
+
 == Things to Remember
 
 * Single Responsibility Principle for tests
