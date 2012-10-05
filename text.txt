@@ -104,6 +104,13 @@ So now repeat after me: '"I will not autogenerate neither the test code, nor its
 TIP: Do *NOT* autogenerate neither the test code, nor it skeleton.
 
 == It is a Full Time Job
+[verse, Eddy Arnold, from "A Full Time Job"]
+____
+I want a life time job bein' close to you
+Makin' all your dreams come true
+But if your heart don't throb about a full time job
+A part time job will do
+____
 Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
 
 First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows:
@@ -356,6 +363,13 @@ TIP: If tested method return some values then try to use this values to verify w
 
 [[sec_srp]]
 == SRP for Tests
+[verse, Natasha Bedingfield, from "Single"]
+____
+I'm single
+(Right now)
+That's how I wanna be
+____
+
 We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[SRP, see http://en.wikipedia.org/wiki/Single_responsibility_principle], which basically says that every class should take care of one thing. I think it is very valuable to think about tests in terms of SRP. In case of tests, each test method should conform to the following rule: '"Each test method should verify one scenario"'.
 
 Why? Because:
