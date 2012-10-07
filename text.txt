@@ -223,6 +223,7 @@ public void cleanSystemProperties() {
 
 TIP: Clean the environment *before* tests, not after it. This way your tests are guaranteed to run in clean environment. 
 
+[[sec_mock_em_all]]
 == Mock'em All!
 [quote, Abraham Maslow]
 _______________________
@@ -272,6 +273,55 @@ public void shouldAddTimeZoneToModelAndView() {
 As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
 
 TIP: Excited that you can mock everything, huh? Slow down and make sure that you really need to verify interactions. Chances are you don't.
+
+== Mocks Are Good
+And now the opposite of what was presented in the previous section (<<sec_mock_em_all>>).
+
+In the following test four objects are created. One of them is a mock of the +TrafficTrendProvider+ class, which is used by the SUT (object of the +TrafficService+ class). The remaining two are real objects created using the +new+ keyword. If we look closer we can notice that the +report+ variable is used solely for the creation of the other real object - +trafficTrend+.
+
+----
+@Test
+public void shouldGetTrafficTrend() {
+	//given
+	TrafficTrendProvider trafficTrendProvider = mock(TrafficTrendProvider.class);
+	Report report = new Report(null, "", 1, 2, 3, BigDecimal.ONE, BigDecimal.ONE, 1);
+	TrafficTrend trafficTrend = new TrafficTrend(report, report,
+		new Date(), new Date(), new Date(), new Date());
+	given(trafficTrendProvider.getTrafficTrend()).willReturn(trafficTrend);
+	TrafficService service = new TrafficService(trafficTrendProvider);
+
+	//when
+	TrafficTrend result = service.getTrafficTrend();
+
+	//then
+	assertThat(result).isEqualTo(trafficTrend);
+}
+----
+
+The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and the tests needs to be updated. +
+Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is +""+ parameter and does it matter that the there are four identical dates passed to the second constructor?
+
+Instead I would suggest to cut this blah-blah to the minium and use mocks instead of real objects.
+----
+@Test
+public void shouldGetTrafficTrend() {
+	//given
+	TrafficTrendProvider trafficTrendProvider = mock(TrafficTrendProvider.class);
+	TrafficTrend trafficTrend = mock(TrafficTrend.class);
+	given(trafficTrendProvider.getTrafficTrend()).willReturn(trafficTrend);
+	TrafficService service = new TrafficService(trafficTrendProvider);
+
+	//when
+	TrafficTrend result = service.getTrafficTrend();
+
+	//then
+	assertThat(result).isEqualTo(trafficTrend);
+}
+----
+
+This test does not distract the reader by providing only what is important to verify the tested scenario. It uses mocks instead of real objects which makes it less fragile than its previous version.
+
+TIP: Creating objects only to create other objects so you can create other objects? Do not do that! (Unless the creation of objects is what you want to test).
 
 [[sec_time_means_troubles]]
 == Time Means Troubles (Always!)
