@@ -951,22 +951,22 @@ TODO img
 It is the same like with classes. At first you begin with useless names like +ClientDAOImpl+ but then you learn that you can have much more intention-revealing names. +HibernateClientDAO+, +InMemoryClientDAO+, +HighPerformanceClientDAO+ or whatever describes this particular implementation. There is always something to say about your class. I believe the same applies to the variables used in tests. I often start with +campaignA+ and +campaignB+ but then it occuress to me that these should be really +campaign+ and +campaignWithSameAdvertiser+ (while in other test method I have +campaign+ and +campaignWithDifferentAdvertiser+). Try it, it makes your test code so much more readable!
 
 [[sec_intention_revealing]]
-=== What do True and False Stand For
+=== What True and False Stand For?
 If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
 
 ----
 server = new MockServer(responseMap, true,
 		new URL(SERVER_ROOT).getPort(), false);
 ----
-This single line of code is responsible for creation of some +MockServer+. It is later used in test code.
+This single line of code is responsible for creation of the +server+ object of the +MockServer+ class. It is later used in test code.
 
-Nice, but what the heck does +true+ and +false+ mean here? What kind of server are we creating?
+Nice, but what the heck does +true+ and +false+ mean here? What kind of server is actually created?
 
-Well, I do not expect you to have JavaDocs for +MockServer+ (which sounds like a utility class create especially for testing purposes), which means you need to browse the source code to find out. This is not a major problem (but may be - depending on the complexity of +MockServer+ class), however this is a nuissance. And it means that this test does not play the role of documentation very well. In order to understand the test case we need to browse another documents (i.e. source code). This is not a tragedy, but this is not good either.
+I do not expect you to have JavaDocs for +MockServer+ (which sounds like a utility class create especially for testing purposes), which means you need to browse the source code to find out. This is not a major problem (but it may be - depending on the complexity of +MockServer+ class), however this is a nuisance. And it means that this test does not play the role of documentation very well. In order to understand the test case we need to browse another documents (i.e. source code). This is not a tragedy but this is not good either.
 
 And what can we do about this? There are at least two options.
 
-First, we could create some static variables, with intention-revealing names, like this:
+First, we could create some static variables with intention-revealing names, like this:
 
 ----
 private static final boolean RESPONSE_IS_A_FILE = true;
@@ -978,15 +978,24 @@ server = new MockServer(responseMap, RESPONSE_IS_A_FILE,
 ----
 Now there is no doubt what kind of server is created. It does not use SSL and responds with a file. Better, isn't it? And we haven't had to work very hard to achieve this effect.
 
-Second approach requires some more work. Yeah, you guessed it already - we could use a test data builder idea and express very clearly what kind of server is required. For example like this:
+Second approach requires some more work. Yeah, you guessed it already - we could use a test data builders idea and express very clearly what kind of server is required. For example like this:
 ----
 server = new MockServerBuilder()
 		.withResponse(responseMap)
 		.withResponseType(FILE)
 		.withUrl(SERVER_ROOT)
-		.withoutSsl().create();
+		.withoutSsl()
+		.create();
 ----
-Is this approach better than the previous one? Definitely it requires more work. Probably the more complex, and more frequently created, the class in question is, the more benefit test data builders would bring us.
+Is this approach better than the previous one? Not necessarily, as it definitely requires more work. However the fact that we control the API allows us to shape it according to our liking. Maybe in the domain that this +MockServer+ works, this is a perfect solution (this one implicitly sets the '"no-SSL"' option, and shortens type and url setting):
+----
+server = new MockServerBuilder()
+		.createFileServer(SERVER_ROOT)
+		.withResponse(responseMap)
+		.create();
+----
+
+Probably the more complex and more frequently created the class in question is, the more we benefit from test data builders.
 
 TODO ref to test data builders chapter
 
