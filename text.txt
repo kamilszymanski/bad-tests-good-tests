@@ -588,6 +588,39 @@ I find it hard to find good reasons for splitting tests in such way. I believe a
 
 TIP: A simple rule to follow: '"One method, multiple behaviours? -> multiple tests"'.
 
+////
+public class MyListTest {
+
+  @Test(expected=IndexOutOfBoundsException.class)
+  public void testMyList() {
+    MyList<Integer> list = new MyList<Integer>();
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    list.add(3);
+    list.add(4);
+    assertTrue(4 == list.get(4));
+    assertTrue(2 == list.get(1));
+    assertTrue(3 == list.get(2));
+    
+    list.get(6);
+  }
+  
+
+  @Test(expected=IndexOutOfBoundsException.class)
+  public void testNegative() {
+    MyList<Integer> list = new MyList<Integer>();
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    list.add(3);
+    list.add(4);
+    list.get(-1);
+  }
+
+Names like "testNegative", testing many things at once, catching exceptions thrown by unknown line of code, confusing use of values (double 3)
+////
+
 === A Counter Example
 And now, a counter example. Yes, after I have tried to convince you that it is good to split tests into smaller ones (each testing a unique test case), I will show an example of the opposite approach.
 
