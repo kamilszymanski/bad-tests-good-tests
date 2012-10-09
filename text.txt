@@ -1278,6 +1278,11 @@ TODO merge with previous one?
 
 builders
 
+////
+http://code.google.com/p/fluent-builders-generator-eclipse-plugin/
+http://www.jetbrains.com/idea/webhelp/replace-constructor-with-builder.html
+////
+
 TODO use builders instead of adding of constructor to your domain model classes
 
 TIP: Do not create methods or fields used only by test code.
