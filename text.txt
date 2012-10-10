@@ -588,39 +588,6 @@ I find it hard to find good reasons for splitting tests in such way. I believe a
 
 TIP: A simple rule to follow: '"One method, multiple behaviours? -> multiple tests"'.
 
-////
-public class MyListTest {
-
-  @Test(expected=IndexOutOfBoundsException.class)
-  public void testMyList() {
-    MyList<Integer> list = new MyList<Integer>();
-    list.add(1);
-    list.add(2);
-    list.add(3);
-    list.add(3);
-    list.add(4);
-    assertTrue(4 == list.get(4));
-    assertTrue(2 == list.get(1));
-    assertTrue(3 == list.get(2));
-    
-    list.get(6);
-  }
-  
-
-  @Test(expected=IndexOutOfBoundsException.class)
-  public void testNegative() {
-    MyList<Integer> list = new MyList<Integer>();
-    list.add(1);
-    list.add(2);
-    list.add(3);
-    list.add(3);
-    list.add(4);
-    list.get(-1);
-  }
-
-Names like "testNegative", testing many things at once, catching exceptions thrown by unknown line of code, confusing use of values (double 3)
-////
-
 === A Counter Example
 And now, a counter example. Yes, after I have tried to convince you that it is good to split tests into smaller ones (each testing a unique test case), I will show an example of the opposite approach.
 
@@ -695,6 +662,69 @@ avoid by using some features of your testing framework - annotations data provid
 
 TODO refer to SRP - boolean is also kind of logic
 ////
+
+== Localized Exceptions
+The next test that I would like to discuss comes from an online tutorial (you should really watch out which tutorials you read...). It is an awful test with more than one issue. We will concentrate on one part of it, namale the way the exceptions are tested.
+
+----
+@Test(expected=IndexOutOfBoundsException.class)
+public void testMyList() {
+	MyList<Integer> list = new MyList<Integer>();
+	list.add(1);
+	list.add(2);
+	list.add(3);
+	list.add(3);
+	list.add(4);
+	assertTrue(4 == list.get(4));
+	assertTrue(2 == list.get(1));
+	assertTrue(3 == list.get(2));
+    
+	list.get(6);
+}
+  
+
+@Test(expected=IndexOutOfBoundsException.class)
+public void testNegative() {
+	MyList<Integer> list = new MyList<Integer>();
+	list.add(1);
+	list.add(2);
+	list.add(3);
+	list.add(3);
+	list.add(4);
+	list.get(-1);
+}
+----
+What is important here is that these two test methods are the only ones.
+
+As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class passes both test methods with flying colors.
+
+----
+TODO
+----
+
+Well, this is embarassing... Apparently we need to do something about the exception verification. There are two main techniques we could use. First is to split the test into few smaller tests (see <<sec_srp>>). Second is to better localize the exception.
+
+The first approach would result in few small test methods each of them occupied with different functionality of the +MyList+ class, like +shouldKeepValuesInOrder+ or +shouldAcceptDuplicateValues+ and so on. Now having this verified we would also create a test method especially for the verification of what happens when we try to retrieve element which is not there. Like this:
+
+----
+@Test(expected=IndexOutOfBoundsException.class)
+public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
+	MyList<Integer> list = new MyList<Integer>();
+	list.add(0);
+	list.add(1);
+	list.add(2);
+	list.get(3);
+}
+----
+This does not differ much from the original test, but having other test methods we are in much safer position. We *know* the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
+
+The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied an exception thrown at any point of the test method.
+
+The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause. However, there are some nicer options.
+
+----
+TODO catch-exception and/or Hamcrest/FEST?
+----
 
 == Be Generic
 Once upon a time there was a servlet which took two parameters - packet and type. If both were present in a request then the servlet asked its collaborator - +packetDataProcessor+ - to process a specific packet. If one or both of the parameters were missing no processing should occur. Simple, isn't it?
