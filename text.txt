@@ -699,7 +699,19 @@ What is important here is that these two test methods are the only ones.
 As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class passes both test methods with flying colors.
 
 ----
-TODO
+public class MyList<T> {
+
+    public MyList() {
+        throw new IndexOutOfBoundsException();
+    }
+
+    public void add(T i) {
+    }
+
+    public T get(T i) {
+        return null;
+    }
+}
 ----
 
 Well, this is embarassing... Apparently we need to do something about the exception verification. There are two main techniques we could use. First is to split the test into few smaller tests (see <<sec_srp>>). Second is to better localize the exception.
