@@ -1,0 +1,23 @@
+defaultTasks 'build'
+
+allprojects {
+	apply plugin: 'idea';
+}
+
+subprojects {
+  apply plugin: 'java'
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    testCompile 'junit:junit:4.10'
+    testCompile 'org.testng:testng:6.8'
+    testCompile 'org.mockito:mockito-all:1.9.0'
+  }
+
+idea {
+	module.downloadSources = true;
+}
+}
