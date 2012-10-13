@@ -4,11 +4,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class MyListTest {
+public class MaliciousMyListTest {
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testMyList() {
-        MyList<Integer> list = new MyList<Integer>();
+        MaliciousMyList<Integer> list = new MaliciousMyList<Integer>();
         list.add(1);
         list.add(2);
         list.add(3);
@@ -24,7 +24,7 @@ public class MyListTest {
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testNegative() {
-        MyList<Integer> list = new MyList<Integer>();
+        MaliciousMyList<Integer> list = new MaliciousMyList<Integer>();
         list.add(1);
         list.add(2);
         list.add(3);

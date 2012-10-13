@@ -1,15 +1,20 @@
 package com.practicalunittesting;
 
-public class MyList<T> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MyList<E> {
+    private List<E> list;
 
     public MyList() {
-        throw new IndexOutOfBoundsException();
+        this.list = new ArrayList<E>();
     }
 
-    public void add(T i) {
+    public void add(E e) {
+        list.add(e);
     }
 
-    public T get(T i) {
-        return null;
+    public E get(int i) {
+        return list.get(i);
     }
 }

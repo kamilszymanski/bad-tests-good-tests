@@ -732,10 +732,20 @@ This does not differ much from the original test, but having other test methods 
 
 The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied an exception thrown at any point of the test method.
 
-The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause. However, there are some nicer options.
+The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause{empty}pass:[]footnote:[We could also use nice DSL provided by FEST Assert to examine the exception within the +catch+ clause, e.g. +assertThat(e).isInstanceOf(IndexOutOfBoundsException.class).hasNoCause();+.]. However, there are some nicer options.
 
+The next listing presents catch-exception library which offers +catchException()+ and +caughtException()+ methods which are exactly what we need.
 ----
-TODO catch-exception and/or Hamcrest/FEST?
+@Test
+public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
+	MyList<Integer> list = new MyList<Integer>();
+	list.add(0);
+	list.add(1);
+	list.add(2);
+
+	catchException(list).get(3);
+	assertThat(caughtException()).isExactlyInstanceOf(IndexOutOfBoundsException.class);
+}
 ----
 
 == Be Generic
