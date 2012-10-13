@@ -948,6 +948,11 @@ TIP: Do not make assumptions about the database content. Use relative rather tha
 TIP: Make sure the test does exactly what its (method) name promises.
 
 == Happy Path
+[quote, Wikipedie]
+____
+Happy path testing is a well-defined test case using known input, which executes without exception and produces an expected output.
+____
+
 The issue of writing '"happy path"' tests is so common, that it is probably the most popular antipattern of all.
 
 But what is a '"happy path"' testing anyway? For our purpose, it is enough to say that '"happy paths"' tests cover the simplest, even obvious, scenarios. It is like testing that our calculator can add +2+ and +2+, and that if you add user +John Doe+ to the database then you can found it there.
@@ -1421,19 +1426,12 @@ User user = new UserBuilder().standardUser()
 ----
 A lot of options to choose from. Depending on the context and your likings select the most suitable one.
 
-== Things to Remember
-
-* Single Responsibility Principle for tests
-* Names are important!
-* Test behaviour, not methods!
-* Ask yourself "what is the purpose of this test?", "what is really important?"
-* Think about readability (just say it)
-* Test-last does not work
-* Private methods for assertions do not work
-* Tests work only if you treat them as first-class citizens
-
 == Know Your Tool
 TODO
+
+* some test which could be written better with data providers (or happy path test because someone did not want to bother writing too many test methods)
+* test which should be concurrent
+* test which should have timeout annotation
 
 [[sec_thread_sleep]]
 == Thread.sleep()
@@ -1710,6 +1708,17 @@ TIP: Write tests which make you confident that your system works.
 If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods{empty}pass:[]footnote:[A delegator method is one which does not do anything important on its own, but delegates the work to some collaborator.] and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system works for the users.
 
 Don't just sit and write tests. First think which tests to write.
+
+== Things to Remember
+
+* Single Responsibility Principle for tests
+* Names are important!
+* Test behaviour, not methods!
+* Ask yourself "what is the purpose of this test?", "what is really important?"
+* Think about readability (just say it)
+* Test-last does not work
+* Private methods for assertions do not work
+* Tests work only if you treat them as first-class citizens
 
 <<<
 [float]
