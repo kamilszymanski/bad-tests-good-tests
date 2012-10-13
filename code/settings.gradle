@@ -1,1 +1,1 @@
-include 'localized_exceptions'
+include 'localized_exceptions', 'thread_sleep'

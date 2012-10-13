@@ -664,7 +664,7 @@ TODO refer to SRP - boolean is also kind of logic
 ////
 
 == Localized Exceptions
-The next test that I would like to discuss comes from an online tutorial (you should really watch out which tutorials you read...). It is an awful test with more than one issue. We will concentrate on one part of it, namale the way the exceptions are tested.
+The next test that I would like to discuss comes from an online tutorial (you should really watch out which tutorials you read...). It is an awful test with more than one issue. We will concentrate on one part of it, namely the way the exceptions are tested.
 
 ----
 @Test(expected=IndexOutOfBoundsException.class)
@@ -1436,12 +1436,64 @@ A lot of options to choose from. Depending on the context and your likings selec
 TODO
 
 [[sec_thread_sleep]]
-Thread.sleep()
---------------
+== Thread.sleep()
 TODO any example of such things?
 
 * got selenium one - mention it can leverage what frameworks provide
 * need something else to introduce awaitility
+
+=== ExecutorService
+
+[verse, The New England Primer, 1697]
+____
+Now I lay me down to sleep,
+I pray the Lord my soul to keep,
+If I shall die before I wake,
+I pray the Lord my soul to take. Amen.
+____
+
+TODO algorithm.storeSuccess
+
+----
+public class SynchronousExecutorService extends AbstractExecutorService {
+	private boolean shutdown;
+
+	@Override
+	public void shutdown() {
+		shutdown = true;
+	}
+
+	@Override
+	public List<Runnable> shutdownNow() {
+		shutdown = true;
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean isShutdown() {
+		shutdown = true;
+		return shutdown;
+	}
+
+	@Override
+	public boolean isTerminated() {
+		return shutdown;
+	}
+
+	@Override
+	public boolean awaitTermination(final long timeout, final TimeUnit unit) {
+		return true;
+	}
+
+	@Override
+	public void execute(final Runnable command) {
+		command.run();
+	}
+}
+----
+
+TODO memcached.getValue
+
 ////
 public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
 	//given
@@ -1465,8 +1517,7 @@ public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
 }
 ////
 
-Test Which Knows Too Much
--------------------------
+== Test Which Knows Too Much
 Why tests are brittle? Because we put too many details into them. See the following example (this is a slightly shorthened test which from some mailing list discussion).
 ----
 public void createSurvey() throws InterruptedException {		
