@@ -1490,9 +1490,10 @@ public class SynchronousExecutorService extends AbstractExecutorService {
 }
 ----
 
-TODO memcached.getValue
+=== Timeout
+Take a look at the following test. It verifies whether an object is removed from memcached repository after given time period passes.
 
-////
+----
 public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
 	//given
 	memcachedRepository.setValue("key", 1, "value");
@@ -1507,13 +1508,51 @@ public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
 			Thread.sleep(100);
 		} else {
 			break;
+		}
 	}
 
 	//then
 	assertThat(value).isNull();
 	assertThat(memcachedRepository.getValue("key2")).isEqualTo("value2");
 }
-////
+----
+There are few things which make this test more complicated than it should be. First of all, it is unclear what is the meaning of numbers in the +given+ section. Let us refactor.
+
+----
+        //given
+	memcachedRepository.setValue("key", ONE_SECOND_TTL, "value");
+        memcachedRepository.setValue("key2", TEN_SECONDS_TTL, "value2");
+        Thread.sleep(ONE_SECOND);
+----
+Now it is easier to understand the idea behind this test method. First it puts two elements into memcached with different TTL values{empty}pass:[]footnote:[TTL - Time To Live, which in this case refers to the time that given object should be kept in memcached.]. Then it waits one second (+Thread.sleep(ONE_SECOND)+) and a little bit more (the +for+ loop) so the first object is (automatically) removed from memcached (because its TTL was set to one second). The last part verifies that the first object was removed from memcached, while the other one is still there.
+
+What bothers me still is this for loop. It seems complicated (as for a test code!). Let us try to do something about it.
+
+----
+@Test(timeout = 1500)
+public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
+	//given
+	memcachedRepository.setValue("key", ONE_SECOND_TTL, "value");
+	memcachedRepository.setValue("key2", TEN_SECONDS_TTL, "value2");
+	Thread.sleep(ONE_SECOND);
+
+	//when
+	Object value = null;
+	while (value == null) {
+		value = memcachedRepository.getValue("key");
+		Thread.sleep(100);
+	}
+
+	//then
+	assertThat(value).isNull();
+	assertThat(memcachedRepository.getValue("key2")).isEqualTo("value2");
+}
+----
+Hm, the loop is simpler - that is for sure. 
+
+TODO not really TODO Also the sleep inside the loop was removed. It wasn't really necessary.
+
+TODO have doubts if this is a worthy example...
 
 == Test Which Knows Too Much
 Why tests are brittle? Because we put too many details into them. See the following example (this is a slightly shorthened test which from some mailing list discussion).

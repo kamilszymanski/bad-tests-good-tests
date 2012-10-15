@@ -1,1 +1,4 @@
-include 'localized_exceptions', 'thread_sleep'
+include 'localized_exceptions', 
+	'thread_sleep',
+	'thread_sleep_memcached'
+
