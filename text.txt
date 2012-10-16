@@ -947,6 +947,66 @@ TIP: Do not make assumptions about the database content. Use relative rather tha
 
 TIP: Make sure the test does exactly what its (method) name promises.
 
+== Self-Test
+In one application there was a need to implement many payment methods. Their list, along with the information about the countries where each method is accepted, was kept by the +PaymentMethod+ enum.
+
+The test below verifies whether the +getMethodsForCountry()+ method of the +PaymentMethod+ class returns valid methods for Poland. First it creates list of expected methods, then calls the method in question, and eventually compares expected list with the result of the tested method invocation.
+
+----
+@Test
+public void shouldGetMethodsForPoland() {
+	//given
+	List<PaymentMethod> all = Lists.newArrayList(PaymentMethod.values());
+	List<PaymentMethod> methodsAvailableInPoland = Lists.newArrayList();
+	for (PaymentMethod method : all) {
+		if (method.isEligibleForCountry("PL")) {
+			methodsAvailableInPoland.add(method);
+		}
+	}
+
+	//when
+	List<PaymentMethod> methodsForCountry = PaymentMethod.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+
+	//then
+	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
+}
+----
+The test seems right... but there is something disturbing about its +given+ part. It uses two methods of the +PaymentMethod+ enum (+values()+ and +isEligibleForCountry()+) in order to prepare the list of expected methods. Let us have a look now at the implementation of the +getMethodsForCountry()+ method to see if our fears are justified.
+----
+public enum PaymentMethod {
+
+	public static List<PaymentMethod> getMethodsForCountry(Country country, List<PaymentMethod> availableMethods) {
+		List<PaymentMethod> methodsForCountry = Lists.newArrayList();
+		for (PaymentMethod method : availableMethods) {
+			if (method.isEligibleForCountry(country.getCode())) {
+				methodsForCountry.add(method);
+			}
+		}
+		return methodsForCountry;
+	}
+}
+----
+Well, yes, it seems that we are using the same code to create both sides of the assertion... This is plainly wrong! This way we can't really test whether this method works properly or not. We only know that it is idempotent. What we should do instead is to prepare the list of expected methods by hand, like this:
+
+----
+@Test
+public void shouldGetMethodsForPoland() {
+	//given
+	List<PaymentMethod> methodsAvailableInPoland = Arrays.asList(new PaymentMethod[] {
+		PaymentMethod.MASTERCARD, PaymentMethod.VISA,
+		...
+		// and all other methods available in Poland
+	}
+
+	//when
+	List<PaymentMethod> methodsForCountry = PaymentMethod.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+
+	//then
+	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
+}
+----
+
+
 == Happy Path
 [quote, Wikipedie]
 ____
