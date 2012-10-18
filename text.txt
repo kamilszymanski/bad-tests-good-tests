@@ -1022,8 +1022,13 @@ Let me stress one thing though. Such tests are not evil. There is nothing wrong 
 TODO what example here?
 
 == Naming is the King
-This is interesting because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
+[verse, Cyprian Kamil Norwid, Vade-mecum: In lieu of introduction]
+____
+To give the proper word - to thing!
+____
+This is interesting issue because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
 
+=== A Rose by any Other Name... Not Really!
 The first example presents a simple case of a test related to permission-checking module. The next listing shows a small fragment of this test - a data provider which feeds test methods with data.
 
 ----
@@ -1060,48 +1065,67 @@ public static Object[][] userPermissions() {
 
 A guest can only read, logged users can also write, and admin has all permissions. Now the error message - e.g. '"+admin+ was expected to have +DELETE+ permission"' makes sense.
 
+=== Object1, Object2, Object3
 Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
 
 ----
-Domain domain1 = daoTestHelper.someUtilityMethodWhichCreatesDomain(...)
-daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain1, "PL", 1);
-daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain1, "US", 1);
-Domain domain2 = daoTestHelper.someUtilityMethodWhichCreatesDomain(...)
-daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain2, "PL", 4);
-daoTestHelper.anotherUtilityMethodWhichSetsSomeProperties(domain2, "US", 8);
+Domain domain1 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
+daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
+Domain domain2 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
+daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
 
-// and so on till domain5 or so
+// ... and so on till domain5 or so
 ----
 
-What I hate about this are the names of domain objects suffixed with numbers (+domain1+, +domain2+ etc.). They bring no information about the state (role, properties) of the objects and make assertions quite mysterious:
+What I hate about this are the names of domain objects suffixed with numbers (+domain1+, +domain2+ etc.). They bring no information about the state (role, properties) of the objects. Here comes an updated version:
 
 ----
-TODO assertion message here
+Domain domainWith1PlClick = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "PL", 1, 0);
+daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "US", 2, 1);
+Domain domainWith4PlClicks = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "PL", 4, 2);
+daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "US", 8, 4);
 ----
 
-Why do we expect TODO +domain4+ to have exactly TODO? To understand this we need to go back to where it was created and read it line by line. We can do a little better if we use a more descriptive name for our domains. This is shown below.
+Believe me, these names makes perfect sense for this particular scenario and for the problem domain. They allow to come with very readable custom assertions similar to this:
 
 ----
-TODO
+assertThat(result).hasResultsForDomain(domainWith4PlClicks, 4);
 ----
 
-Now the assertion looks better. We expect TODO to have TODO, which seems reasonable.
-
-BTW. While refactoring this test, I have found an interesting thing. Look at the original code once again. Can you see it?
+Surprisingly this simple refactorings of names has helped me to undercover an issue hidden within the test code. I admit I haven't seen it when the original names of variables (+domain1+, +domain2+ etc.) were used. Look at the longer snippet of the original code. It repeats the same pattern of first creating a domain and then creating some statistics for it. However there is one place in which this pattern breaks. Can you spot it?
 
 ----
-TODO
+Domain domain1 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
+daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
+Domain domain2 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
+daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
+Domain domain3 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
+daoTestHelper.domainCountry30DayStatistics(domain3, "PL", 16);
+daoTestHelper.domainCountry30DayStatistics(domain3, "CZ", 32);
+Domain domain4 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+daoTestHelper.domainCountry30DayStatistics(domain3, "US", 64);
+Domain domain5 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
 ----
 
-Well, maybe you spotted it, but I hadn't when I worked with the code (ok, you knew there is something wrong there, and I hadn't). Only when I started renaming thing I noticed that +domain3+ is used where +domain4+ should had been used. It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result), but still it illustrates very well what happens if all variables names differ only so slightly. It is very simple to mix things up.
-
-TODO img
+Well, maybe you spotted it (congratulations!) but I hadn't when I worked with the code. Only when I started renaming variables I noticed that in one place +domain3+ is used where +domain4+ should had been used (take a look at the next to last line). It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result), but still it illustrates very well what happens if all variables names differ only so slightly. It is very simple to mix things up.
 
 .Conclusion
 It is the same like with classes. At first you begin with useless names like +ClientDAOImpl+ but then you learn that you can have much more intention-revealing names. +HibernateClientDAO+, +InMemoryClientDAO+, +HighPerformanceClientDAO+ or whatever describes this particular implementation. There is always something to say about your class. I believe the same applies to the variables used in tests. I often start with +campaignA+ and +campaignB+ but then it occuress to me that these should be really +campaign+ and +campaignWithSameAdvertiser+ (while in other test method I have +campaign+ and +campaignWithDifferentAdvertiser+). Try it, it makes your test code so much more readable!
 
+TIP: Do not su/pre-fix names of test variables with letters or numbers! Find intention revealing names for them.
+
 [[sec_intention_revealing]]
 === What True and False Stand For?
+[quote, Pilat, John 18:38]
+____
+What is truth?
+____
 If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
 
 ----
@@ -1151,7 +1175,7 @@ TODO ref to test data builders chapter
 
 [[sec_should]]
 === Should is Better than Test
-Once upon a time, where His Majesty King JUnit the Third ruled the land of Java testing, we were all forced to prefix our test methods with +test+ word. Somehow this custom survived the death of the king{empty}pass:[]footnote:[Some people says it was his younger brother - JUnit the Fourth - who killed him. Others say it was barbarians from TestNG who did this. Whatever. He is dead. Period.]. Which is really troublesome as we will soon see.
+Once upon a time, where His Majesty King JUnit the Third ruled the land of Java testing, we were all forced to prefix our test methods with +test+ word. Somehow this custom survived the death of the king{empty}pass:[]footnote:[Some people accuse his younger brother (JUnit the Fourth) of murdering him. Others blame barbaric tribes of TestNG. Java 5 acolytes mention the lack of annotations as the reason of his doom. The rest does not care at all. But all are happy that he is gone.]. Which is really troublesome as we will soon see.
 
 // TODO in relation to "test behaviour not methods" <<sec_test_behaviour>>
 
