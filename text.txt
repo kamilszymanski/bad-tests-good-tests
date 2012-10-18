@@ -1259,10 +1259,12 @@ public void shouldReturnSingleResultReturnedByDao {
 TIP: Start with +should+. Think about scenario. Do not use +test+ prefix.
 
 === When Test Name Lies
-I often find test names which are misleading. Take this method as an example. Does it really verifies whether '"new values are inserted"'? I wouldn't say so. Frankly I'm not 100% sure what this test is all about, but it rather seems to me that it verifies whether the new value overrides older one. If so, it should be rather named +shouldOverrideOldReportWithNewValues+.
+[quote, S.E. Hinton, The Outsiders]
+____
+I lie to myself all the time. But I never believe me. 
+____
 
-Not a big deal, huh? Well, maybe not a big deal, but why should your test lie to you? If one of the tests' purposes is to serve as documentation than it is a bad joke to have tests lying to you.
-
+I often find test methods with misleading names. Take this one for example.
 ----
 public void shouldInsertNewValues() {
 	//given
@@ -1277,6 +1279,13 @@ public void shouldInsertNewValues() {
 		.isEqualTo(1);
 }
 ----
+Does it really verifies whether '"new values are inserted"'? I wouldn't say so. Frankly I'm not 100% sure what this test is all about, but it rather seems to me that it verifies whether the new value overrides older one. If so, it should be rather named +shouldOverrideOldReportWithNewValues+.
+
+Not a big deal, huh? Well, maybe not a big deal, but why should your test lie to you? If one of the tests' purposes is to serve as documentation than it is a bad joke to have tests lying to you.
+
+As long as this test is green everything is good. But after you do some huge changes in this area of the system{empty}pass:[]footnote:[Remember that the only constant thing in software development is change. :)] and the tests suddenly fails you will be in real trouble. Does the scenario covered by this test is still valid? Should it be removed? Should it be changed... but how? Good luck solving this! 
+
+TIP: Make sure the names of test methods are describing well the scenarios they cover. Be careful especially when updating tests. Are they still valid after the changes you have just introduced?
 
 [[sec_test_behaviour]]
 == Test Behaviour Not Methods
