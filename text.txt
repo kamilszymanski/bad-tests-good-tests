@@ -1287,6 +1287,43 @@ As long as this test is green everything is good. But after you do some huge cha
 
 TIP: Make sure the names of test methods are describing well the scenarios they cover. Be careful especially when updating tests. Are they still valid after the changes you have just introduced?
 
+== Ceremony
+BDD is great for telling stories. The +given/when/then+ rhythm is a great thing. And many tests benefit from this pattern. However sometimes I find it hard to justify the presence of the whole BDD ceremony in some very simple tests. Like the one shown below.
+
+----
+public void shouldBuildEmailSender() {
+	// given
+	String senderName = "Chuck Norris";
+	String senderEmail = "chuck@norris.com";
+
+	// when
+	String emailSender = EmailUtils.buildEmailSender(senderName, senderEmail);
+
+	// then
+	assertThat(emailSender).isEqualTo("Chuck Norris <chuck@norris.com>");
+}
+----
+
+When I look at the content of +given+, +when+ and +then+ sections I feel like they were added only to honor the tradition of BDD. It is like adding desing patterns to your production code not because they are required, but because someone told you should do so. With all respect to BDD ideas why not stick with something much simpler. For example like this:
+
+----
+public void shouldBuildEmailSender() {
+	String emailSender = EmailUtils.buildEmailSender("Chuck Norris", "chuck@norris.com");
+	assertThat(emailSender).isEqualTo("Chuck Norris <chuck@norris.com>");
+}
+----
+
+Or even like this:
+
+----
+public void shouldBuildEmailSender() {
+	assertThat(EmailUtils.buildEmailSender("Chuck Norris","chuck@norris.com")
+		.isEqualTo("Chuck Norris <chuck@norris.com>");
+}
+----
+
+TIP: KISS. Keep It Simple Stupid!
+
 [[sec_test_behaviour]]
 == Test Behaviour Not Methods
 TODO
