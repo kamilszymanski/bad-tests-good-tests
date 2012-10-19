@@ -586,7 +586,7 @@ Is it better now? I would say it is. Both test methods are more focused. Each of
 
 I find it hard to find good reasons for splitting tests in such way. I believe a good way to explain the reason is by analogy to the good rule of keeping your methods (in production code) focused. This is the implementation of the same pattern. You should keep things small and focused. Both in production and in test code.
 
-TIP: A simple rule to follow: '"One method, multiple behaviours? -> multiple tests"'.
+TIP: A simple rule to follow: '"One method, multiple behaviours? Multiple tests!"'.
 
 === A Counter Example
 And now, a counter example. Yes, after I have tried to convince you that it is good to split tests into smaller ones (each testing a unique test case), I will show an example of the opposite approach.
@@ -1228,7 +1228,7 @@ This test:
 
 * definitely breaks SRP (see <<sec_srp>>),
 * uses some magical switches (who tells me what +true+ and +false+ stand for? - see <<sec_intention_revealing>>),
-* uses cryptic variables name (q+, +o+ and +t+)
+* uses cryptic variables name (+q+, +o+ and +t+)
 
 but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
 
@@ -1329,6 +1329,8 @@ TIP: KISS. Keep It Simple Stupid!
 TODO
 
 == Assertions
+
+TODO add short introduction here
 
 === Say No to Complex Assertions
 In unit tests assertions are usually not a problem. Your tests are focused and test one thing so there is usually only one assertion and everything is clear. However it is much worse with integration and end-to-end tests in which the assertion part could be huge.
@@ -1493,6 +1495,17 @@ This looks different for custom assertions which are more related to integration
 
 Secondly, custom assertions are often written after you have already written assertions in your tests. This is rather natural. At some point of writing your test you realize that the assertion part of it is getting too big and/or too complicated. Then you create your custom assertion class and copy there parts of your assertions. This usually happens when you verified your assertions working (by running tests). 
 
+=== Comparison of Objects
+
+TODO Pager test
+
+* Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. This is why I prefere to put few assertions (or even better to write custom one) instead of comparing objects. Let us have a look at the example below.
+
+INFO: In contrast to many other tests presented in the book this one has many issues that we will solve one by one.
+
+* why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
+
+
 == Excessive SetUp
 builders
 
@@ -1565,13 +1578,6 @@ TODO
 
 [[sec_thread_sleep]]
 == Thread.sleep()
-TODO any example of such things?
-
-* got selenium one - mention it can leverage what frameworks provide
-* need something else to introduce awaitility
-
-=== ExecutorService
-
 [verse, The New England Primer, 1697]
 ____
 Now I lay me down to sleep,
@@ -1580,6 +1586,12 @@ If I shall die before I wake,
 I pray the Lord my soul to take. Amen.
 ____
 
+TODO any example of such things?
+
+* got selenium one - mention it can leverage what frameworks provide
+* need something else to introduce awaitility
+
+=== ExecutorService
 TODO algorithm.storeSuccess
 
 ----
