@@ -1450,8 +1450,6 @@ TIP: Let your tests (and assertions) speak with domain language, not in implemen
 
 [[sec_assertions_vs_private_methods]]
 === Avoid Assertions using Private Methods
-TODO assertions from Martin which were hard to undrestand
-
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
 
 ----
@@ -1468,6 +1466,7 @@ And all is good, at least for some time. You write more tests still reusing this
 TODO normal assertState() method
 ----
 
+??? from here until ???END lines may have been inserted/deleted
 Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes TODO almost 10 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations).
 
 And what can be done about it.
@@ -1485,6 +1484,50 @@ assertThat(client).isVip().and().hasDiscount(0.2)
 
 And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
 
+TODO assertions from Martin which were hard to undrestand - maybe a different subsection?
+
+In another test that I have seen there were many test methods like this:
+----
+@Test
+public void testCompile_32Bit_FakeSourceFile() {
+	CompilerSupport _32BitCompilerSupport
+		= CompilerSupportFactory.getDefault32BitCompilerSupport();
+	testCompile_FakeSourceFile(_32BitCompilerSupport);
+}
+----
+It is not easy to figure out what scenario is tested by this method. In fact this is almost impossible without looking into the +testCompile_FakeSourceFile()+ method. So let us have a look at it.
+
+----
+private void testCompile_FakeSourceFile(CompilerSupport compilerSupport) {
+	String[] compiledFiles = compilerSupport.compile(new File[] { new File("fake") });
+	assertThat(compiledFiles, is(emptyArray()));
+}
+----
+Hm... clear? Not to me. I still can not tell you what is story behind +testCompile_32Bit_FakeSourceFile+. Is it because I know nothing about the domain of the problem? To some extente the answer is yes. However I suspect that even if I knew it very well I still would had to figure out the purpose of this method. It seems to me that some improvement is possible. First of all I would get rid of helper private method.
+
+----
+@Test
+public void testCompile_32Bit_FakeSourceFile() {
+	CompilerSupport _32BitCompilerSupport
+		= CompilerSupportFactory.getDefault32BitCompilerSupport();
+	String[] compiledFiles = compilerSupport.compile(SINGLE_FAKE_FILE);
+	assertThat(compiledFiles, is(emptyArray())));
+}
+----
+
+Then I would consider renaming the test method and writing a custom assertion to better express the intention behind this test.
+
+----
+@Test
+public void compiler32BitShouldNotBotherToCompileFakeSourceFile() {
+	CompilerSupport _32BitCompilerSupport
+		= CompilerSupportFactory.getDefault32BitCompilerSupport();
+	String[] compiledFiles = compilerSupport.compile(SINGLE_FAKE_FILE);
+	assertThat(compiledFiles).nothingWasCompiled();
+}
+----
+Is it better? Ah, this is for you to decide.
+
 === Cost of Custom Assertions
 There is a question which could be asked by an inquisitive reader. Custom assertions contain some code, even some logic. How can I be sure that there is no mistake there?
 
@@ -1499,12 +1542,19 @@ Secondly, custom assertions are often written after you have already written ass
 
 TODO Pager test
 
+
+=== Comparison of Objects
+
+TODO Pager test
+
 * Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. This is why I prefere to put few assertions (or even better to write custom one) instead of comparing objects. Let us have a look at the example below.
 
 INFO: In contrast to many other tests presented in the book this one has many issues that we will solve one by one.
 
 * why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
 
+== Only What Is Important
+TODO maven artifact test from Confitura 2012
 
 == Excessive SetUp
 builders
@@ -1881,14 +1931,11 @@ So I worked once upon a really good project. The codebase was above the average 
 All of this was really irritating. We had tests, for God's sake! In fact, we had plenty of them. Our code was more OO than ever - every small class was testable and we really had unit tests covering them all! Still, we had so many issues with our project. 
 
 In the whole book we have put a lot of attention to writing our tests the right way. We pondered over things like the naming of variables, the lack of implementation details, the clarity of test code and so on. Each of them seems tiny but when you neglect many of them your tests will become a nightmare to maintain. I hope that you understand it very well now based on the examples given in this book (and also on your own experience).
-
-But now I have an advice that is probably the most important of all given here. The advice is simple.
-
-TIP: Write tests which make you confident that your system works.
-
 If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods{empty}pass:[]footnote:[A delegator method is one which does not do anything important on its own, but delegates the work to some collaborator.] and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system works for the users.
 
 Don't just sit and write tests. First think which tests to write.
+
+TIP: Write tests which make you confident that your system works.
 
 == Things to Remember
 
