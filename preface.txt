@@ -11,7 +11,7 @@ The idea behind this book is to present test code snippets and discuss ways of m
 
 All examples discussed in this book come from real code of real applications. I haven't made them up. They are real. From thousands of tests I have seen I have selected these which illustrate some typical errors or imperfections which I frequently encounter while doing code reviews (or pondering over my own code!).
 
-Some of the code examples were obfuscated in order to '"protect the innocents"'. ;) Other were significantly truncated, so only their '"essence"' was left, and all the cluttering ware removed. This makes the examples easier to understand but at the same time it makes some of the discussed issues look not so important. However they *are* important in real life scenarios, where you have to deal with numerous much more complicated tests. 
+Some of the code examples were obfuscated in order to '"protect the innocents"'. ;) Other were significantly truncated, so only their '"essence"' was left, and all the cluttering was removed. This makes the examples easier to understand but at the same time it makes some of the discussed issues look not so important. However they *are* important in real life scenarios, where you have to deal with numerous much more complex tests. 
 
 Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. I think they are rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
 
