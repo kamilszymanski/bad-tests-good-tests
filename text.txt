@@ -1405,7 +1405,7 @@ As you can see below an indexing variable +i+ is used to navigate through the re
 @Test
 public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 	//given
-	... some complicated set-up here
+	... some complex set-up here
 
 	//when
 	List<DomainObject> result = someDao.getStatistics(campaign, true, 100, 0);
@@ -1428,7 +1428,7 @@ As usual when it comes to making assertions more readable we can use private met
 @Test
 public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 	//given
-	... some complicated set-up here
+	... some complex set-up here
 
 	//when
 	List<DomainObject> result = someDao.getStatistics(campaign, WITH_EXCLUDED, 100, 0);
@@ -1533,7 +1533,7 @@ There is a question which could be asked by an inquisitive reader. Custom assert
 
 Ok, I admit. I do not test my custom assertions. This comes from few facts.
 
-First of all the logic of custom assertions is *very* limited (if any at all). Usually they boil down to fetching some properties of an object and comparing it with expected result. Writing custom assertions for your domain objects you will rarely find a need for a +for+ loop there or anything more complicated. It often happens that the majority of code is devoted to the creation of custom error messages. +
+First of all the logic of custom assertions is *very* limited (if any at all). Usually they boil down to fetching some properties of an object and comparing it with expected result. Writing custom assertions for your domain objects you will rarely find a need for a +for+ loop there or anything more complex. It often happens that the majority of code is devoted to the creation of custom error messages. +
 This looks different for custom assertions which are more related to integration tests - like the one discussed in <<sec_asserting_too_much>>. In such case you can consider writing of tests for your assertions.
 
 Secondly, custom assertions are often written after you have already written assertions in your tests. This is rather natural. At some point of writing your test you realize that the assertion part of it is getting too big and/or too complicated. Then you create your custom assertion class and copy there parts of your assertions. This usually happens when you verified your assertions working (by running tests). 
@@ -1824,11 +1824,11 @@ TODO
 == Asserting Too Much
 TODO comparison of objects with +equals+
 
-Take a look at this test. Only the last lines of it are presented, but believe me - it was a really complicated end-to-end test. It involved the SUT (the whole system) receive some requests and generate answers in form of CSV files.
+Take a look at this test. Only the last lines of it are presented, but believe me - it was a really complex end-to-end test. It involved the SUT (the whole system) receive some requests and generate answers in form of CSV files.
 
 ----
 public void invalidTxShouldBeCanceled() {
-	... some complicated test here
+	... some complex test here
 
 	// then
 	String fileContent = 
@@ -1842,7 +1842,7 @@ Look at the method name - +invalidTxShouldBeCanceled+ (hint: 'Tx' stands for 'tr
 Another variant, which I would recommend, relies on - surprise, surprise! - custom annotations.
 ----
 public void invalidTxShouldBeCanceled() {
-	... some complicated test here
+	... some complex test here
 
 	// then
 	String fileContent = 
