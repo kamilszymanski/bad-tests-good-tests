@@ -1453,23 +1453,67 @@ TIP: Let your tests (and assertions) speak with domain language, not in implemen
 So you have a test scenario. It is a complex integration test which covers some important functionality. At the end of it you write some assertions to make sure that the data in the database are in expected state. It can look like this:
 
 ----
-TODO
+public void testChargeInRetryingState() throws Exception {
+	// given
+	TxDTO request = createTxDTO(RequestType.CHARGE);
+	AndroidTransaction androidTransaction = ...
+	Processor processor = ...
+	... much more complex set-up code here
 
-test with assertState but inline, and with less assertions.
+	// when
+	final TxDTO txDTO = processor.processRequest(request);
+
+	// then
+	assertEquals(txDTO.getResultCode(), ResultCode.SUCCESS);
+	final List<AndroidTransactionStep> steps
+		= new ArrayList<AndroidTransactionStep>(androidTransaction.getTransactionSteps());
+	final AndroidTransactionStep lastStep = steps.get(steps.size() - 1);
+	assertEquals(lastStep.getTransactionState(), AndroidTransactionState.CHARGE_PENDING);
+	assertEquals(lastStep.getMessage(), ClientMessage.SUCCESS);
+	... some more assertions here
+}
 ----
 
-So far so good. Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written. '"Reuse is good"' you think and you do the most obvious thing - you create a +private+ method and call it from both tests (and later from more tests).
+So far so good. Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written. '"Reuse is good"' you think and you do the most obvious thing: you create a private method and call it from both tests (and later from more tests). Now this method is responsible for the verifications of result. It seems right. Now there is no code duplication among test methods because all assertions are done by this separated private method.
 
-And all is good, at least for some time. You write more tests still reusing this one assertion method. But soon you encounter problems. The assertions in the method are not exactly what you need in some particular test cases. They are very close to what you want, but not exactly. '"Reuse is good"' you say and make your private method more generic so it can handle more test cases. The result is presented below:
+And all is good and well at least for some time. You write more tests still reusing this one assertion method. But soon you encounter problems. The assertions in the method are not exactly what you need in some particular test cases. They are very close to what you want, but not exactly. '"Reuse is good"' you say and make your private method more generic so it can handle more test cases. The result is presented below:
 
 ----
-TODO normal assertState() method
+private void assertState(TxDTO txDTO, AndroidTransaction androidTransaction,
+	AndroidTransactionState expectedAndroidState,
+	AndroidTransactionState expectedPreviousAndroidState,
+	ExtendedState expectedState,
+	String expectedClientStatus,
+	ResultCode expectedRequestResultCode) {
+
+	final List<AndroidTransactionStep> steps
+		= new ArrayList<AndroidTransactionStep>(androidTransaction.getTransactionSteps());
+	final boolean checkPreviousStep = expectedAndroidState != null;
+	assertTrue(steps.size() >= (checkPreviousStep ? 3 : 2));
+
+	if (checkPreviousStep) {
+		AndroidTransactionStep lastStep = steps.get(steps.size() - 2);
+		assertEquals(lastStep.getTransactionState(),
+		expectedPreviousAndroidState);
+	}
+
+	final AndroidTransactionStep lastStep = steps.get(steps.size() - 1);
+	assertEquals(lastStep.getTransactionState(), expectedAndroidState);
+	assertEquals(lastStep.getMessage(), expectedClientStatus);
+
+	assertEquals(txDTO.getResultCode(), expectedRequestResultCode);
+	assertEquals(androidTransaction.getState(), expectedAndroidState);
+	assertEquals(androidTransaction.getExtendedState(), expectedState);
+
+	if (expectedClientStatus == null) {
+		verifyZeroInteractions(client);
+	}
+}
 ----
 
-??? from here until ???END lines may have been inserted/deleted
-Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes TODO almost 10 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations).
+Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes 7 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations).
 
-And what can be done about it.
+TODO And what can be done about it.
 
 * assertions
 * setup
