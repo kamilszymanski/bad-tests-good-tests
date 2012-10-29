@@ -965,7 +965,8 @@ public void shouldGetMethodsForPoland() {
 	}
 
 	//when
-	List<PaymentMethod> methodsForCountry = PaymentMethod.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+	List<PaymentMethod> methodsForCountry = PaymentMethod
+		.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
 
 	//then
 	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
@@ -975,7 +976,8 @@ The test seems right... but there is something disturbing about its +given+ part
 ----
 public enum PaymentMethod {
 
-	public static List<PaymentMethod> getMethodsForCountry(Country country, List<PaymentMethod> availableMethods) {
+	public static List<PaymentMethod> getMethodsForCountry(Country country, 
+								List<PaymentMethod> availableMethods) {
 		List<PaymentMethod> methodsForCountry = Lists.newArrayList();
 		for (PaymentMethod method : availableMethods) {
 			if (method.isEligibleForCountry(country.getCode())) {
@@ -999,13 +1001,14 @@ public void shouldGetMethodsForPoland() {
 	}
 
 	//when
-	List<PaymentMethod> methodsForCountry = PaymentMethod.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+	List<PaymentMethod> methodsForCountry = PaymentMethod
+		.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
 
 	//then
 	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
 }
 ----
-
+Ah, better now! :) This test does not use the logic of +PaymentMethod+ enum anymore, but simply provides a list of expected results.
 
 == Happy Path
 [quote, Wikipedie]
