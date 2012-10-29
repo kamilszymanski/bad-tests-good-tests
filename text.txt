@@ -1589,11 +1589,6 @@ Secondly, custom assertions are often written after you have already written ass
 
 TODO Pager test
 
-
-=== Comparison of Objects
-
-TODO Pager test
-
 * Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. This is why I prefere to put few assertions (or even better to write custom one) instead of comparing objects. Let us have a look at the example below.
 
 INFO: In contrast to many other tests presented in the book this one has many issues that we will solve one by one.
