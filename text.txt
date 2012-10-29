@@ -1595,9 +1595,6 @@ INFO: In contrast to many other tests presented in the book this one has many is
 
 * why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
 
-== Only What Is Important
-TODO maven artifact test from Confitura 2012
-
 == Excessive SetUp
 builders
 
@@ -1896,6 +1893,9 @@ public void invalidTxShouldBeCanceled() {
 I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfuly (meaning, the cancelation of this transaction succeeded)'. 
 
 == Avoid Overspecified Tests
+This section contains examples which illustrate another common issue with our tests. I see them often specify too many things which are not really related to the tested scenario. This reduces the readability of tests, and also influences their maintainability by increasing the number of things which force us to update the test code.
+
+=== Mocking Is Not About Repeating Everything
 The code below - copied from Mockito mailing list - is definitely breaking one of the rules of mocking: '"mock only types you own"'. But what it also does is that it is so very detailed that it describes every single bit of the production code (I say it without actually seeing the production code, but I bet this is the case!). This is bad. The test code is so tightly coupled to implementation that you can't introduce any changes there without breaking it.
 
 And what does it really test? Well, everything and nothing at all at the same time. It verifies all the interactions between the SUT and its collaborators, but it even goes further: it stubs the SUT and then it verifies if it was stubbed! This is really useless unless your goal is to test Mockito's stubbing abilities (do not do that, thousands of people has already proved Mockito works fine!).
@@ -1951,6 +1951,53 @@ Ok, that would be unfair to leave this test like this. I think we deserve at lea
 The rule of thumb is, that your DAOs are something you should rather not unit test. Why? Because there is usually no logic there (DAO should be a thin wrapper over database stuff). Instead have integration tests which set up a real database. If your DAO is not vendor-specific, it can be any database which is convenient for testig - e.g. H2{empty}pass:[]footnote:[http://www.h2database.com]. Then verify that the entites inserted and fetched by your DAOs are what you expect them to be. Concentrate on the complicated stuff (provided that your DAO layer have such). Do not test simple CRUD functionality that your ORM is doing for you (if there is something wrong here - which is very unlikely - you will find out when running end-to-end tests).
 
 TIP: Go search on http://stackoverflow.com/search?q=dao%20testing[Stack Overflow] for '"dao testing"' - you will find many good tips there.
+
+=== Copy & Paste
+Below a sample test which I wrote myself. It verifies whether some Maven-related utility class can recognize snapshot artifacts.
+----
+@DataProvider
+public Object[][] snapshotArtifacts() {
+	return new Object[][]{
+		{"a", "b", "2.2-SNAPSHOT", Artifact.JAR },
+		{"c", "d", "2.2.4.6-SNAPSHOT", Artifact.JAR},
+		{"e", "f", "2-SNAPSHOT", Artifact.JAR}
+	};
+}
+
+@Test(dataProvider = "snapshotArtifacts")
+public void shouldRecognizeSnapshots(
+		String groupId, String artifactId, 
+		String version, Type type) {
+	Artifact artifact
+		= new Artifact(groupId, artifactId, version, type);
+	assertThat(artifact.isSnapshot()).isTrue();
+}
+----
+All is good an well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
+
+After the refactor the same test took the following form:
+----
+@DataProvider
+public Object[][] snapshotVersions() {
+	return new Object[][]{
+		{"2.2-SNAPSHOT"},
+		{"2.2.4.6-SNAPSHOT"},
+		{"2-SNAPSHOT"}
+	};
+}
+
+@Test(dataProvider = "snapshotVersions")
+public void shouldRecognizeSnapshots(String version) {
+	Artifact artifact
+		= new Artifact(VALID_GROUP, VALID_ARTIFACT_ID, 
+		version, VALID_TYPE);
+	assertThat(artifact.isSnapshot()).isTrue();
+}
+----
+As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is to announce '"I'm a right value and I'm really not important for this test scenario"'.
+
+NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of the data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
+
 
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
