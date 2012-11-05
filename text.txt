@@ -1595,7 +1595,7 @@ INFO: In contrast to many other tests presented in the book this one has many is
 
 * why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
 
-== Excessive SetUp
+== SetUp
 builders
 
 ////
@@ -1998,6 +1998,43 @@ As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is
 
 NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of the data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
 
+== Waste of Time
+There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
+
+Take for example this test (which, as all other tests in this book is real, however obfuscated).
+
+----
+@Test
+public void shouldReturnImportantValue() {
+	//given
+	given(settings.getImportantValue()).willReturn(IMPORTANT_VALUE);
+
+	//when
+	BigDecimal importantValue = settingsFacade.getImportantValue();
+
+	//then
+	assertThat(importantValue).isEqualByComparingTo(IMPORTANT_VALUE);
+}
+----
+The test is about two classes - the +SettingsFacade+ class which delegates calls to its collaborator of the +Settings+ class. The tested method looks like this:
+
+----
+public BigDecimal getImportantValue() {
+	return settings.getImportantValue();
+}
+----
+Hm.... What kind of error do we expect to catch by writing this kind of tests?
+
+I often hear that the real reason for writing such tests is because of the future evolution of code. Once upon a time a simple getter or delegator method will be updated and then we will find out whether its current functionality has been broken. I do not share this view. First of all it goes against the YAGNI principle{empty}pass:[]footnote:[See http://en.wikipedia.org/wiki/You_ain%27t_gonna_need_it]. I can't give precise numbers but I would say that the vast majority (99%?) of such simple methods will not evolve. Which means that 99 times of 100 you wasted your time writing tests. Second, any mature developer understands that when introducing some logic into existing method she/he needs to review the tests and update them. Third, there is a chance that even if your unit tests won't notice the change, your higher level tests will. +
+Fourth, the hope that the future change of such method will be caught by our test is... well, it is only a hope. The thing is that you can not predict the future evolution of the code. What if the code evolves like this:
+----
+public BigDecimal getImportantValue() {
+	return (settings.getImportantValue() != null) ? settings.getImportantValue() : DEFAULT_VALUE;
+}
+----
+Our old test will still pass, won't it? The thing is that it can prevent only *some* changes to the code.
+
+NOTE: Test everything that can break. Do not waste your time testing what is 'too simple to break'.
 
 [[sec_fix_the_code_first]]
 == Fix the Code Then Write Tests
