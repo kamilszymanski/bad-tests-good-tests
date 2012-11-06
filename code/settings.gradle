@@ -2,4 +2,5 @@ include 'localized_exceptions',
 	'thread_sleep',
 	'thread_sleep_memcached',
 	'asserting_private_methods',
-	'what_is_asserted'
+	'what_is_asserted',
+    'change_test_after_logic_is_changed'
