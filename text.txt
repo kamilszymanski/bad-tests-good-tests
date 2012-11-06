@@ -1998,6 +1998,62 @@ As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is
 
 NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of the data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
 
+== Tests Should Follow the Evolution of Code
+TODO intro
+
+----
+public class TransactionTest {
+
+	@Test
+	public void shouldRecognizeTransactionsWithZeroValueAsInvalid() {
+		//given
+		Transaction transaction = new Transaction(BigDecimal.ZERO, new InternalUser());
+
+		//when
+		boolean actual = transaction.validate();
+
+		//then
+		assertThat(actual).isFalse();
+	}
+
+	@Test
+	public void shouldRecognizeTransactionWithNegativeValueAsInvalid() {
+		//given
+		Transaction transaction = new Transaction(BigDecimal.ONE.negate(), new InternalUser());
+
+		//when
+		boolean actual = transaction.validate();
+
+		//then
+		assertThat(actual).isFalse();
+	}
+}
+----
+
+----
+public class Transaction {
+
+	private final BigDecimal amount;
+	private final User user;
+
+	public Transaction(BigDecimal amount, User user) {
+		this.amount = amount;
+		this.user = user;
+	}
+	
+	public boolean validate() {
+		if (!user.isExternal()) {
+			return false;
+		}
+		return amount.compareTo(BigDecimal.ZERO) > 0;
+	}
+}
+----
+
+TODO should modify both test methods by replacing +InternalUser+ with +ExternalUser+ and also add another test which would verify the behaviour of the +validate()+ method with valid amount and non-external user.
+
+NOTE: When your code evolves take care that your tests also evolve. The fact that they still pass is not enough to say that everything is fine.
+
 == Waste of Time
 There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
 
