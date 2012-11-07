@@ -1999,7 +1999,9 @@ As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is
 NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of the data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
 
 == Tests Should Follow the Evolution of Code
-TODO intro
+Tests are meant to be a perfect documentation which is always up-to-date. Unfortunately this is not always so.
+
+Below you can see one test that drew my attention during the code review. It tests the +Transaction+ class which holds information about the user involved within the transaction and the amount of transaction. Both presented test methods verify "negative" cases: the system should treat transactions with amounts equal or less than zero as invalid.
 
 ----
 public class TransactionTest {
@@ -2007,10 +2009,10 @@ public class TransactionTest {
 	@Test
 	public void shouldRecognizeTransactionsWithZeroValueAsInvalid() {
 		//given
-		Transaction transaction = new Transaction(BigDecimal.ZERO, new InternalUser());
+		Transaction tx = new Transaction(BigDecimal.ZERO, new InternalUser());
 
 		//when
-		boolean actual = transaction.validate();
+		boolean actual = tx.validate();
 
 		//then
 		assertThat(actual).isFalse();
@@ -2019,10 +2021,10 @@ public class TransactionTest {
 	@Test
 	public void shouldRecognizeTransactionWithNegativeValueAsInvalid() {
 		//given
-		Transaction transaction = new Transaction(BigDecimal.ONE.negate(), new InternalUser());
+		Transaction tx = new Transaction(BigDecimal.ONE.negate(), new InternalUser());
 
 		//when
-		boolean actual = transaction.validate();
+		boolean actual = tx.validate();
 
 		//then
 		assertThat(actual).isFalse();
@@ -2030,29 +2032,27 @@ public class TransactionTest {
 }
 ----
 
+This test was valid and reasonable some time ago, when the +validate()+ method looked like this:
 ----
-public class Transaction {
-
-	private final BigDecimal amount;
-	private final User user;
-
-	public Transaction(BigDecimal amount, User user) {
-		this.amount = amount;
-		this.user = user;
-	}
-	
-	public boolean validate() {
-		if (!user.isExternal()) {
-			return false;
-		}
-		return amount.compareTo(BigDecimal.ZERO) > 0;
-	}
+public boolean validate() {
+	return amount.compareTo(BigDecimal.ZERO) > 0;
 }
 ----
+However at the time when I reviewed the test the same method had the following form:
 
-TODO should modify both test methods by replacing +InternalUser+ with +ExternalUser+ and also add another test which would verify the behaviour of the +validate()+ method with valid amount and non-external user.
+----
+public boolean validate() {
+	if (!user.isExternal()) {
+		return false;
+	}
+	return amount.compareTo(BigDecimal.ZERO) > 0;
+}
+----
+What it means is that both tests pass no matter whether the method properly verifies the +amount+ of transaction. The first check - +user.isExternal()+ - is what really makes both tests pass.
 
-NOTE: When your code evolves take care that your tests also evolve. The fact that they still pass is not enough to say that everything is fine.
+What happened here? Well, the code evolved, but the tests had not. Both test methods should had been modified by replacing instance of the +InternalUser+ class with the +ExternalUser+ class. Additionally another test should had been written to verify the behaviour of the +validate()+ method with valid amount and a non-external user.
+
+NOTE: When your code evolves take care that your tests also evolve. The fact that they still pass is not enough to say that everything is fine!
 
 == Waste of Time
 There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
