@@ -1595,6 +1595,38 @@ INFO: In contrast to many other tests presented in the book this one has many is
 
 * why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
 
+=== Assertions Should Be Merciless
+Ending your test with +assert+ is not enough. The point is to have assertion(s) which really verify the scenario that is being tested. Which is not always the case as proved by this example.
+
+----
+@Test
+public void shouldRemoveEmailsByState() {
+	//given
+	Email pending = createAndSaveEmail("pending","content pending","abc@def.com", Email.PENDING);
+	Email failed = createAndSaveEmail("failed","content failed","abc@def.com", Email.FAILED);
+	Email sent = createAndSaveEmail("sent","content sent","abc@def.com", Email.SENT);
+
+	//when
+	emailDAO.removeByState(Email.FAILED);
+
+	//then
+	assertThat(emailDAO.findAll()).excludes(failed);
+}
+----
+This test first creates three email entities and stores them in database. Then it executes the +removeByState()+ method of the +emailDAO+ SUT. Next it verifies whether... well, yes, what does it really verify?
+
+The assertion makes sure that the +failed+ email is not in the database anymore. However it does not prove that the +removeByState()+ works as expected. In particular, if it is flawed and removes all emails, then the test still passes.
+
+My suggestion would be to protect ourselves against such issues by writing slightly more challenging. For example like this:
+----
+assertThat(emailDAO.findAll()).isNotEmpty().excludes(failed);
+----
+or even better like this:
+----
+assertThat(emailDAO.findAll()).includes(pending, sent).excludes(failed);
+----
+This way we verify exactly what was removed from database.
+
 == SetUp
 builders
 
