@@ -2054,6 +2054,8 @@ What happened here? Well, the code evolved, but the tests had not. Both test met
 
 NOTE: When your code evolves take care that your tests also evolve. The fact that they still pass is not enough to say that everything is fine!
 
+And BTW. if you think about it some more... Shouldn't test evolve before the code rather than after it? It is not always applicable (especially in case of huge changes) but whenever possible, go for it!
+
 == Waste of Time
 There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
 
