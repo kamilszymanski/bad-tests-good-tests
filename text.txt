@@ -1627,6 +1627,48 @@ assertThat(emailDAO.findAll()).includes(pending, sent).excludes(failed);
 ----
 This way we verify exactly what was removed from database.
 
+== Expected Objects
+Each test should tell a story of what happens and what is expected. The story spans through the whole test and every part of the test takes part in its telling.
+
+I find some tests which fail to tell the story when it comes to assertion. Have a look at the following test. Only a tiny part of it is presented so we can concentrate on the issue at hand.
+
+----
+@Test
+public void shouldReturnModelWithCorrectValuesCalculated() {
+	//given
+	...
+
+	//when
+	DataModel result = ...;
+
+	//then
+	DataModel expectedResult = new DataModel<>(3.275, 1, 100);
+	assertThat(result).isEqualTo(expectedResult); // value should be (1+5+50+75=131)/(10+10+10+10=40) = 3.275
+}
+----
+The name of the test says that the SUT +shouldReturnModelWithCorrectValuesCalculated+. The comment at the end of the last assertion line tells me exactly what was important for the creator of the test. There is some average value calculated, and it is essential that it is equal to 3.275. If so, than instead of comparing full objects, let us verify this one value:
+
+----
+	// then
+	assertThat(result.getAverageValue()).isEqualTo(3.275);
+----
+
+After this change the test tells its story much better. The assertions part corresponds to the title of the test by specifying exact values which were expected to be calculated.
+ 
+By changing the assertion as we did we also also cure another, not yet mentioned, weakness of the previous version of this test. When the test fails and the compared objects do not overwrite the +toString()+ method then all you get is a cryptic error message. Like this one:
+----
+org.junit.ComparisonFailure:
+Expected :my.company.DataModel@e6037658
+Actual   :my.company.DataModel@4af66537
+----
+Now you have few options:
+
+* run the test again in debug mode to see what is the problem,
+* add reasonable +toString()+ method to the +DataModel+ class,
+* write custom assertions.
+
+When verifying specified properties instead of objects you are sure to get a valuable error message which tells exactly which of them is different than expected.
+
 == SetUp
 builders
 
