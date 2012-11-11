@@ -1675,6 +1675,8 @@ TIP: Do not add constructors to your domain classes only to make your test code 
 
 TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
 
+TODO example from Advertiser - many constructors with different order, used mainly by tests.
+
 An utility class used by integration tests (which create a lot of objects then save them to database so they can be further updated, searched, retrieved etc.).
 ----
 TODO example of constructors
