@@ -1585,16 +1585,6 @@ This looks different for custom assertions which are more related to integration
 
 Secondly, custom assertions are often written after you have already written assertions in your tests. This is rather natural. At some point of writing your test you realize that the assertion part of it is getting too big and/or too complicated. Then you create your custom assertion class and copy there parts of your assertions. This usually happens when you verified your assertions working (by running tests). 
 
-=== Comparison of Objects
-
-TODO Pager test
-
-* Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. This is why I prefere to put few assertions (or even better to write custom one) instead of comparing objects. Let us have a look at the example below.
-
-INFO: In contrast to many other tests presented in the book this one has many issues that we will solve one by one.
-
-* why bid information are important? they are lying - a reason why you shouldn't probably put too much comments into your test classes 20/15 or 10/15
-
 === Assertions Should Be Merciless
 Ending your test with +assert+ is not enough. The point is to have assertion(s) which really verify the scenario that is being tested. Which is not always the case as proved by this example.
 
@@ -1668,6 +1658,8 @@ Now you have few options:
 * write custom assertions.
 
 When verifying specified properties instead of objects you are sure to get a valuable error message which tells exactly which of them is different than expected.
+
+INFO: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
 
 == SetUp
 builders
