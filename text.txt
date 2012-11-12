@@ -1661,8 +1661,59 @@ When verifying specified properties instead of objects you are sure to get a val
 
 INFO: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
 
-== SetUp
-builders
+== Creation of Objects
+We haven't really discussed the part of the test which is responsible for objects creation.
+
+=== Polluting Production Code
+First of all, the weak organisation of this part of tests often influences the production code. Take for example the following part of the +User+ class:
+
+----
+public User() {
+}
+
+public User(String firstName, String lastName, String password, String email, 
+		String activationCode, Date registered, UserState state, Address address) {
+	this.firstName = firstName;
+	this.lastName = lastName;
+	... etc.
+}
+
+public User(String email, String firstName, String lastName, String password, 
+		UserState userState, Address address) {
+	this.email = email;
+	this.firstName = firstName;
+	... etc.
+}
+
+public User(String email, String firstName, String lastName, String password, 
+		String timezone, UserState userState, Address address) {
+	this.email = email;
+	this.firstName = firstName;
+	... etc.
+}
+
+public User(String email, String firstName, String lastName, Date registered, 
+		String activationCode, Date activationDate, String password, 
+		String timezone, BigDecimal accountBalance, UserState userState, 
+		Address address, BigDecimal currentBalance) {
+	this.email = email;
+	this.firstName = firstName;
+	... etc.
+}
+----
+As you can see there are five different constructors there! All of them - with the exception of the parameterless one - were created for testing purposes. Different tests required object of the +User+ class to have different properties set and this is how all these constructors were created. Later on, the same constructors were also used in the code. +
+This it not good. Objects creation code is now a mess of constructor calls with additional setters calls (because after some time it had occured that two more properties were also required). Also, the order of parameters is different: sometimes the first one is +email+, sometimes it is +firstName+. This is confusing. The 12-parameters constructor with many +String+ and +BigDecimal+ parameters is also confusing.
+
+TIP: Do not add constructors to your domain classes only to make your test code simpler.
+
+The problem with the code above is that no one stopped and criticly looked at the emerging constructors. If a proper code review had been performed, then this bad code would had been stopped at the very beginning with relatively low cost.
+
+And the solution? Create a +UserBuilder+ class which takes care of construction of the +User+ objects. This way the production code would had only single parameterless constructor.
+
+=== Builders Simplify Test Code
+TODO date as String, BigDecimals as doubles
+
+TODO better than private methods because reusable 
 
 ////
 http://code.google.com/p/fluent-builders-generator-eclipse-plugin/
@@ -1671,17 +1722,9 @@ http://www.jetbrains.com/idea/webhelp/replace-constructor-with-builder.html
 
 TODO use builders instead of adding of constructor to your domain model classes
 
-TIP: Do not add constructors to your domain classes only to make your test code simpler.
-
 TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
 
-TODO example from Advertiser - many constructors with different order, used mainly by tests.
-
 An utility class used by integration tests (which create a lot of objects then save them to database so they can be further updated, searched, retrieved etc.).
-----
-TODO example of constructors
-----
-Shortly speaking I don not like this code. Why? For few reasons.
 
 === It is so Easy to Make a Mistake
 To finish, let us see yet another example which shows how use of multi-parameter constructors can bring confusion to your test code. Below the two beginnings of test methods from the same test class are presented:
@@ -1703,7 +1746,7 @@ public void shouldUpdateUser() {
 ----
 Hm... what is going on here? What is the first parameter - email or name? Because you can not see into the production code I will tell you. It is the email And the second parameter is (surprise, surprise!) a password. Yes, a password. Wasn't that clear to you? Nor to me. :) That is what happens when you use silly values for parameters and you use multi-parameters constructors instead of builders.
 
-NOTE: I was really surprised to see a mistake in use of the two-parameters only constructore! I thought such mistakes happen if you have more then 5 parameters or so...
+NOTE: I was really surprised to see a mistake in use of the two-parameters only constructore! I thought such mistakes happen if you have more than 5 parameters or so...
 
 A better version would create user objects like this:
 ----
