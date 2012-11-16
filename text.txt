@@ -1740,6 +1740,17 @@ The problem with the code above is that no one stopped and criticly looked at th
 
 And the solution? Create a +UserBuilder+ class which takes care of construction of the +User+ objects. This way the production code would had only single parameterless constructor.
 
+If you do not do that, you will end up with your tests filled with the objects construction looking like this:
+----
+AccountUpdateParameters updateParameters 
+	= new AccountUpdateParameters(false, null, beforeUpdateAccount.isExternal(),
+                false, null, false, null, false, null, false, null);
+----
+In case of builders you have a chance to create objects using more meaningful methods. Like this:
+----
+AccountUpdateParameters updateParameters = new AccountUpdateParameters().external().build();
+----
+
 === Builders Simplify Test Code
 TODO date as String, BigDecimals as doubles
 
