@@ -1023,7 +1023,45 @@ But what is a '"happy path"' testing anyway? For our purpose, it is enough to sa
 
 Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for you application. If your application does not handle such simple cases than it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
-TODO what example here?
+=== FizzBuzz
+[quote, FizzBuzz RosettaCode]
+____
+Write a program that prints the integers from 1 to 100. But for multiples of three print "Fizz" instead of the number and for the multiples of five print "Buzz". For numbers which are multiples of both three and five print "FizzBuzz".
+____
+Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
+----
+public class FizzBuzzTest {
+	@Test
+	public void testMultipleOfThreeAndFivePrintsFizzBuzz() {
+		assertEquals("FizzBuzz", FizzBuzz.getResult(15));
+	}
+
+	@Test
+	public void testMultipleOfThreeOnlyPrintsFizz() {
+		assertEquals("Fizz", FizzBuzz.getResult(93));
+	}
+
+	@Test
+	public void testMultipleOfFiveOnlyPrintsBuzz() {
+		assertEquals("Buzz", FizzBuzz.getResult(10));
+	}
+
+	@Test
+	public void testInputOfEightPrintsTheNumber() {
+		assertEquals("8", FizzBuzz.getResult(8));
+	}
+}
+----
+Looks decent, doesn't it? Each requirement is covered by testing it with one piece of test data.
+
+However I would still call it a "happy path" test. The number of test cases is not enough to deduce whether the +FizzBuzz+ class gives correct answers for all integers from 1 to 100. It might, but it might not. I could even come with very simple implementation which pass this test but does not really fulfill the FizzBuzz requirements.
+
+I do not say we should test every integer from the given range (even thought that would not be hard as there are only 100 of them), but I would definitely write some more test cases. The nice thing is that I do not have to write more test methods. All I have to do is to use more data. The next listing presents how to do it.
+
+----
+---- 
+
+TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
 
 == Naming is the King
 [verse, Cyprian Kamil Norwid, Vade-mecum: In lieu of introduction]
@@ -1835,6 +1873,9 @@ A lot of options to choose from. Depending on the context and your likings selec
 TODO
 
 * test which should be concurrent - not very likely to find a test for this
+
+=== Parametrized Test
+TODO StepRoutineTest
 
 === Mockito any() vs. isA()
 NOTE: This example is a courtesy of Bartek Zdanowski (http://blog.bartekzdanowski.pl/). Thank you!
