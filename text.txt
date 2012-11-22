@@ -1010,6 +1010,7 @@ public void shouldGetMethodsForPoland() {
 ----
 Ah, better now! :) This test does not use the logic of +PaymentMethod+ enum anymore, but simply provides a list of expected results.
 
+[[sec_happy_path]]
 == Happy Path
 [quote, Wikipedie]
 ____
@@ -1289,6 +1290,31 @@ Not a big deal, huh? Well, maybe not a big deal, but why should your test lie to
 As long as this test is green everything is good. But after you do some huge changes in this area of the system{empty}pass:[]footnote:[Remember that the only constant thing in software development is change. :)] and the tests suddenly fails you will be in real trouble. Does the scenario covered by this test is still valid? Should it be removed? Should it be changed... but how? Good luck solving this! 
 
 TIP: Make sure the names of test methods are describing well the scenarios they cover. Be careful especially when updating tests. Are they still valid after the changes you have just introduced?
+
+=== Implementation Details Are Not So Important
+Indeed, the implementation details are not so important that they should be promoted to the test method name. Have a look at this example:
+----
+@Test
+public void shouldReturnFalseIfTransactionIsPending() {
+	//given
+	transaction.setState(PayoutTransactionState.PENDING);
+
+	//when
+	boolean paid = transaction.isPaid();
+
+	//then
+	assertThat(paid).isFalse();
+}
+----
+The test method does not lie this time, but it specifies unnecessary details. It should rather state the business scenario that is being tested. For example:
+----
+@Test
+public void pendingTransactionShouldNotBeConsideredAsPaid() {
+
+	...
+}
+----
+TIP: When thinking about the test method leave the implementation details. Requirements is what matter.
 
 == Ceremony
 BDD is great for telling stories. The +given/when/then+ rhythm is a great thing. And many tests benefit from this pattern. However sometimes I find it hard to justify the presence of the whole BDD ceremony in some very simple tests. Like the one shown below.
@@ -1808,8 +1834,19 @@ A lot of options to choose from. Depending on the context and your likings selec
 == Know Your Tool
 TODO
 
-* some test which could be written better with data providers (or happy path test because someone did not want to bother writing too many test methods)
-* test which should be concurrent
+* test which should be concurrent - not very likely to find a test for this
+
+=== Mockito any() vs. isA()
+NOTE: This example is a courtesy of Bartek Zdanowski (http://blog.bartekzdanowski.pl/). Thank you!
+
+TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
+
+=== Parametrized Tests
+TODO some test which could be written better with data providers (or happy <<sec_happy_path>> path test because someone did not want to bother writing too many test methods)
+
+TODO User hasPassword JUnit test
+
+=== Timeout
 * test which should have timeout annotation
 
 [[sec_thread_sleep]]
@@ -1826,6 +1863,9 @@ TODO any example of such things?
 
 * got selenium one - mention it can leverage what frameworks provide
 * need something else to introduce awaitility
+
+=== Await
+TODO e2e recent test
 
 === ExecutorService
 TODO algorithm.storeSuccess
