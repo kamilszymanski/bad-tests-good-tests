@@ -68,4 +68,4 @@ Please visit the TODO http://practicalunittesting.com[official book site] for ne
 
 [float]
 ==== Contributors
-Thanks to Bartosz, Martin, TODO who else?
+Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski TODO who else?
