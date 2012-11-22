@@ -1357,10 +1357,6 @@ public void shouldBeAdministrator() {
 
 TIP: KISS. Keep It Simple Stupid!
 
-[[sec_test_behaviour]]
-== Test Behaviour Not Methods
-TODO
-
 == Assertions
 
 TODO add short introduction here
@@ -1553,7 +1549,7 @@ TODO And what can be done about it.
 
 TODO rule of a thumb: whenever your assertions are growing beyond your safety limit (2 lines? 3 lines? 5 lines? I do not know, it is *yours safety limit* not mine) then introduce custom assertions instead. In fact, it seems reasonable to come with custom assertions for the main objects from your domain (because you will probably have many tests which involve them - both on unit and integration level).
 
-And how to come with good custom assertions method? My trick is simply to write it so I am happy while reading this. So, without actully having any custom assertion implemented I write a line like this in my test code:
+And how to come with good custom assertions method? My trick is simply to write it so I am happy while reading this. So, without actually having any custom assertion implemented I write a line like this in my test code:
 
 ----
 assertThat(client).isVip().and().hasDiscount(0.2)
@@ -1561,9 +1557,7 @@ assertThat(client).isVip().and().hasDiscount(0.2)
 
 And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
 
-TODO assertions from Martin which were hard to undrestand - maybe a different subsection?
-
-In another test that I have seen there were many test methods like this:
+In another test that I have seen many test methods like this one:
 ----
 @Test
 public void testCompile_32Bit_FakeSourceFile() {
@@ -1580,8 +1574,10 @@ private void testCompile_FakeSourceFile(CompilerSupport compilerSupport) {
 	assertThat(compiledFiles, is(emptyArray()));
 }
 ----
-Hm... clear? Not to me. I still can not tell you what is story behind +testCompile_32Bit_FakeSourceFile+. Is it because I know nothing about the domain of the problem? To some extente the answer is yes. However I suspect that even if I knew it very well I still would had to figure out the purpose of this method. It seems to me that some improvement is possible. First of all I would get rid of helper private method.
+Hm... clear? Not to me. I still can not tell you what is story behind +testCompile_32Bit_FakeSourceFile+. Is it because I know nothing about the domain of the problem? To some extente the answer is yes. However I suspect that even if I knew it very well I still would had to figure out the purpose of this method. It seems to me that some improvement is possible.
 
+The trouble with this test is because the +testCompile_FakeSourceFile+ is doing two things at once: it executes the tested functionality of the SUT and also asserts on it.
+What I would suggest is to get rid of this helper private method by inlining it.
 ----
 @Test
 public void testCompile_32Bit_FakeSourceFile() {
@@ -1593,7 +1589,6 @@ public void testCompile_32Bit_FakeSourceFile() {
 ----
 
 Then I would consider renaming the test method and writing a custom assertion to better express the intention behind this test.
-
 ----
 @Test
 public void compiler32BitShouldNotBotherToCompileFakeSourceFile() {
@@ -1603,7 +1598,7 @@ public void compiler32BitShouldNotBotherToCompileFakeSourceFile() {
 	assertThat(compiledFiles).nothingWasCompiled();
 }
 ----
-Is it better? Ah, this is for you to decide.
+Is it better? In my opinion yes. Now I can read the test method alone and understand it.
 
 === Cost of Custom Assertions
 There is a question which could be asked by an inquisitive reader. Custom assertions contain some code, even some logic. How can I be sure that there is no mistake there?
@@ -2283,6 +2278,10 @@ TIP: Write tests which make you confident that your system works.
 * Test-last does not work
 * Private methods for assertions do not work
 * Tests work only if you treat them as first-class citizens
+
+[[sec_test_behaviour]]
+== Test Behaviour Not Methods
+TODO
 
 <<<
 [float]
