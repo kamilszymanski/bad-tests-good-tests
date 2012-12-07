@@ -299,7 +299,7 @@ public void shouldGetTrafficTrend() {
 ----
 
 The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and the tests needs to be updated. +
-Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is +""+ parameter and does it matter that the there are four identical dates passed to the second constructor?
+Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that the there are four identical dates passed to the second constructor?
 
 Instead I would suggest to cut this blah-blah to the minium and use mocks instead of real objects.
 ----
@@ -1491,7 +1491,7 @@ My advice is that when you see the assertion part of your test code growing, you
 
 TIP: Just say it. Write the assertions as you would like it to be. Then implement it.
 
-Let us see another example of overly complicated assertions.
+Let us see another example of an overly complicated assertions.
 
 As you can see below an indexing variable +i+ is used to navigate through the resulting list. Assertions are rather cryptic. At least for me it is not obvious that the third element of this list should have twelve views.
 ----
