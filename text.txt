@@ -27,7 +27,7 @@ This book is not meant to explain all the reasons of writing tests but there are
 
 * If we have a complete set of tests, and they all pass, then we know that our application works.
 * Making changes is much easier if we have tests. They will inform us if we break some functionality.
-* Tests are probably the only documentation we have which stays up-to-date during the whole life of ours software.
+* Tests are probably the only documentation we have which stays up-to-date during the whole life of our software.
 
 You should recall these reasons for writing tests when looking at the examples of *bad* tests presented in this book. Ask questions like '"does it test anything?"', '"is it maintainable"', '"is it easy to understand?"' etc.
 
@@ -35,7 +35,10 @@ The worrying thing about writing tests is that there are numerous accounts of pe
 
 TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. Remember this phrases as you write tests!
 
-== No Assertions
+== Breaking all The Rules
+We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us has probably no bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are bad.
+
+=== No Assertions
 These few lines of code are copied from a very old and horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
 
 ----
@@ -47,9 +50,9 @@ while (iter.hasNext()) {
 	System.out.println(r.getMessage());
 }
 ----
-This is of course wrong. Tests should never require us to do any kind of manual intervention. No logs browsing, no querying databases. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
+This is of course wrong. Tests should never require us to do any kind of manual verification. No need to browse logs, no need to query a database. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
 
-A better version is presented below. Obviously I have no clue what are the expected values, so I made it up.
+A better version is presented below{empty}pass:[]footnote:[Obviously I have no clue what are the expected values, so I made it up.]:
 ----
 IResult result = format.execute();
 assertThat(result.size()).isEqualTo(3);
@@ -60,16 +63,7 @@ while (iter.hasNext()) {
 }
 ----
 
-////
-== Flickering Tests
-Flickering tests are a serious disease which can be very hard to cure. Once you caught it you can spend days trying to figure out what is going on. One time your tests are [green]#green#, next time they are [red]#red#, then everything is back to normal, but after some time the situation repeats - without any code changes which could possibly cause such result!
-
-This can really turn your hair grey! Usually, such indeterministic behaviour is related to some external systems your tests rely on. Perhaps some 3rd party webservice goes bananas from time to time and responds with nonsensical data. Or maybe there is some subtle bug in the time-related logic of your system which makes your test fail occasionally. 
-
-But sometimes it is our lack of thoughtfullness which can bring that doom on ourselves. At least its mild form - a test which suddenly turns from [green]#green# to [red]#red# without any significant code change (and probably stays like this, which makes it much simpler to debug than the real flickering test).
-////
-
-== Autogeneration
+=== Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
 
 ...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean, that you should not do it. Howgh!
@@ -103,7 +97,7 @@ So now repeat after me: '"I will not autogenerate neither the test code, nor its
 
 TIP: Do *NOT* autogenerate neither the test code, nor it skeleton.
 
-== It is a Full Time Job
+=== It is a Full Time Job
 [verse, Eddy Arnold, from "A Full Time Job"]
 ____
 I want a life time job bein' close to you
@@ -113,7 +107,7 @@ A part time job will do
 ____
 Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
 
-First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows:
+First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows (notice the commented out lines!):
 
 ----
 class SystemAdminSmokeTest extends GroovyTestCase {
@@ -136,7 +130,7 @@ void testSmoke() {
 //            database: Database.H2,  showSql: true,
 //            generateDdl: true), jpaProperties: jpaProperties)
 
-   ... 
+   ...
 }
 ----
 Well, it is not gonna inform anyone about the state of the system... I guess there was a time when this test used to work. But then some changes came and it was commented out (I bet it was commented out only '"for a very short time"'....) and it was never brought to life again. A pity, yes. And a rather discouraging sign to anyone joining the team{empty}pass:[]footnote:[Which was misleading BTW, because the project and the team were doing pretty well!].
@@ -159,6 +153,16 @@ And what can we learn from these two failures? Few things:
 * Do not live with '"broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
 * Writing and maintaining tests is an effort which has to be taken by the whole team (and this effort must be also supported, or at least not hindered, by all stakeholders).
 * Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
+
+=== Conclusions
+There are few things that we can learn from the attempts to write tests presented so far:
+
+* automation is the king! 
+* write tests, do not generate them!
+* writing tests is a full-time job and there is noone else that will do it for you,
+* do not live with broken windows - fix things as soon as they break.
+
+Armed with this basic knowledge we can now move to some more interesting examples.
 
 == Do Not Modify Global State
 For unit tests a rule of thumb is to keep them independent from each other. It is not so bad if we introduce a dependency on purpose (and explicitly declare it e.g. using TestNG +dependsOnMethod+ feature). A worse scenario is when we are not aware of the dependency ourselves. This can bring serious problems on our heads.
@@ -185,9 +189,9 @@ public void shouldThrowLoggingException() {
 	baseServletContextListener.contextInitialized(null);
 }
 ----
-This test used to be [green]#green# for months. Then, suddenly, it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time...
+This test used to be [green]#green# for months. Then suddenly (after some completely unrelated commit) it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time...
 
-After some digging we have found out that the test failed because the order of execution of tests changed. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was available when +shouldLoadDefaultProperties+ test was executed which altered the behaviour of SUT and made this test fail.
+After some digging we have found out that the test failed because the order of execution of tests changed. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was set when +shouldLoadDefaultProperties+ test was executed which altered the behaviour of SUT and made this test fail.
 
 And why did the order of execution changed? Well, it does not really matter. In general test frameworks do not guarantee the order of execution (unless you explicitly ask for it) so you should not rely on this.
 
@@ -207,7 +211,7 @@ public void shouldLoadDefaultProperties() { ... }
 public void shouldThrowLoggingException() { ... }
 ----
 
-This works as long as there are no more tests which outcome also depend on the value of +logConfig+ system property. If such tests are added you need to remember to also specify their relation (their dependency) to these existing tests.
+This works as long as there are no more tests which outcome also depend on the value of +logConfig+ system property. If such tests are added you need to remember to also specify their relation (their dependency) to these existing tests. Which means you can end up with a web of tests depending on each other which is not easy to maintain.
 
 Another option is to clean +logConfig+ system property variable before +shouldLoadDefaultProperties+ is executed. If there are more tests like this then maybe putting the 'cleaning' code some +setUp()+ method would be a good idea. For example:
 
@@ -231,7 +235,7 @@ To a man with a hammer everything looks like a nail.
 _______________________
 This is something I observe frequently among developers who has only recently discovered the pleasures of mocking. :) They tend to overuse all kind of test doubles even when it is not really the best option. Let us see an example.
 
-The code below intends to verify whether some data is added to +modelAndView+ object{empty}pass:[]footnote:[This is +ModelAndView+ from Spring MVC framework.]. Yes, you heard it right: it verifies whether something is *added*. Even the method name states this explicitly.
+The code below intends to verify whether some data is added to +modelAndView+ object{empty}pass:[]footnote:[This is +ModelAndView+ from Spring MVC framework.]. Yes, you heard it right: it verifies whether something is *added*.
 
 ----
 @Test
@@ -246,10 +250,21 @@ public void shouldAddTimeZoneToModelAndView() {
 		.postHandle(null, null, null, modelAndView);
 
 	//then
-	verify(modelAndView).addObject("timezone", "timezone X"); 
+	verify(modelAndView).addObject("timezone", "timezone X");
 }
 ----
-This is of course wrong. The thing we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called!
+The problem with this test is, that what we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called! It does not seem to be such a big deal. If it was added then it is probably there, so what is the problem? Right. This test is probably doing its job in verifying that the +modelAndView+ object ends up with +timezone+ set. However as a rule, we should try to verify the outcome, not the way it was achieved. Why? Because this way we leave the possibility to change the implementation details of the tested class without breaking the test.
+
+I will give you an example (even if it is not true in relation to the +ModelAndView+ API). Should we care whether the +timezone+ property was set like this:
+----
+ModelAndView mav = new ModelAndView();
+mav.addObject("timezone", "timezone X");
+----
+or like this:
+----
+ModelAndView mav = new ModelAndView("timezone", "timezone X");
+----
+Is it really important for us, who are interested in the fact of +timezone+ being available? I think not. And the test also shouldn't. Still the version of the test we have just discussed does exactly this: dictates the SUT how it should do things.
 
 Below you can see an improved version of this test. It treates SUT more like a black box and only cares about its output.
 
@@ -476,8 +491,8 @@ public void shouldRecognizeValidQueries(String validQuery) {
 
 @DataProvider
 public Object[][] invalidQueries() {
-	return new Object[][] { 
-		{"+4"}, {"++4"}, 
+	return new Object[][] {
+		{"+4"}, {"++4"},
 		{""}, {null}, {"  "} };
 }
 
@@ -492,7 +507,8 @@ TIP: Watch the method names. Are they intention-revealing?
 
 TIP: No logic in tests! Even the simplest one is evil!
 
-=== Testing All of Method's Responsibility
+[[sec_test_behaviour]]
+=== Test Behaviour Not Methods!
 Now another example of a test doing too much. Let us look at the tested method first. This is a part of the +UserRegisterController+ class.
 
 ----
@@ -582,9 +598,11 @@ public void shouldNotifyAboutNewUserRegistration() {
 ----
 The second test verifies whether the +sendRegistrationInfo+ method of the +mailSender+ object was invoked.
 
-Is it better now? I would say it is. Both test methods are more focused. Each of them occupied with the verification of only one requirement. There is some chance that some modifications of the +registerSubmit+ method implementation would not fail both tests. I like it.
+The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two tests, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registation. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it. I'm sure the responsibility of the class does not end there (for example I guess it also prints errors when the registration form lacks some data). Good. We can always add more tests to cover the rest of responsibilities. Responsibilities, not methods!
 
-I find it hard to find good reasons for splitting tests in such way. I believe a good way to explain the reason is by analogy to the good rule of keeping your methods (in production code) focused. This is the implementation of the same pattern. You should keep things small and focused. Both in production and in test code.
+By analogy to the production code we should try to keep our tests small and focused. We should also abstract from the implementation so the refactorings does not break the tests. The changes we have just introduced to the initial test allowed us to achieve both. The tests are so focused that some modifications of the +registerSubmit+ method implementation might fail only a selected test. Then it will be very simple to see what is not working anymore. I like it.
+
+TIP: Forget about methods. Test responsibilities of the class.
 
 TIP: A simple rule to follow: '"One method, multiple behaviours? Multiple tests!"'.
 
@@ -646,6 +664,7 @@ public void shouldRecognizeDifferentCampaign() {
 	assertThat(cBid.hasSameCampaign(otherCampaign)).isFalse();
 }
 ----
+Make your own decision about this and choose the approach which suits you better.
 
 TIP: Rules are to be broken. ;)
 
@@ -696,7 +715,7 @@ public void testNegative() {
 ----
 What is important here is that these two test methods are the only ones.
 
-As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class passes both test methods with flying colors.
+As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
 
 ----
 public class MyList<T> {
@@ -728,13 +747,13 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 	list.get(3);
 }
 ----
-This does not differ much from the original test, but having other test methods we are in much safer position. We *know* the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
+This does not differ much from the original test, but thanks to having other test methods we are in much safer position. We *know* the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
 
 The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied an exception thrown at any point of the test method.
 
 The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause{empty}pass:[]footnote:[We could also use nice DSL provided by FEST Assert to examine the exception within the +catch+ clause, e.g. +assertThat(e).isInstanceOf(IndexOutOfBoundsException.class).hasNoCause();+.]. However, there are some nicer options.
 
-The next listing presents catch-exception library which offers +catchException()+ and +caughtException()+ methods which are exactly what we need.
+The next listing presents catch-exception library which{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need.
 ----
 @Test
 public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
@@ -747,6 +766,7 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 	assertThat(caughtException()).isExactlyInstanceOf(IndexOutOfBoundsException.class);
 }
 ----
+Now there is no doubt about where the exception come from.
 
 == Be Generic
 Once upon a time there was a servlet which took two parameters - packet and type. If both were present in a request then the servlet asked its collaborator - +packetDataProcessor+ - to process a specific packet. If one or both of the parameters were missing no processing should occur. Simple, isn't it?
@@ -799,6 +819,7 @@ public void shouldProcessIfPacketParameterIsMissing() throws IOException, Servle
 	verifyZeroInteractions(packetDataProcessor);
 }
 ----
+The +verifyZeroInteractions+ method of Mockito is exactly for such purposes. We want to know that there were no calls to +packetDataProcessor+ because a validation mechanism should reject incomplete request beforehand.
 
 Another example from the same test class. This time it is about the servlet's behaviour after a processing error. 
 ----
@@ -876,7 +897,9 @@ public class PayoutCalculatorFactoryTest {
 	}
 }
 ----
-Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). To minimize the risk use different values. The following code shows this (also there is some refactoring done so the values are extracted as +static final+ fields):
+Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). Imagine the +maxMargin+ parameter is assigned to +premiumShare+ and vice versa. This test would still pass even in case of such implementation error.
+
+To minimize the risk use different values for each parameter. The following code shows this (also there is some refactoring done so the values are extracted as +static final+ fields):
 
 ----
 public class PayoutCalculatorFactoryTest {
@@ -902,7 +925,6 @@ public class PayoutCalculatorFactoryTest {
 	}
 }
 ----
-
 TIP: Avoid using same numbers/strings for different variables/properties in your tests method! Often power of 2 are quite convenient (they do not sum up to each other easily).
 
 == Database Assumptions
@@ -939,9 +961,7 @@ public void shouldAddAUser() {
 ----
 Now the content of the test method reflects its name (+shouldAddUser+). Good.
 
-And BTW. I believe that in many cases such check is good enough to make sure that the user was really added to the database (without really checking whether it is exactly the same user - which should be the case provided that your services and daos are performing simple CRUD operations).
-
-It happened that the assumption on database state (i.e. the assumption that there are no users at all) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases, do not show them on reports etc.). After creating a database patch we observerd (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all.
+It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added the user to the system. It was applied along with all other patches to se the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
 
 TIP: Do not make assumptions about the database content. Use relative rather than absolute values.
 
@@ -950,7 +970,7 @@ TIP: Make sure the test does exactly what its (method) name promises.
 == Self-Test
 In one application there was a need to implement many payment methods. Their list, along with the information about the countries where each method is accepted, was kept by the +PaymentMethod+ enum.
 
-The test below verifies whether the +getMethodsForCountry()+ method of the +PaymentMethod+ class returns valid methods for Poland. First it creates list of expected methods, then calls the method in question, and eventually compares expected list with the result of the tested method invocation.
+The test below verifies whether the +getMethodsForCountry()+ method of the +PaymentMethod+ class returns valid methods for Poland. First it creates the list of expected payment methods, then calls the method in question, and eventually compares expected list with the result of the tested method invocation.
 
 ----
 @Test
@@ -995,7 +1015,8 @@ Well, yes, it seems that we are using the same code to create both sides of the 
 public void shouldGetMethodsForPoland() {
 	//given
 	List<PaymentMethod> methodsAvailableInPoland = Arrays.asList(new PaymentMethod[] {
-		PaymentMethod.MASTERCARD, PaymentMethod.VISA,
+		PaymentMethod.MASTERCARD,
+		PaymentMethod.VISA,
 		...
 		// and all other methods available in Poland
 	}
@@ -1021,7 +1042,7 @@ The issue of writing '"happy path"' tests is so common, that it is probably the 
 
 But what is a '"happy path"' testing anyway? For our purpose, it is enough to say that '"happy paths"' tests cover the simplest, even obvious, scenarios. It is like testing that our calculator can add +2+ and +2+, and that if you add user +John Doe+ to the database then you can found it there.
 
-Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for you application. If your application does not handle such simple cases than it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
+Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for you application. If your application does not handle such simple cases then it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
 === FizzBuzz
 [quote, FizzBuzz RosettaCode]
@@ -1059,6 +1080,7 @@ However I would still call it a "happy path" test. The number of test cases is n
 I do not say we should test every integer from the given range (even thought that would not be hard as there are only 100 of them), but I would definitely write some more test cases. The nice thing is that I do not have to write more test methods. All I have to do is to use more data. The next listing presents how to do it.
 
 ----
+TODO
 ---- 
 
 TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
@@ -1087,7 +1109,7 @@ public static Object[][] userPermissions() {
 }
 ----
 
-As you can see it connects three users (+user_1+, +user_2+, +user_3+) with some permissions (+READ+, +WRITE+, +DELETE+). Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting like: '"+user_3+ was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually +user_3+ should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows what the heck is +user_3+?
+As you can see it connects three users (+user_1+, +user_2+, +user_3+) with some permissions (+READ+, +WRITE+, +DELETE+). Fine, but why +user_1+ can only +READ+ while +user_3+ can also +WRITE+ and +DELETE+? This is not obvious and if some test fails you will learn someting like: '"+user_3+ was expected to have +DELETE+ permission"'. Then you start scratching your head wondering why actually +user_3+ should have such permission. Of course the answer is nowhere to be found. It was obvious few months ago when this test was created but now? Who knows who the heck is +user_3+?
 
 And the cure? See below.
 
@@ -1162,6 +1184,8 @@ It is the same like with classes. At first you begin with useless names like +Cl
 
 TIP: Do not su/pre-fix names of test variables with letters or numbers! Find intention revealing names for them.
 
+Whenever you create some object for testing purposes there is some reason behind. You create it because it is different from other objects. It has different properties. Do not be shy about it. Say it loud. Say it, by giving this object a unique, recognizable name.
+
 [[sec_intention_revealing]]
 === What True and False Stand For?
 [quote, Pilat, John 18:38]
@@ -1180,8 +1204,10 @@ Nice, but what the heck does +true+ and +false+ mean here? What kind of server i
 
 I do not expect you to have JavaDocs for +MockServer+ (which sounds like a utility class create especially for testing purposes), which means you need to browse the source code to find out. This is not a major problem (but it may be - depending on the complexity of +MockServer+ class), however this is a nuisance. And it means that this test does not play the role of documentation very well. In order to understand the test case we need to browse another documents (i.e. source code). This is not a tragedy but this is not good either.
 
-And what can we do about this? There are at least two options.
+And what can we do about this? There are at least three options.
 
+[float]
+==== Constants
 First, we could create some static variables with intention-revealing names, like this:
 
 ----
@@ -1194,7 +1220,13 @@ server = new MockServer(responseMap, RESPONSE_IS_A_FILE,
 ----
 Now there is no doubt what kind of server is created. It does not use SSL and responds with a file. Better, isn't it? And we haven't had to work very hard to achieve this effect.
 
-Second approach requires some more work. Yeah, you guessed it already - we could use a test data builders idea and express very clearly what kind of server is required. For example like this:
+[float]
+==== Private Methods
+TODO ref to <<sec_assertions_vs_private_methods>>
+
+[float]
+==== Builders
+The third approach requires some more work. Yeah, you guessed it already - we could use a test data builders idea and express very clearly what kind of server is required. For example like this:
 ----
 server = new MockServerBuilder()
 		.withResponse(responseMap)
@@ -1203,7 +1235,7 @@ server = new MockServerBuilder()
 		.withoutSsl()
 		.create();
 ----
-Is this approach better than the previous one? Not necessarily, as it definitely requires more work. However the fact that we control the API allows us to shape it according to our liking. Maybe in the domain that this +MockServer+ works, this is a perfect solution (this one implicitly sets the '"no-SSL"' option, and shortens type and url setting):
+Is this approach better than the previous ones? Not necessarily, as it definitely requires more work. However the fact that we control the API allows us to shape it according to our liking. Maybe in the domain that this +MockServer+ works, this is a perfect solution (this one implicitly sets the '"no-SSL"' option, and shortens type and url setting):
 ----
 server = new MockServerBuilder()
 		.createFileServer(SERVER_ROOT)
@@ -2287,6 +2319,7 @@ And BTW. if you think about it some more... Shouldn't test evolve before the cod
 == Waste of Time
 There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
 
+=== Things Too Simple to Break
 Take for example this test (which, as all other tests in this book is real, however obfuscated).
 
 ----
@@ -2323,7 +2356,7 @@ Our old test will still pass, won't it? The thing is that it can prevent only *s
 NOTE: Test everything that can break. Do not waste your time testing what is 'too simple to break'.
 
 [[sec_fix_the_code_first]]
-== Fix the Code Then Write Tests
+=== Fix the Code Then Write Tests
 
 example from CW - complicated factoryWhatever test
 
@@ -2340,7 +2373,7 @@ In contrast to all other sections I have no code to present here. But I have a s
 
 So I worked once upon a really good project. The codebase was above the average (comparing to other projects that I have seen or worked for), the architecture was right, the people were cool. Everything seemed to be in place. However as the complexity of our software grew we started to notice various issues. The charts presented on the client dashboard went bonkers when user changed a timezone. Our internal tool which simulated some of the users' behaviour was very fragile to the changes done in other parts of the system. It happened that during some big "refactorings" or merges we mysteriously "lost" some functionality. Users reported issues with exporting functionality which hanged when too many objects were involved. After registration notifications were not sent appropriately. And so on, and so on.
 
-All of this was really irritating. We had tests, for God's sake! In fact, we had plenty of them. Our code was more OO than ever - every small class was testable and we really had unit tests covering them all! Still, we had so many issues with our project. 
+All of this was really irritating. We had tests, for God's sake! In fact, we had plenty of them. Our code was more OO than ever - every small class was testable and we really had unit tests covering them all! Still, we had so many issues with our project.
 
 In the whole book we have put a lot of attention to writing our tests the right way. We pondered over things like the naming of variables, the lack of implementation details, the clarity of test code and so on. Each of them seems tiny but when you neglect many of them your tests will become a nightmare to maintain. I hope that you understand it very well now based on the examples given in this book (and also on your own experience).
 If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods{empty}pass:[]footnote:[A delegator method is one which does not do anything important on its own, but delegates the work to some collaborator.] and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system works for the users.
@@ -2359,10 +2392,6 @@ TIP: Write tests which make you confident that your system works.
 * Test-last does not work
 * Private methods for assertions do not work
 * Tests work only if you treat them as first-class citizens
-
-[[sec_test_behaviour]]
-== Test Behaviour Not Methods
-TODO
 
 <<<
 [float]
