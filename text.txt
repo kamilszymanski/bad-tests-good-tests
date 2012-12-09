@@ -1897,7 +1897,7 @@ public void shouldUpdateUser() {
 	...
 }
 ----
-Hm... what is going on here? What is the first parameter - email or name? Because you can not see into the production code I will tell you. It is the email And the second parameter is (surprise, surprise!) a password. Yes, a password. Wasn't that clear to you? Nor to me. :) That is what happens when you use silly values for parameters and you use multi-parameters constructors instead of builders.
+Hm... what is going on here? What is the first parameter - email or name? Because you can not see into the production code I will tell you. It is the email. And the second parameter is (surprise, surprise!) a password! Yes, a password. Wasn't that clear to you? Nor to me. :) That is what happens when you use silly values for parameters and you use multi-parameters constructors instead of builders.
 
 NOTE: I was really surprised to see a mistake in use of the two-parameters only constructore! I thought such mistakes happen if you have more than 5 parameters or so...
 
@@ -1905,16 +1905,16 @@ A better version would create user objects like this:
 ----
 User user = new User(USER_EMAIL, USER_PASSWORD);
 ----
-, like this (to demonstrate that *any* users would do):
+or like this (to demonstrate that *any* users would do):
 ----
 User user = new UserBuilder().standardUser();
 ----
-, like this (if only email is important):
+or like this (if only email is important):
 ----
 User user = new UserBuilder().standardUser()
 	.but().withEmail("elvis@presley.com");
 ----
-, or like this (if both parameters have some significance to the test case):
+or like this (if both parameters have some significance to the test case):
 ----
 User user = new UserBuilder().standardUser()
 	.but().withEmail("elvis@presley.com")
@@ -1937,8 +1937,6 @@ TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
 
 === Parametrized Tests
 TODO some test which could be written better with data providers (or happy <<sec_happy_path>> path test because someone did not want to bother writing too many test methods)
-
-TODO User hasPassword JUnit test
 
 === Timeout
 * test which should have timeout annotation
