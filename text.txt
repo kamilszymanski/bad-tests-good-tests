@@ -753,7 +753,7 @@ The other approach says we should localize the exception. To do it we need to ge
 
 The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause{empty}pass:[]footnote:[We could also use nice DSL provided by FEST Assert to examine the exception within the +catch+ clause, e.g. +assertThat(e).isInstanceOf(IndexOutOfBoundsException.class).hasNoCause();+.]. However, there are some nicer options.
 
-The next listing presents catch-exception library which{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need.
+The next listing presents catch-exception library{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] which offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need.
 ----
 @Test
 public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
@@ -1927,6 +1927,68 @@ TODO
 
 * test which should be concurrent - not very likely to find a test for this
 
+=== Expected Exceptions And Verification
+Consider the following method from production code:
+----
+public void registerDomain(Domain domain) {
+	try {
+		dnsService.addDomainIfMissing(domain.getAddress());
+	} catch (RuntimeException ex) {
+		domainService.saveDomain(domain, domain.isRegisteredInDns(), 
+			domain.getDnsFailures() + 1);
+		throw ex;
+	}
+	domainService.saveDomain(domain.isRegisteredInDna(), domain.getDnsFailures());
+}
+----
+A developer intended to verify whether even in case of exception the +saveDomain()+ method of the +DomainService+ class is called with appropriate parameters (i.e. with the increased number of DNS failures). Let us take a look at the test code:
+----
+@Test(expected = RuntimeException.class)
+public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
+	//given
+	doThrow(new RuntimeException()).when(pdnsService)
+		.addDomainIfMissing(DOMAIN_ADDRESS);
+
+	//when
+	domainRegistrator.registerDomain(domain);
+
+	//then
+	verify(domainService)
+		.saveRegisteredInDnsAndDnsFailures(domain, false, DNS_FAILURES + 1);
+}
+----
+As you can see there are two verifications. First, the test verifies whether an exception is rethrown. This is done with the +expected+ attribute of the +@Test+ annotation. Second, the last line verifies that the expected method of the +domainService+ collaborator was called.
+
+That is exactly what we wanted to have, right? Well, almost, as it does not work.
+
+The problem is that the second verification never happens. Why? Because this line:
+----
+domainRegistrator.registerDomain(domain);
+----
+throws an exception which ends the execution of this test!
+
+The fix is straightforward. We need to catch the exception within the test so that the last line is also executed. This can be done with a standard +try/catch+ statement, but we can do better than this using the catch-exception library:
+----
+@Test
+public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
+	//given
+	doThrow(new RuntimeException()).when(pdnsService)
+		.addDomainIfMissing(DOMAIN_ADDRESS);
+
+	//when
+	catchException(domainRegistrator).registerDomain(domain);
+
+	//then
+	verify(domainService)
+		.saveRegisteredInDnsAndDnsFailures(domain, false, DNS_FAILURES + 1);
+	assertThat(caughtException()).isInstanceOf(RuntimeException.class);
+}
+----
+As you can see we got rid of the +expected+ attribute from +@Test+ annotation. Instead we catch the exception using +catchException()+ method and then verify it using +caughtException()+ method. +
+After this change the test is no longer interrupted when the exception is thrown and all verifications are performed.
+
+TIP: Testing frameworks aren't very complex, however there are always some 'gotchas'. Make sure to read some documentation.
+ 
 === Parametrized Test
 TODO StepRoutineTest
 
