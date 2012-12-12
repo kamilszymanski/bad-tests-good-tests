@@ -1988,7 +1988,11 @@ As you can see we got rid of the +expected+ attribute from +@Test+ annotation. I
 After this change the test is no longer interrupted when the exception is thrown and all verifications are performed.
 
 TIP: Testing frameworks aren't very complex, however there are always some 'gotchas'. Make sure to read some documentation.
- 
+
+There is one more thing left to point out. I bet *the original test was written after the code*. If the developer had followed the TDD rules, he/she would had first run the test, see it fail and only then implement the feature. Working code-first you risk that you create useless tests.
+
+TIP: Always see the failing test first.
+
 === Parametrized Test
 TODO StepRoutineTest
 
