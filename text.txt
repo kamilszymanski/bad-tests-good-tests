@@ -1222,7 +1222,19 @@ Now there is no doubt what kind of server is created. It does not use SSL and re
 
 [float]
 ==== Private Methods
-TODO ref to <<sec_assertions_vs_private_methods>>
+Another option is to replace the +new+ keyword with some more expressive statement. For example, we could create a private method within the test code.
+
+----
+private MockServer noSslFileServer() throws MalformedURLException {
+	return new MockServer(responseMap, true,
+		new URL(SERVER_ROOT).getPort(), false);
+}
+----
+Then we create the server like this:
+----
+MockServer server = noSslFileServer();
+----
+This is more readable than the original version, however this solution is not really scalable{empty}pass:[]footnote:[See <<sec_assertions_vs_private_methods>> for similar discussion regarding assertions.]. The number of such private methods will grow along with the complexity of the +MockServer+: the more parameters and options, the more methods are needed.
 
 [float]
 ==== Builders
