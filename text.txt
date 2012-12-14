@@ -1256,8 +1256,7 @@ server = new MockServerBuilder()
 ----
 
 Probably the more complex and more frequently created the class in question is, the more we benefit from test data builders.
-
-TODO ref to test data builders chapter
+// TODO ref to test data builders chapter
 
 [[sec_should]]
 === Should is Better than Test

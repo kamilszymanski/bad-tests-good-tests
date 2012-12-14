@@ -5,4 +5,5 @@ include 'localized_exceptions',
 	'what_is_asserted',
     'change_test_after_logic_is_changed',
 	'fizzbuzz',
-	'fizzbuzz_original'
+	'fizzbuzz_original',
+	'true_false'
