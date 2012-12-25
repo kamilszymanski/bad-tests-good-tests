@@ -1186,6 +1186,11 @@ TIP: Do not su/pre-fix names of test variables with letters or numbers! Find int
 
 Whenever you create some object for testing purposes there is some reason behind. You create it because it is different from other objects. It has different properties. Do not be shy about it. Say it loud. Say it, by giving this object a unique, recognizable name.
 
+==== Counter Example
+TODO clientA, clientB when all that matters is that you have more than one client
+
+but if you do not like it then maybe create an array of clients?
+
 [[sec_intention_revealing]]
 === What True and False Stand For?
 [quote, Pilat, John 18:38]
@@ -2008,8 +2013,36 @@ TIP: Always see the failing test first.
 TODO StepRoutineTest
 
 === Mockito any() vs. isA()
+TODO make test code snippets bigger
+
 NOTE: This example is a courtesy of Bartek Zdanowski (http://blog.bartekzdanowski.pl/). Thank you!
 
+Let us consider the following production code:
+----
+public class AddOrganizationAction implements Action {}
+public class AddPersonToOrganizationAction implements Action {}
+
+public interface DispatchAsync {
+	void execute(Action action, AsyncCallback callback);
+}
+----
+In many cases we might be tempted to verify the execution of the +execute()+ method using the +any()+ matcher, like this:
+----
+verify(async).execute(any(AddOrganizationAction.class),
+	any(AsyncCallback.class));
+----
+This looks right. However there is one issue with this code. Let us try to change the first argument from +AddOrganizationAction.class+ into +AddPersonToOrganizationAction.class+:
+----
+verify(async).execute(any(AddPersonToOrganizationAction.class),
+	any(AsyncCallback.class));
+----
+To our surprise the test will still pass! Why is that? TODO finish
+----
+verify(async).execute(isA(AddOrganizationAction.class),
+	any(AsyncCallback.class));
+----
+
+TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
 TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
 
 === Parametrized Tests
