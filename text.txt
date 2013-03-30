@@ -749,7 +749,7 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 ----
 This does not differ much from the original test, but thanks to having other test methods we are in much safer position. We *know* the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
 
-The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied an exception thrown at any point of the test method.
+The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied when an exception thrown at any point of the test method.
 
 The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause{empty}pass:[]footnote:[We could also use nice DSL provided by FEST Assert to examine the exception within the +catch+ clause, e.g. +assertThat(e).isInstanceOf(IndexOutOfBoundsException.class).hasNoCause();+.]. However, there are some nicer options.
 
@@ -1392,7 +1392,7 @@ public void shouldReturnFalseIfTransactionIsPending() {
 	assertThat(paid).isFalse();
 }
 ----
-The test method does not lie this time, but it specifies unnecessary details. It should rather state the business scenario that is being tested. For example:
+The name of this test method does not lie this time, but it specifies unnecessary details. It should rather state the business scenario that is being tested. For example:
 ----
 @Test
 public void pendingTransactionShouldNotBeConsideredAsPaid() {
@@ -2362,7 +2362,7 @@ public void shouldRecognizeSnapshots(
 	assertThat(artifact.isSnapshot()).isTrue();
 }
 ----
-All is good an well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
+All is good and well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
 
 After the refactor the same test took the following form:
 ----
