@@ -35,6 +35,8 @@ The worrying thing about writing tests is that there are numerous accounts of pe
 
 TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. Remember this phrases as you write tests!
 
+WARNING: More code written = more code to maintain. It is true also with regards to tests!
+
 == Breaking all The Rules
 We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us has probably no bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are bad.
 
@@ -66,7 +68,7 @@ while (iter.hasNext()) {
 === Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
 
-...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean, that you should not do it. Howgh!
+...well, it simply does not work, you know. If you think about *why* you really write tests, you will quickly understand that this is a bad idea. It does not help to discover bugs, it does not help you come with better design, it promotes test-last coding and goes against '"test behaviour not methods"' rule (see <<sec_test_behaviour>>). Which really mean that you should not do it. Howgh!
 
 Below is an attempt to autogenerate some test code (using JUnitDoclet tool{empty}pass:[]footnote:[Nope, not link to project website this time, because I do not think you should use it. :)]). As you can see it successfully generated tests for getters/setters, which is, shortly speaking, a waste of time.
 
@@ -93,6 +95,8 @@ public void testSetGetParam() throws Exception {
     // JUnitDoclet end method setParam getParam
 }
 ----
+What kind of bugs do you expect to discover by such tests?
+
 So now repeat after me: '"I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
 
 TIP: Do *NOT* autogenerate neither the test code, nor it skeleton.
@@ -107,7 +111,7 @@ A part time job will do
 ____
 Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
 
-First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows (notice the commented out lines!):
+First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows. Please note that all the lines all commented out!
 
 ----
 class SystemAdminSmokeTest extends GroovyTestCase {
@@ -191,7 +195,7 @@ public void shouldThrowLoggingException() {
 ----
 This test used to be [green]#green# for months. Then suddenly (after some completely unrelated commit) it turned [red]#red#. Why?! For no apparent reason, the log4j config was not something we changed often. In fact, we haven't touched it for a long time...
 
-After some digging we have found out that the test failed because the order of execution of tests changed. As long as +shouldLoadDefaultProperties+ was executed before +shouldThrowLoggingException+ everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was set when +shouldLoadDefaultProperties+ test was executed which altered the behaviour of SUT and made this test fail.
+After some digging we have found out that the test failed because the order of execution of tests changed. As long as the +shouldLoadDefaultProperties()+ method was executed before the +shouldThrowLoggingException()+ method everything was fine. But once this order was changed, things started to go wrong. In particular, the +logConfig+ system property was set when the +shouldLoadDefaultProperties()+ test was executed which altered the behaviour of SUT and made this test fail.
 
 And why did the order of execution changed? Well, it does not really matter. In general test frameworks do not guarantee the order of execution (unless you explicitly ask for it) so you should not rely on this.
 
@@ -213,7 +217,7 @@ public void shouldThrowLoggingException() { ... }
 
 This works as long as there are no more tests which outcome also depend on the value of +logConfig+ system property. If such tests are added you need to remember to also specify their relation (their dependency) to these existing tests. Which means you can end up with a web of tests depending on each other which is not easy to maintain.
 
-Another option is to clean +logConfig+ system property variable before +shouldLoadDefaultProperties+ is executed. If there are more tests like this then maybe putting the 'cleaning' code some +setUp()+ method would be a good idea. For example:
+Another option (and a recommended one) is to clean +logConfig+ system property variable before the +shouldLoadDefaultProperties()+ method is executed. If there are more tests like this then maybe putting the 'cleaning' code some +setUp()+ method would be a good idea. For example:
 
 [role="pseudocode"]
 ----
@@ -226,6 +230,8 @@ public void cleanSystemProperties() {
 ----
 
 TIP: Clean the environment *before* tests, not after it. This way your tests are guaranteed to run in clean environment. 
+
+// TAGS: GLOBAL STATE, CLEAN UP
 
 [[sec_mock_em_all]]
 == Mock'em All!

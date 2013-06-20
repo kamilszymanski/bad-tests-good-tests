@@ -11,9 +11,9 @@ The idea behind this book is to present test code snippets and discuss ways of m
 
 All examples discussed in this book come from real code of real applications. I haven't made them up. They are real. From thousands of tests I have seen I have selected these which illustrate some typical errors or imperfections which I frequently encounter while doing code reviews (or pondering over my own code!).
 
-Some of the code examples were obfuscated in order to '"protect the innocents"'. ;) Other were significantly truncated, so only their '"essence"' was left, and all the cluttering was removed. This makes the examples easier to understand but at the same time it makes some of the discussed issues look not so important. However they *are* important in real life scenarios, where you have to deal with numerous much more complex tests. 
+Some of the code examples were obfuscated in order to '"protect the innocents"'. ;) Many were significantly truncated, so only their '"essence"' was left, and all the cluttering was removed. This makes the examples easier to understand but at the same time it makes some of the discussed issues look not so important. However they *are* important in real life scenarios, where you have to deal with numerous much more complex tests (or the same issues were repeated in numerous tests). 
 
-Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. I think they are rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
+Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. The most of them is rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
 
 [float]
 ==== Pseudocode
@@ -33,7 +33,7 @@ TODO make pseudocode fragments print well in html, PDF and ePub versions
 
 [float]
 ==== SUT and Assertions
-From time to time I use term 'SUT' which denotes 'System Under Test', that is the thing being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
+From time to time I use term 'SUT' which denotes 'System Under Test', that is *the thing* being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
 
 Throughout the book I use frequently FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] instead of those provided by JUnit or TestNG. Some time ago I discovered that they suit me better than anything else. Additionally their use solves the problem of difference in parameters order between JUnit and TestNG.
 
@@ -56,11 +56,11 @@ All three icons were designed by http://www.webdesignerdepot.com/[Webdesigner De
 To really benefit from reading this book you should:
 
 * have some experience in writing tests, especially unit tests,
-* know a testing framework; preferably TestNG, but any other will also be fine (but you have to scan TestNG documentation to understand code samples),
+* know a testing framework; preferably TestNG, but any other will also be fine (but you have to scan TestNG documentation to understand some code samples),
 * be interested in improving your tests-writing skills,
 * understand the value of clean test code.
 
-The source I recommend is my book{empty}pass:[]footnote:[See http://practicalunittesting.com] (well, of course!) but to be honest you can learn most of it by doing a research on your own (web has it all, but you have to find it and then distill myths from the truth - both of which take a lot of time!).
+TIP: You could gain some of the required knowledge by reading my other books (visit http://practicalunittesting.com).
 
 [float]
 ==== Book Site
@@ -68,4 +68,4 @@ Please visit the TODO http://practicalunittesting.com[official book site] for ne
 
 [float]
 ==== Contributors
-Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski TODO who else?
+Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski, Jakub Nabrdalik TODO who else?, 
