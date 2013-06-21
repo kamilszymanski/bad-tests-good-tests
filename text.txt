@@ -952,7 +952,7 @@ Take a look at this test:
 
 ----
 @Test
-public void shouldAddAUser() {
+public void shouldAddUser() {
 	User user = new User();
 	userService.save(user);
 	assertEquals(dao.getNbOfUsers(), 1);
@@ -972,14 +972,14 @@ As for the second issue the solution is quite simple - replace absolute values w
 
 ----
 @Test
-public void shouldAddAUser() {
+public void shouldAddUser() {
 	int nb = dao.getNbOfUsers();
 	User user = new User();
 	userService.save(user);
 	assertEquals(dao.getNbOfUsers(), nb + 1);
 }
 ----
-Now the content of the test method reflects its name (+shouldAddUser+). Good.
+Now the content of the test method reflects its name (+shouldAddUser()+). Good.
 
 It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to se the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
 
