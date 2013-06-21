@@ -291,9 +291,11 @@ public void shouldAddTimeZoneToModelAndView() {
 	assertThat(modelAndView).contains("timezone", "timezone X");
 }
 ----
-As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a value object, which should not be mocked. Howgh!
+As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a container for data, which should not be mocked. Howgh!
 
 TIP: Excited that you can mock everything, huh? Slow down and make sure that you really need to verify interactions. Chances are you don't.
+
+// TAGS: UNNECESSARY MOCKS, INTERACTION INSTEAD OF STATE TESTING
 
 == Mocks Are Good
 And now the opposite of what was presented in the previous section (<<sec_mock_em_all>>).
@@ -320,7 +322,7 @@ public void shouldGetTrafficTrend() {
 ----
 
 The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and the tests needs to be updated. +
-Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that the there are four identical dates passed to the second constructor?
+Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that there are four identical dates passed to the second constructor?
 
 Instead I would suggest to cut this blah-blah to the minium and use mocks instead of real objects.
 ----
@@ -344,9 +346,11 @@ This test does not distract the reader by providing only what is important to ve
 
 TIP: Creating objects only to create other objects so you can create other objects? Do not do that! (Unless the creation of objects is what you want to test).
 
+// TAGS obscure SETUP, CREATION OF OBJECTS
+
 [[sec_time_means_troubles]]
 == Time Means Troubles (Always!)
-TIP: As a rule *never* use +System.currentTimeMillis()+ or +new Date()+ in your production code. Add an additional layer of abstraction - e.g. a +DateTimeProvider+ interface will let you test your time-dependent methods with ease.
+TIP: As a rule *never* use +System.currentTimeMillis()+ or +new Date()+ in your production code. Add an additional layer of abstraction - e.g. a +DateTimeProvider+ interface. This will let you test your time-dependent methods with ease.
 
 Let us see what happens when you do not follow this advice.
 
@@ -432,6 +436,8 @@ public void shouldAddTimestampToGeneratedUrl() {
 
 TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl+ method does not use mocks but a stub only!].
 
+// TAGS INTERACTIONS INSTEAD OF STATE TESTING, BAD CODE -> BAD TESTS
+
 [[sec_srp]]
 == SRP for Tests
 [verse, Natasha Bedingfield, from "Single"]
@@ -448,9 +454,11 @@ Why? Because:
 * such test methods are pretty simple to understand,
 * if they fail you know *exactly* which functionality of your software does not work.
 
-NOTE: Writing tests which fullfil the SRP principle is very simple for unit tests, but not always applicable for other kind of tests.
+NOTE: Writing tests which fullfil the SRP principle is very simple for unit tests, but not always reasonable for other kind of tests. Sometimes you will want to verify few things in one test because of the setup cost.
 
 Still, I observe it being breached frequently. In this section we will take a closer look at some examples.
+
+// TAGS: SRP, NO LOGIC, METHOD NAMES
 
 === True and False
 Let us have a look at an example. It comes from a simple utility class, which was responsible for making sure that the phone prefix entered by users are valid.
@@ -473,7 +481,7 @@ public void testQueryVerification(String query, boolean expected) {
 At the first sight, it may seem like the test is really focused on one thing (on the verification of query validity), but if you look closer you will see some alarming signals:
 
 * its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
-** also the name of data provider - +data+ - smells really bad,
+** also the name of data provider{empty}pass:[]footnote:[A 'data provider' is a method which provides data for test cases. See TestNG's +@DataProvider+ annotation or JUnitParams project - +data+ - smells really bad,
 * it has some kind of logic: assertions depends on passed +expected+ boolean flag,
 * a "generic" assertion - +assertEquals+ - is used to verify the outcome.
 
@@ -565,7 +573,7 @@ public void shouldReturnRedirectViewAndSendEmail() {
 
 As you can see this test verifies exactly what the tested method does. Which means it verifies two expectations:
 
-* that the +sendRegistrationInfo+ of the +mailSender+ object will be invoked with specific parameter (+user+ object),
+* that the +sendRegistrationInfo()+ of the +mailSender+ object will be invoked with specific parameter (+user+ object),
 * that the user (the user who fill in the registration form, not the +user+ object!) will be redirected to specific page.
 
 It also indirectly verifies whether the +user+ object is stored by the +userService+ collaborator.
@@ -602,7 +610,7 @@ public void shouldNotifyAboutNewUserRegistration() {
 	//then
 	verify(mailSender).sendRegistrationInfo(user);
 ----
-The second test verifies whether the +sendRegistrationInfo+ method of the +mailSender+ object was invoked.
+The second test verifies whether the +sendRegistrationInfo()+ method of the +mailSender+ object was invoked.
 
 The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two tests, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registation. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it. I'm sure the responsibility of the class does not end there (for example I guess it also prints errors when the registration form lacks some data). Good. We can always add more tests to cover the rest of responsibilities. Responsibilities, not methods!
 
@@ -688,6 +696,7 @@ avoid by using some features of your testing framework - annotations data provid
 TODO refer to SRP - boolean is also kind of logic
 ////
 
+// TAGS EXCEPTION
 == Localized Exceptions
 The next test that I would like to discuss comes from an online tutorial (you should really watch out which tutorials you read...). It is an awful test with more than one issue. We will concentrate on one part of it, namely the way the exceptions are tested.
 
@@ -757,9 +766,13 @@ This does not differ much from the original test, but thanks to having other tes
 
 The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied when an exception thrown at any point of the test method.
 
-The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause{empty}pass:[]footnote:[We could also use nice DSL provided by FEST Assert to examine the exception within the +catch+ clause, e.g. +assertThat(e).isInstanceOf(IndexOutOfBoundsException.class).hasNoCause();+.]. However, there are some nicer options.
+The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause. However, there are some nicer options.
 
-The next listing presents catch-exception library{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] which offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need.
+The solution presented below makes good use of:
+
+* the catch-exception library{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] which offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need,
+* nice DSL provided by FEST Assert to examine the exception within the +catch+ clause.
+
 ----
 @Test
 public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
@@ -808,7 +821,7 @@ public void shouldNotProcessIfPacketParameterIsMissing() throws IOException, Ser
 	verify(packetDataProcessor, never()).process(PACKET, TYPE);
 }
 ----
-So this is a "negative" case. One of the required parameters is missing and there should be no processing. Seems ok, but... there is one thing bothering me. Why the verification assumes that the +packetDataProcessor+ could be asked to process +PACKET+? This value does not appear anywhere in the test so why the verification uses it? Aha! It does not appear in the test, but it surely is still in the head of the developer who wrote previous test (see the previous listing).
+So this is a "negative" case. One of the required parameters is missing and there should be no processing. Seems ok, but... there is one thing bothering me. Why the verification assumes that the +packetDataProcessor+ could be asked to process +PACKET+? This value does not appear anywhere in the test so why the verification uses it? Aha! It does not appear in the test, but it surely is still in the head of the developer who wrote the previous test (see the previous listing).
 
 Anyway, this is too specific. I would suggest that this test took a form of '"if one of the required parameters is missing then +packetDataProcessor+ should process nothing"', which, after translation into Java/Mockito/JUnit language looks like this:
 
@@ -866,6 +879,7 @@ public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOEx
 TIP: Do not be too specific. It will make your test less valuable by examining only a subset of test cases.
  
 == Use Smart Values
+// TODO obfuscate
 Try to minimize the risk of having your tests pass by accident. And always work to improve the readability.
 
 Let us consider the following factory method:
@@ -945,7 +959,7 @@ public void shouldAddAUser() {
 }
 ----
 
-Well, the test looks like an integration test (seems like +userService+ and +dao+ talk with real database), which adds a new user to the database.
+The test looks like an integration test (seems like +userService+ and +dao+ talk with real database), which adds a new user to the database.
 
 What is bothering me here is that:
 
@@ -967,7 +981,7 @@ public void shouldAddAUser() {
 ----
 Now the content of the test method reflects its name (+shouldAddUser+). Good.
 
-It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added the user to the system. It was applied along with all other patches to se the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
+It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to se the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
 
 TIP: Do not make assumptions about the database content. Use relative rather than absolute values.
 
@@ -1014,7 +1028,7 @@ public enum PaymentMethod {
 	}
 }
 ----
-Well, yes, it seems that we are using the same code to create both sides of the assertion... This is plainly wrong! This way we can't really test whether this method works properly or not. We only know that it is idempotent. What we should do instead is to prepare the list of expected methods by hand, like this:
+Well, yes, it seems that we are using the same code to create both sides of the assertion - actual and expected. This is plainly wrong! This way we can't really test whether this method works properly or not. We only know that it is idempotent. What we should do instead is to prepare the list of expected methods by hand, like this:
 
 ----
 @Test
@@ -1048,13 +1062,14 @@ The issue of writing '"happy path"' tests is so common, that it is probably the 
 
 But what is a '"happy path"' testing anyway? For our purpose, it is enough to say that '"happy paths"' tests cover the simplest, even obvious, scenarios. It is like testing that our calculator can add +2+ and +2+, and that if you add user +John Doe+ to the database then you can found it there.
 
-Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for you application. If your application does not handle such simple cases then it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
+Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for your application. If your application does not handle such simple cases then it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
 === FizzBuzz
 [quote, FizzBuzz RosettaCode]
 ____
 Write a program that prints the integers from 1 to 100. But for multiples of three print "Fizz" instead of the number and for the multiples of five print "Buzz". For numbers which are multiples of both three and five print "FizzBuzz".
 ____
+
 Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
 ----
 public class FizzBuzzTest {
@@ -1096,6 +1111,7 @@ TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz
 ____
 To give the proper word - to thing!
 ____
+
 This is interesting issue because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
 
 === A Rose by any Other Name... Not Really!
@@ -1137,7 +1153,7 @@ A guest can only read, logged users can also write, and admin has all permission
 
 === Object1, Object2, Object3
 Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
-
+// TODO obfuscate
 ----
 Domain domain1 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
@@ -1249,7 +1265,7 @@ This is more readable than the original version, however this solution is not re
 
 [float]
 ==== Builders
-The third approach requires some more work. Yeah, you guessed it already - we could use a test data builders idea and express very clearly what kind of server is required. For example like this:
+The third approach requires some more work. Yeah, you guessed it already - we could use test data builders{empty}pass:[]footnote:[http://nat.truemesh.com/archives/000714.html] idea and express very clearly what kind of server is required. For example like this:
 ----
 server = new MockServerBuilder()
 		.withResponse(responseMap)
@@ -1285,7 +1301,7 @@ public void testOperation() {
 	assert rc.getOperation().equals("validate")
 }
 ----
-Now what is the purpose of this test? The name says it should +testOperation+ which is rather vague. What kind of operation? What behaviour is expected? I do not understand this test, but I think it more about testing of +validate+ requests and not about some +operation+.
+Now what is the purpose of this test? The name says it should '"test operation"' which is rather vague. What kind of operation? What behaviour is expected? I do not understand this test, but I think it more about testing of +validate+ requests and not about some +operation+.
 
 The thing is, that the documentational value of this test is zero, or even less. It rather brings confusion than clarifies anything.
 
@@ -1330,9 +1346,9 @@ but all in all, it is a valuable test. Believe me, I analyzed every part of it, 
 
 And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
 
-I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull+ or with +shouldReturnSingleValueReturnedByDao+ and so on, but you won't end up with +shouldTestQuery+ unless you are really trying to anger me. ;)
+I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull()+ or with +shouldReturnSingleValueReturnedByDao()+ and so on, but you won't end up with +shouldTestQuery()+ unless you are really trying to anger me. ;)
 
-The test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think this are the best tests ever written...):
+The test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think these are the best tests ever written...):
 
 ----
 public void shouldReturnNullListWhenDaoReturnsNull {
@@ -1406,7 +1422,7 @@ public void pendingTransactionShouldNotBeConsideredAsPaid() {
 	...
 }
 ----
-TIP: When thinking about the test method leave the implementation details. Requirements is what matter.
+TIP: When thinking about the test method leave the implementation details. What matters are the requirements.
 
 == Ceremony
 BDD is great for telling stories. The +given/when/then+ rhythm is a great thing. And many tests benefit from this pattern. However sometimes I find it hard to justify the presence of the whole BDD ceremony in some very simple tests. Like the one shown below.
@@ -1443,7 +1459,7 @@ public void shouldBuildEmailSender() {
 }
 ----
 
-Similarly this test also looks like an ceremony-overkill to me:
+Similarly this test also looks like a ceremony-overkill to me:
 ----
 @Test
 public void shouldBeAdministrator() {
@@ -1519,7 +1535,8 @@ public void shouldPreDeployApplication() {
 	assertThat(downloadedFile).exists().hasSize(WAR_FILE_LENGTH);
 }
 ----
-As you can see the 'then' part is pretty huge and rather unpleasant. It contains a lot of implementation details which clutter the view. It is not so simple to read the test and understand the scenario it verifies.
+As you can see the 'then' part is pretty huge and rather unpleasant. It contains a lot of implementation details which clutter the view. It is not so simple to read the test and understand the scenario it verifies. +
+An interesting observation is that the real assertion happens in the last line of the test method. The rest of "then" part is only preparing for this final line.
 
 How to make it better? Many of us would extract assertion part as private method. Ok, this would be better, but as we see in a minute (see <<sec_assertions_vs_private_methods>>) it can lead to some problems as well, so let us do something different.
 
@@ -1800,7 +1817,7 @@ public void shouldReturnModelWithCorrectValuesCalculated() {
 	assertThat(result).isEqualTo(expectedResult); // value should be (1+5+50+75=131)/(10+10+10+10=40) = 3.275
 }
 ----
-The name of the test says that the SUT +shouldReturnModelWithCorrectValuesCalculated+. The comment at the end of the last assertion line tells me exactly what was important for the creator of the test. There is some average value calculated, and it is essential that it is equal to 3.275. If so, then instead of comparing full objects, let us verify this one value:
+The name of the test says that the SUT +shouldReturnModelWithCorrectValuesCalculated()+. The comment at the end of the last assertion line tells me exactly what was important for the creator of the test. There is some average value calculated, and it is essential that it is equal to 3.275. If so, then instead of comparing full objects, let us verify this one value:
 
 ----
 	// then
@@ -1815,6 +1832,8 @@ org.junit.ComparisonFailure:
 Expected :my.company.DataModel@e6037658
 Actual   :my.company.DataModel@4af66537
 ----
+Another drawback of such test is, that it can fail if compared objects differ with regard to some unimportant details.
+
 Now you have few options:
 
 * run the test again in debug mode to see what is the problem,
@@ -1823,7 +1842,7 @@ Now you have few options:
 
 When verifying specified properties instead of objects you are sure to get a valuable error message which tells exactly which of them is different than expected.
 
-NOTE: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
+TIP: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
 
 == Creation of Objects
 We haven't really discussed the part of the test which is responsible for objects creation.
@@ -1950,7 +1969,10 @@ TODO
 * test which should be concurrent - not very likely to find a test for this
 
 === Expected Exceptions And Verification
+// TODO NOTE: We should rather strive for SRP but sometimes it makes sense to test more things in one test.
+
 Consider the following method from production code:
+
 ----
 public void registerDomain(Domain domain) {
 	try {
@@ -1963,7 +1985,9 @@ public void registerDomain(Domain domain) {
 	domainService.saveDomain(domain.isRegisteredInDna(), domain.getDnsFailures());
 }
 ----
+
 A developer intended to verify whether even in case of exception the +saveDomain()+ method of the +DomainService+ class is called with appropriate parameters (i.e. with the increased number of DNS failures). Let us take a look at the test code:
+
 ----
 @Test(expected = RuntimeException.class)
 public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
@@ -1979,17 +2003,21 @@ public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
 		.saveRegisteredInDnsAndDnsFailures(domain, false, DNS_FAILURES + 1);
 }
 ----
+
 As you can see there are two verifications. First, the test verifies whether an exception is rethrown. This is done with the +expected+ attribute of the +@Test+ annotation. Second, the last line verifies that the expected method of the +domainService+ collaborator was called.
 
-That is exactly what we wanted to have, right? Well, almost, as it does not work.
+That is exactly what we wanted to have, right? Well, almost, because it does not work!
 
 The problem is that the second verification never happens. Why? Because this line:
+
 ----
 domainRegistrator.registerDomain(domain);
 ----
+
 throws an exception which ends the execution of this test!
 
 The fix is straightforward. We need to catch the exception within the test so that the last line is also executed. This can be done with a standard +try/catch+ statement, but we can do better than this using the catch-exception library:
+
 ----
 @Test
 public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
@@ -2006,6 +2034,7 @@ public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
 	assertThat(caughtException()).isInstanceOf(RuntimeException.class);
 }
 ----
+
 As you can see we got rid of the +expected+ attribute from +@Test+ annotation. Instead we catch the exception using +catchException()+ method and then verify it using +caughtException()+ method. +
 After this change the test is no longer interrupted when the exception is thrown and all verifications are performed.
 
@@ -2223,6 +2252,8 @@ So, what can we do about it?  We can't make browser speed up, but we can wait ac
 
 TODO about Page objects
 
+TODO about same pattern like builders and custom assertions - decoupling what changes from what is stable
+
 So, putting these two together, the resulting test could look like this (it is hard to me to guess what was the business requirement of the test presented above, but I guess it was something like this):
 
 ----
@@ -2271,9 +2302,10 @@ public void invalidTxShouldBeCanceled() {
 		"CANCEL,123,123cancel,billing_id_123_cancel,SUCCESS,"));
 }
 ----
-Look at the method name - +invalidTxShouldBeCanceled+ (hint: 'Tx' stands for 'transaction') - and at the assertion made. Hm, do they match? Do you feel like the assertion really verifies if the invalid transaction was canceled? Well, it probably does, but it seem to test much more than this. In fact it verifies if the answer about the outcome of transaction processing was given according to some format of data.
+Look at the method name - +invalidTxShouldBeCanceled()+ (hint: 'Tx' stands for 'transaction') - and at the assertion made. Hm, do they match? Do you feel like the assertion really verifies if the invalid transaction was canceled? Well, it probably does, but it seem to test much more than this. In fact it verifies whether the received file conforms to some data pattern.
 
 Another variant, which I would recommend, relies on - surprise, surprise! - custom annotations.
+
 ----
 public void invalidTxShouldBeCanceled() {
 	... some complex test here
@@ -2285,7 +2317,10 @@ public void invalidTxShouldBeCanceled() {
 		.hasTransaction("123cancel").withResultCode(SUCCESS);
 }
 ----
+
 I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfuly (meaning, the cancelation of this transaction succeeded)'. 
+
+Now when the CSV format changes, all you need to do is to fix the code encapsulated within the +TxDTOAssert+ class. In other case you would have to fix it in (many) tests which verify the content of the CSV file.
 
 == Avoid Overspecified Tests
 This section contains examples which illustrate another common issue with our tests. I see them often specify too many things which are not really related to the tested scenario. This reduces the readability of tests, and also influences their maintainability by increasing the number of things which force us to update the test code.
@@ -2368,7 +2403,7 @@ public void shouldRecognizeSnapshots(
 	assertThat(artifact.isSnapshot()).isTrue();
 }
 ----
-All is good and well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
+All is good and well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts()+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
 
 After the refactor the same test took the following form:
 ----
@@ -2391,7 +2426,13 @@ public void shouldRecognizeSnapshots(String version) {
 ----
 As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is to announce '"I'm a right value and I'm really not important for this test scenario"'.
 
-NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of the data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
+NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
+
+Another option would be to use a test builder pattern, like this:
+
+----
+TODO
+----
 
 == Tests Should Follow the Evolution of Code
 Tests are meant to be a perfect documentation which is always up-to-date. Unfortunately this is not always so.
