@@ -16,22 +16,6 @@ Some of the code examples were obfuscated in order to '"protect the innocents"'.
 Even though the title of this book mentions '"bad tests"' in fact only few of the tests presented here are really bad. The most of them is rather imperfect. However for the sake of marketing impact I decided to go with '"bad tests"' on the cover. :)
 
 [float]
-==== Pseudocode
-Some code snippets are marked with *pseudocode* tag in upper right corner, like this:
-
-[role="pseudocode"]
-----
-objectX.doSomething();
-if (something) {
-    ...
-}
-----
-
-This means that this snippet of code might not compile.
-
-TODO make pseudocode fragments print well in html, PDF and ePub versions
-
-[float]
 ==== SUT and Assertions
 From time to time I use term 'SUT' which denotes 'System Under Test', that is *the thing* being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
 
