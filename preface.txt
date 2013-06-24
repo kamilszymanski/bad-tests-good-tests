@@ -19,7 +19,7 @@ Even though the title of this book mentions '"bad tests"' in fact only few of th
 ==== SUT and Assertions
 From time to time I use term 'SUT' which denotes 'System Under Test', that is *the thing* being tested. The SUT can vary in size. For unit tests it is usually a class, for integration tests it might be a class, a layer or a module, and for end-to-end tests it is the whole system.
 
-Throughout the book I use frequently FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] instead of those provided by JUnit or TestNG. Some time ago I discovered that they suit me better than anything else. Additionally their use solves the problem of difference in parameters order between JUnit and TestNG.
+Throughout the book I often use FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] (e.g. +assertThat(...)+) instead of those provided by JUnit or TestNG (e.g. +assertEquals(...)+). After writing thousands of tests (of each kind) I can say they are simply better.
 
 // TODO about +setUp()+ what I mean by this - do I really write about setUp methods?
 
