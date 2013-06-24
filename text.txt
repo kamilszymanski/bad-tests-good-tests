@@ -822,7 +822,7 @@ The first thing we could do is to use the +try-catch+ statement and fail the tes
 
 The solution presented below makes good use of:
 
-* the catch-exception library{empty}{pass}footnote:[See http://code.google.com/p/catch-exception/] which offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need,
+* the catch-exception library{empty}pass:[]footnote:[See http://code.google.com/p/catch-exception/] which offers the +catchException()+ and the +caughtException()+ methods which are exactly what we need,
 * nice DSL provided by FEST Assert to examine the exception within the +catch+ clause.
 
 [source,java]
@@ -1151,10 +1151,7 @@ ____
 Write a program that prints the integers from 1 to 100. But for multiples of three print "Fizz" instead of the number and for the multiples of five print "Buzz". For numbers which are multiples of both three and five print "FizzBuzz".
 ____
 
-Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
-Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
-Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
-Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}{pass}footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
+Let us have a look at this implementation of the test class which claims to verify whether the +FizzBuzz+ class behaves according to the specification presented above{empty}pass:[]footnote:[The test implementation is copied from CodeReview discussion, see: http://codereview.stackexchange.com/questions/9749].
 
 [source,java]
 ----
