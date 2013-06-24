@@ -1347,17 +1347,13 @@ TIP: Do not su/pre-fix names of test variables with letters or numbers! Find int
 
 Whenever you create some object for testing purposes there is some reason behind. You create it because it is different from other objects. It has different properties. Do not be shy about it. Say it loud. Say it, by giving this object a unique, recognizable name.
 
-==== Counter Example
-TODO clientA, clientB when all that matters is that you have more than one client
-
-but if you do not like it then maybe create an array of clients?
-
 [[sec_intention_revealing]]
 === What True and False Stand For?
 [quote, Pilat, John 18:38]
 ____
 What is truth?
 ____
+
 If we expect our tests to act as a documentation then we need to put some effort into their readability. Consider the following example:
 
 [source,java]
@@ -2865,6 +2861,7 @@ TIP: Write tests which make you confident that your system works.
 * Test-last does not work
 * Private methods for assertions do not work
 * Tests work only if you treat them as first-class citizens
+* Tests should speak in terms of business requirements and expected functionalities, but not in the language of implementation details!
 
 <<<
 [float]
