@@ -52,4 +52,19 @@ Please visit the TODO http://practicalunittesting.com[official book site] for ne
 
 [float]
 ==== Contributors
-Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski, Jakub Nabrdalik TODO who else?, 
+Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski, Jakub Nabrdalik TODO who else?,
+
+ifndef::print[]
+[float]
+==== Why This Book is For Free?
+This book is for free because I decided so. :) This is possible thanks to many of you, who have bought my previous books from the '"Practical Unit Testing"' serie. Now I'm so filthy rich I can spent my time on non-profit activities. ;) 
+
+By giving this book for free I would also like to pay my debts to the community. I have gained a lot from many bloggers, open-source contributors and forums participants. Thanks to your engagement and the willingness to share your knowledge and experience I'm a better developer today, and I use many super open-source tools that you have prepared. Thank you very much!
+
+Least but not least, it is real fun to give gifts. And I'm enjoying it very much! :)
+endif::print[]
+ifdef::print[]
+[float]
+==== Free e-Book Available
+Visit http://practicalunittesting.com to download a free e-book version of this book.
+endif::print[]
