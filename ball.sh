@@ -1,159 +1,208 @@
-# generates html, ePub, txt and pdf outputs
+#!/bin/bash
 
+#generates html, ePub, txt and pdf outputs
+
+BOOKDIR=/home/tomek/btgt
+MAIN_FILE=$BOOKDIR/book.txt
 SRCDIR=/home/tomek/btgt
-IMGDIR=$SRCDIR/images
-ICONSDIR=$IMGDIR/icons
-MAIN_FILE=$SRCDIR/book.txt
 RESDIR=$SRCDIR/resources
 TARGET=$SRCDIR/target
 BACKUP=$SRCDIR/backup
-ZIPDIR=$TARGET/zip
-BOOKDIR=$SRCDIR/book
+#ICONSDIR=$SRCDIR/images/icons
 VER=$(date +"%Y%m%d_%H%M")
 echo ""
 echo "VERSION: $VER"
 
-rm -r $TARGET/bad_tests_*.*
 rm -f $TARGET/*.html
-rm -rf $TARGET/images
-rm -rf $TARGET/book_*
-rm -rf $TARGET/zip
-mkdir -p $ZIPDIR
-mkdir -p $TARGET/images/icons
-mkdir -p $TARGET/images/icons_html/callouts
-cp $SRCDIR/images/*.png $TARGET/images
-cp $SRCDIR/images/*.jpg $TARGET/images
-cp $SRCDIR/images/icons/*.png $TARGET/images/icons
-cp $SRCDIR/images/icons_html/*.png $TARGET/images/icons_html
-cp $SRCDIR/images/icons_html/callouts/*.png $TARGET/images/icons_html/callouts
+rm -rf $TARGET/img
+rm -rf $TARGET/btgt*
+rm -rf $TARGET/book*
+rm -rf $TARGET/bad_tests_good_tests_*
+mkdir -p $TARGET/img
+cp $SRCDIR/book/img/*.png $TARGET/img
 
-echo ""
-echo "HTML"
-asciidoc -a icons -a iconsdir=images/icons_html -d book -a toc2 -a toclevels=3 -n -o $TARGET/book.html $MAIN_FILE
+function html {
+	echo ""
+	echo "HTML"
+	asciidoc -a icons -n -d book -a tabsize=4 -a toc2 -a toclevels=3 -n -o $TARGET/btgt.html $MAIN_FILE
+	echo "html: $TARGET/btgt.html"
+}
 
-echo ""
-echo "DOCBOOK"
-asciidoc --backend docbook --doctype book --attribute icons --verbose --out-file $TARGET/book.xml $MAIN_FILE
-#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --atribute print=true --verbose --out-file $TARGET/book.xml $MAIN_FILE
-#asciidoc --backend docbook --doctype book --attribute icons --verbose --out-file $TARGET/book.xml $MAIN_FILE
+function docbook {
+	echo ""
+	echo "DOCBOOK"
+	echo $MAIN_FILE
+	/home/tomek/bin/asciidoc-8.6.5/asciidoc.py --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --attribute print --verbose --out-file $TARGET/btgt.xml $MAIN_FILE
+	echo "docbook: $TARGET/btgt.xml"
 
-#
-#echo ""
-#echo "TEXT"
-#html2text -nobs -style pretty $TARGET/book.html > $TARGET/book.txt
+#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --verbose --out-file $TARGET/junit_book.xml $MAIN_FILE
+#--attribute tabsize=16
+#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --atribute print=true --verbose --out-file $TARGET/junit_book.xml $MAIN_FILE
+}
 
-#echo ""
-#echo "PDF"
-#a2x -k -f pdf -a docinfo1 -d book --xsl-file $SRCDIR/resources/custom-format.xml --fop $SRCDIR/book/book.txt -v -D $TARGET
-#a2x -k -f pdf -a docinfo1 -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $SRCDIR/book/book.txt -v -D $TARGET
-#a2x -k -f pdf -a docinfo1 -d book --xsltproc-opts "--stringparam body.font.master 11 --stringparam generate.toc \"book toc,title,table,figure\" --param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $SRCDIR/book/book.txt -v -D $TARGET
-#mv $TARGET/book.pdf $TARGET/book_font_11.pdf
+function text {
+	echo ""
+	echo "TEXT"
+	html2text -nobs -style pretty $TARGET/btgt.html > $TARGET/btgt.txt
+	echo "text: $TARGET/btgt.txt"
+}
 
-
-#echo ""
-#echo "print versions preparation"
-#sed -i 's/contentwidth="[0-9][0-9][0-9]" //g' $TARGET/book_print.xml
-#xmllint --nonet --noout --valid $TARGET/book_print.xml
-
+function pdfA4 {
 echo ""
 echo "PDF A4"
 #no double.sided for A4
-cp $TARGET/book.xml $TARGET/book_ready.xml
-sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book_ready.xml
-sed -i 's/TAG_PRINTED//g' $TARGET/book_ready.xml
-sed -i "s/TAG_VERSION/pdf_a4_$VER/g" $TARGET/book_ready.xml
-xmllint --nonet --noout --valid $TARGET/book_ready.xml
+cp $TARGET/btgt.xml $TARGET/btgt.xml
+#sed -i 's/TAG_ISBN/ISBN: 978-83-934893-7-4/g' $TARGET/junit_book_ready.xml
+#sed -i 's/TAG_PRINTED//g' $TARGET/junit_book_ready.xml
+#sed -i "s/TAG_VERSION/pdf_a4_$VER/g" $TARGET/junit_book_ready.xml
 
-xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path $SRCDIR/images/icons/ --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type A4 --output $TARGET/book.fo $RESDIR/custom-docbook_a4.xsl $TARGET/book_ready.xml
+xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'/home/tomek/btgt/resources/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/btgt/images/icons/ --stringparam callout.graphics.path /home/tomek/btgt/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/btgt/images/icons/ --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type A4 --output $TARGET/btgt.fo $RESDIR/custom-docbook_btgt_a4.xsl $TARGET/btgt_ready.xml
 
-fop -fo $TARGET/book.fo -pdf $TARGET/book_a4.pdf
-FINAL_PATH=$TARGET/bad_tests_good_tests_A4_$VER.pdf
-cp $TARGET/book_a4.pdf $FINAL_PATH
-#gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$TARGET/book_pdf_a4.pdf /home/tomek/book/img/cover_a4.pdf $TARGET/book_pre_a4.pdf
+fop -fo $TARGET/btgt.fo -pdf $TARGET/btgt_a4.pdf
+FINAL_FILE_NAME=$TARGET/bad_tests_good_tests_A4_$VER.pdf
+cp $TARGET/btgt_a4.pdf $FINAL_FILE_NAME
+echo "PDF A4 final version: $FINAL_FILE_NAME"
+}
 
-zip $FINAL_PATH.zip $FINAL_PATH
-
-#pdfjoin /home/tomek/book/img/cover_a4.pdf $TARGET/book_pre_a4.pdf --outfile $TARGET/book_pdf_a4.pdf
-#a2x -a pdfa4=true -a icons --icons-dir $ICONSDIR -k -f pdf -a docinfo1 -d book --xsltproc-opts "--stringparam header.column.widths \"1 4 1\" --stringparam paper.type A4 --stringparam generate.toc \"book toc,title,table,figure\" --param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $BOOKDIR/book.txt -v -D $TARGET
-#mv $TARGET/book.pdf $TARGET/book_a4.pdf
-
+function pdfUs {
 echo ""
 echo "PDF USLetter"
-cp $TARGET/book.xml $TARGET/book_ready.xml
-sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book_ready.xml
-sed -i 's/TAG_PRINTED//g' $TARGET/book_ready.xml
-sed -i "s/TAG_VERSION/pdf_usletter_$VER/g" $TARGET/book_ready.xml
-xmllint --nonet --noout --valid $TARGET/book_ready.xml
+cp $TARGET/btgt.xml $TARGET/btgt_ready.xml
+#sed -i 's/TAG_ISBN/ISBN: 978-83-934893-6-7/g' $TARGET/junit_book_ready.xml
+#sed -i 's/TAG_PRINTED//g' $TARGET/junit_book_ready.xml
+#sed -i "s/TAG_VERSION/pdf_usletter_$VER/g" $TARGET/junit_book_ready.xml
 # no double.sided for USLetter
-echo "US XSLTPROC"
-xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path $ICONSDIR --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type USletter --output $TARGET/book.fo $RESDIR/custom-docbook_usletter.xsl $TARGET/book_ready.xml
-echo "US FOP"
-fop -fo $TARGET/book.fo -pdf $TARGET/book_usletter.pdf
-FINAL_PATH=$TARGET/bad_tests_good_tests_USLetter_$VER.pdf
-cp $TARGET/book_usletter.pdf $FINAL_PATH
-#gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$TARGET/book_pdf_usletter.pdf /home/tomek/book/img/cover_usletter.pdf $TARGET/book_pre_usletter.pdf
+xsltproc --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'/home/tomek/btgt/resources/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/btgt/images/icons/ --stringparam callout.graphics.path /home/tomek/btgt/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/btgt/images/icons/ --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam paper.type USletter --output $TARGET/btgt.fo $RESDIR/custom-docbook_btgt_usletter.xsl $TARGET/btgt_ready.xml
 
-zip $FINAL_PATH.zip $FINAL_PATH
+fop -fo $TARGET/btgt.fo -pdf $TARGET/btgt_usletter.pdf
+FINAL_FILE_NAME=$TARGET/bad_tests_good_tests_USLetter_$VER.pdf
+cp $TARGET/btgt_usletter.pdf $FINAL_FILE_NAME
+echo "PDF A4 final version: $FINAL_FILE_NAME"
+}
 
-#pdfjoin /home/tomek/book/img/cover_usletter.pdf $TARGET/book_pre_usletter.pdf --outfile $TARGET/book_pdf_usletter.pdf
-
+function paper {
 echo ""
-echo "PDF 7.5 x 9.25"
-asciidoc --backend docbook --doctype book --attribute icons --attribute print --verbose --out-file $TARGET/book_print.xml $MAIN_FILE
-cp $TARGET/book_print.xml $TARGET/book_ready.xml
-sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book_ready.xml
-sed -i 's/TAG_PRINTED/, TODO printed by CreateSpace createspace.com/g' $TARGET/book_ready.xml
-sed -i "s/TAG_VERSION/print_$VER/g" $TARGET/book_ready.xml
-xmllint --nonet --noout --valid $TARGET/book_ready.xml
-#xsltproc --stringparam page.margin.inner 0.85in --stringparam page.margin.outer 0.65in --stringparam double.sided 1 --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'/home/tomek/docs/testbook/resources/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/book/book/images/icons/ --stringparam callout.graphics.path /home/tomek/book/book/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/book/book/images/icons/ --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam page.width 7.5in --stringparam page.height 9.25in --output /home/tomek/docs/testbook/target/book.fo /home/tomek/bin/asciidoc-8.6.5/docbook-xsl/fo.xsl $TARGET/book_ready.xml
+echo "PDF $1 x $2, margin $3 x $4, stylesheet $5"
+#sed -i 's/TAG_ISBN/ISBN: 978-83-934893-9-8/g' $TARGET/junit_book_ready.xml
+#sed -i 's/TAG_PRINTED/, printed by CreateSpace createspace.com/g' $TARGET/junit_book_ready.xml
+#sed -i "s/TAG_VERSION/print_$VER/g" $TARGET/junit_book_ready.xml
 #margin 0.85 0.65 - amazon complained
-xsltproc --stringparam page.margin.inner 0.87in --stringparam page.margin.outer 0.50in --stringparam double.sided 1 --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/book/book/images/icons/ --stringparam callout.graphics.path $ICONSDIR/callouts/ --stringparam navig.graphics.path $ICONSDIR --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam page.width 7.5in --stringparam page.height 9.25in --output $TARGET/book.fo $RESDIR/custom-docbook.xsl $TARGET/book_ready.xml
+xsltproc --stringparam page.margin.inner $3 --stringparam page.margin.outer $4 --stringparam double.sided 1 --stringparam header.column.widths "1 4 1" --stringparam generate.toc "book toc,title,table,figure" --param local.l10n.xml document\(\'/home/tomek/btgt/resources/custom-format.xml\'\) --stringparam callout.graphics 1 --stringparam navig.graphics 1 --stringparam admon.textlabel 0 --stringparam admon.graphics 1 --stringparam admon.graphics.path /home/tomek/btgt/images/icons/ --stringparam callout.graphics.path /home/tomek/btgt/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/btgt/images/icons/ --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0 --stringparam page.width $1 --stringparam page.height $2 --output $TARGET/btgt.fo $RESDIR/$5 $TARGET/btgt_ready.xml
 
-fop -fo $TARGET/book.fo -pdf $TARGET/book_paper.pdf
-FINAL_PATH=$TARGET/bad_tests_good_tests_paper_$VER.pdf
-cp $TARGET/book_paper.pdf $FINAL_PATH
+fop -fo $TARGET/btgt.fo -pdf $TARGET/btgt_paper_$6.pdf
+#fop -fo $TARGET/junit_book.fo -pdf $TARGET/junit_book_paper_$6.pdf
+FINAL_FILE_NAME=$TARGET/bad_tests_good_tests_paper_$6_$VER.pdf
+cp $TARGET/btgt_paper_$6.pdf $FINAL_FILE_NAME
+echo "PDF final version: $FINAL_FILE_NAME"
+}
 
-zip $FINAL_PATH.zip $FINAL_PATH
-
-
-#stats.sh
-
-#echo ""
-#echo "ePub"
-#xmllint --nonet --noout --valid /home/tomek/docs/testbook/target/book.xml
-#rm -rf /home/tomek/docs/testbook/target/book.epub.d
-#mkdir /home/tomek/docs/testbook/target/book.epub.d
-#xsltproc --param local.l10n.xml document\(\'/home/tomek/docs/testbook/resources/custom-format.xml\'\) --stringparam callout.graphics 0 --stringparam navig.graphics 0 --stringparam admon.textlabel 1 --stringparam admon.graphics 0 --stringparam toc.section.depth 1 --stringparam chunk.section.depth 0  /home/tomek/bin/asciidoc-8.6.5/docbook-xsl/epub.xsl /home/tomek/docs/testbook/target/book.xml
-
-#a2x -k -f epub -a docinfo1 -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $SRCDIR/book/book.txt -v -D $TARGET
-#cp $TARGET/book.epub $TARGET/practical_unit_testing_with_testng_and_mockito_$VER.epub
-
+function epub {
 echo ""
 echo "ePub"
-#a2x -k -f epub -a docinfo1 --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $SRCDIR/book/book.txt -v -D $TARGET
-cp $SRCDIR/docinfo.xml $TARGET/book-docinfo.xml
-sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book-docinfo.xml
-sed -i 's/TAG_PRINTED//g' $TARGET/book-docinfo.xml
-sed -i "s/TAG_VERSION/epub_$VER/g" $TARGET/book-docinfo.xml
-a2x -k -f epub -a docinfo --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_epub/" --fop $MAIN_FILE -v -D $TARGET
-FINAL_PATH=$TARGET/bad_tests_good_tests_$VER.epub
-cp $TARGET/book.epub $FINAL_PATH
-#a2x -k -f epub -a docinfo1 --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path images/icons/ --stringparam callout.graphics.path images/icons/callouts/ --stringparam navig.graphics.path images/icons/" --fop $SRCDIR/book/book.txt -v -D $TARGET
-#a2x -k -f epub -a docinfo1 --icons --icons-dir ../images/icons/ -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path /home/tomek/book/book/images/icons/ --stringparam callout.graphics.path /home/tomek/book/book/images/icons/callouts/ --stringparam navig.graphics.path /home/tomek/book/book/images/icons/" --fop $SRCDIR/book/book.txt -v -D $TARGET
+rm -rf $TARGET/btgt.epub
+#mkdir $TARGET/book.epub
+cp $BOOKDIR/docinfo.xml $BOOKDIR/btgt-docinfo.xml
+#sed -i 's/TAG_ISBN/ISBN: 978-83-934893-8-1/g' $BOOKDIR/book-docinfo.xml
+#sed -i 's/TAG_PRINTED//g' $BOOKDIR/book-docinfo.xml
+#sed -i "s/TAG_VERSION/epub_$VER/g" $BOOKDIR/book-docinfo.xml
+a2x -k -f epub -a docinfo --attribute tabsize=2 --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_epub/" --fop $MAIN_FILE -v -D $TARGET
+FINAL_FILE_NAME=$TARGET/bad_tests_good_tests_$VER.epub
+cp $TARGET/btgt.epub $FINAL_FILE_NAME
+echo "ePub final version: $FINAL_FILE_NAME"
+}
 
-zip $FINAL_PATH.zip $FINAL_PATH
-
+function epubkindle {
 echo ""
 echo "ePub for Kindle"
-#a2x -k -f epub -a docinfo1 --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\)" --fop $SRCDIR/book/book.txt -v -D $TARGET
-cp $SRCDIR/docinfo.xml $TARGET/book-docinfo.xml
-sed -i 's/TAG_ISBN/ISBN: TODO/g' $TARGET/book-docinfo.xml
-sed -i 's/TAG_PRINTED//g' $TARGET/book-docinfo.xml
-sed -i "s/TAG_VERSION/epub_$VER/g" $TARGET/book-docinfo.xml
-a2x -k -f epub -a docinfo --icons -d book --xsltproc-opts "--param local.l10n.xml document\(\'$RESDIR/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_kindle/" --fop $MAIN_FILE -v -D $TARGET
-FINAL_PATH=$TARGET/bad_tests_good_tests_kindle_$VER.epub
-cp $TARGET/book.epub $FINAL_PATH
+rm -rf $TARGET/btgt.epub
+#mkdir $TARGET/book.epub
+cp $BOOKDIR/docinfo.xml $BOOKDIR/btgt-docinfo.xml
+#sed -i 's/TAG_ISBN/ISBN: 978-83-934893-5-0/g' $BOOKDIR/book-docinfo.xml
+#sed -i 's/TAG_PRINTED//g' $BOOKDIR/book-docinfo.xml
+#sed -i "s/TAG_VERSION/kindle_$VER/g" $BOOKDIR/book-docinfo.xml
+a2x -k -f epub -a docinfo --attribute tabsize=2 --icons -d book --stylesheet=resources/kindle.css --xsltproc-opts "--param local.l10n.xml document\(\'$SRCDIR/resources/custom-format.xml\'\) --stringparam admon.graphics.path images/icons_epub/ --stringparam callout.graphics.path images/icons_epub/callouts/ --stringparam navig.graphics.path images/icons_kindle/" --fop $MAIN_FILE -v -D $TARGET
 
-echo ""
-echo "moving zips"
-mv $TARGET/*.zip $ZIPDIR
+#a2x has already created zipped final file from book.epub.d but we have to modify the sources and zip it once again
+
+#bulleted list
+#sed -i '/<p class="simpara">/{ N; s/<p class="simpara">\nthe test/\nthe test/ }' $TARGET/btgt.epub.d/OEBPS/ch10.html
+#sed -i '/registers,/{ N; s/registers,\n<\/p>/registers,\n/ }' $TARGET/book.epub.d/OEBPS/ch10.html
+
+# numbered lists
+#sed -i '/<p class="simpara">/{ N; s/<p class="simpara">\nif the object/\nif the object/ }' $TARGET/book.epub.d/OEBPS/ch02.html
+#sed -i '/will be returned,/{ N; s/will be returned,\n<\/p>/will be returned,\n/ }' $TARGET/book.epub.d/OEBPS/ch02.html
+
+cd $TARGET/btgt.epub.d
+FINAL_FILE_NAME=btgt_kindle_$VER.epub
+zip -r ../$FINAL_FILE_NAME .
+echo "ePub-for-kindle final version: $TARGET/$FINAL_FILE_NAME"
+}
+
+showopts () {
+  while getopts ":f:" optname
+    do
+      case "$optname" in
+        "f")
+          #echo "Option $optname has value $OPTARG"
+	  case $OPTARG in
+		  "html")
+			  html
+			  ;;
+		  "txt")
+			  html
+			  text
+			  ;;
+		  "epub")
+			  epub
+			  ;;
+		  "kindle")
+			  epubkindle
+			  ;;
+		  "pdfus")
+			  docbook
+			  pdfUs
+		  ;;
+		  "pdfa4")
+			  docbook
+			  pdfA4
+		  ;;
+		  "pdf")
+			  docbook
+			  pdfA4
+			  pdfUs
+		  ;;
+		  "paper")
+			  docbook
+cp $TARGET/btgt.xml $TARGET/btgt_ready.xml
+xmllint --nonet --noout --valid /home/tomek/btgt/target/btgt_ready.xml
+#this is a real deal
+paper "7.5in" "9.25in" "0.87in" "0.65in" "custom-docbook-font-11.xsl" "75_925_11_mono_087_065"
+#this margin looked too small even though everything looked fine when analyzing with interior reviewer
+#paper "7.5in" "9.25in" "0.87in" "0.5in" "custom-docbook-font-11.xsl" "75_925_11_mono_05"
+
+# these are not used
+#paper "6in" "9in" "0.5in" "0.5in" "custom-docbook-font-10.xsl" "6_9_10"
+#paper "6in" "9in" "0.5in" "0.5in" "custom-docbook-font-11.xsl" "6_9_11"
+#paper "7.5in" "9.25in" "0.87in" "0.5in" "custom-docbook-font-10.xsl" "75_925_10"
+#paper "7.5in" "9.25in" "0.87in" "0.5in" "custom-docbook-font-11.xsl" "75_925_11"
+#paper "7.5in" "9.25in" "0.87in" "0.5in" "custom-docbook.xsl" "75_925_12"
+  ;;
+	  esac
+          ;;
+        *)
+        # Should not occur
+          echo "Unknown error while processing options"
+          ;;
+      esac
+    done
+  return $OPTIND
+}
+
+showargs () {
+  for p in "$@"
+    do
+      echo "[$p]"
+    done
+}
+
+showopts "$@"
