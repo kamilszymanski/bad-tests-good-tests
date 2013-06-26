@@ -14,12 +14,12 @@ echo ""
 echo "VERSION: $VER"
 
 rm -f $TARGET/*.html
-rm -rf $TARGET/img
+rm -rf $TARGET/images
 rm -rf $TARGET/btgt*
 rm -rf $TARGET/book*
 rm -rf $TARGET/bad_tests_good_tests_*
-mkdir -p $TARGET/img
-cp $SRCDIR/book/img/*.png $TARGET/img
+mkdir -p $TARGET/images
+cp -v $SRCDIR/images/*.jpg $TARGET/images
 
 function html {
 	echo ""
