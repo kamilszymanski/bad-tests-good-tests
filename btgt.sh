@@ -52,7 +52,7 @@ function pdfA4 {
 echo ""
 echo "PDF A4"
 #no double.sided for A4
-cp $TARGET/btgt.xml $TARGET/btgt.xml
+cp $TARGET/btgt.xml $TARGET/btgt_ready.xml
 #sed -i 's/TAG_ISBN/ISBN: 978-83-934893-7-4/g' $TARGET/junit_book_ready.xml
 #sed -i 's/TAG_PRINTED//g' $TARGET/junit_book_ready.xml
 #sed -i "s/TAG_VERSION/pdf_a4_$VER/g" $TARGET/junit_book_ready.xml
