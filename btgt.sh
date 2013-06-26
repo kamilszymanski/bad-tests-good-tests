@@ -18,13 +18,14 @@ rm -rf $TARGET/images
 rm -rf $TARGET/btgt*
 rm -rf $TARGET/book*
 rm -rf $TARGET/bad_tests_good_tests_*
-mkdir -p $TARGET/images
+mkdir -p $TARGET/images/icons_html
 cp -v $SRCDIR/images/*.jpg $TARGET/images
+cp -r -v $SRCDIR/images/icons_html $TARGET/images
 
 function html {
 	echo ""
 	echo "HTML"
-	asciidoc -a icons -n -d book -a tabsize=4 -a toc2 -a toclevels=3 -n -o $TARGET/btgt.html $MAIN_FILE
+	asciidoc -a icons -a iconsdir=images/icons_html -n -d book -a tabsize=4 -a toc2 -a toclevels=3 -n -o $TARGET/btgt.html $MAIN_FILE
 	echo "html: $TARGET/btgt.html"
 }
 
