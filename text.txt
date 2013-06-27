@@ -763,7 +763,6 @@ public void testMyList() {
     
 	list.get(6);
 }
-  
 
 @Test(expected=IndexOutOfBoundsException.class)
 public void testNegative() {
