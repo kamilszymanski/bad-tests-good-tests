@@ -1449,11 +1449,11 @@ public void testOperation() {
 }
 ----
 
-Now what is the purpose of this test? The name says it should '"test operation"' which is rather vague. What kind of operation? What behaviour is expected? I do not understand this test, but I think it more about testing of +validate+ requests and not about some +operation+.
+Now what is the purpose of this test? The name says it should '"test operation"' which is rather vague. What kind of operation? What behaviour is expected? And when this test fails, will it be clear then what functionality does not work in the system?
 
 The thing is, that the documentational value of this test is zero, or even less. It rather brings confusion than clarifies anything.
 
-As shown by this example the first problem with test method prefixed with +test+ is that they tend to test 'something'.
+As shown by this example the first problem with test method prefixed with +test+ is that they tend to test 'something'. And when they fail, all you know is that 'something' in your system does not work as expected. And then the investigation begins. And can take hours.
 
 Take a look at the next example which uncovers another downside of +test+ naming pattern. As the name of this test method says it '"tests query"'. 
 
@@ -1494,11 +1494,11 @@ This test:
 
 but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
 
-And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
+And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery()+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
 
 I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull()+ or with +shouldReturnSingleValueReturnedByDao()+ and so on, but you won't end up with +shouldTestQuery()+ unless you are really trying to anger me. ;)
 
-The test would be much better if splitted into few test methods, like this (BTW. as mentioned before I do not think these are the best tests ever written...):
+The test would be much better if splitted into few test methods, like this:
 
 [source,java]
 ----
