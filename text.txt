@@ -743,7 +743,7 @@ avoid by using some features of your testing framework - annotations data provid
 TODO refer to SRP - boolean is also kind of logic
 ////
 
-// TAGS EXCEPTION
+// TAGS EXCEPTION, SRP
 == Localized Exceptions
 The next test that I would like to discuss comes from an online tutorial (you should really watch out which tutorials you read...). It is an awful test with more than one issue. We will concentrate on one part of it, namely the way the exceptions are tested.
 
@@ -776,7 +776,7 @@ public void testNegative() {
 }
 ----
 
-What is important here is that these two test methods are the only ones.
+What is important here is that these two test methods are the only ones which verify whethere the +MyList+ class works fine.
 
 As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
 
@@ -838,7 +838,9 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 }
 ----
 
-Now there is no doubt about where the exception come from.
+Now there is no doubt about where the exception comes from! We can pinpoint it with great accuracy and the result of the test will leave no doubt about the source of exception.
+
+TIP: Catch-exception is quite handy. Consider using it everywhere instead of annotation or +try-catch+ statement.
 
 == Be Generic
 Once upon a time there was a servlet which took two parameters - packet and type. If both were present in a request then the servlet asked its collaborator - +packetDataProcessor+ - to process a specific packet. If one or both of the parameters were missing no processing should occur. Simple, isn't it?
