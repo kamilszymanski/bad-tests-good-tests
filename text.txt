@@ -946,7 +946,6 @@ public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOEx
 TIP: Do not be too specific. It will make your test less valuable by examining only a subset of test cases.
  
 == Use Smart Values
-// TODO obfuscate
 Try to minimize the risk of having your tests pass by accident. And always work to improve the readability.
 
 Let us consider the following factory method:
@@ -1017,6 +1016,7 @@ public class PayoutCalculatorFactoryTest {
 	}
 }
 ----
+Thanks to this change now the test will fail if the values are misplaced in the constructor of the +PayoutCalculator+ class.
 
 TIP: Avoid using same numbers/strings for different variables/properties in your tests method! Often power of 2 are quite convenient (they do not sum up to each other easily).
 
@@ -2232,8 +2232,6 @@ TODO
 * test which should be concurrent - not very likely to find a test for this
 
 === Expected Exceptions And Verification
-// TODO NOTE: We should rather strive for SRP but sometimes it makes sense to test more things in one test.
-
 Consider the following method from production code:
 
 [source,java]
@@ -2270,6 +2268,8 @@ public void shouldSaveInformationOnFailureWhenExceptionOccurWhenAddingDomain() {
 ----
 
 As you can see there are two verifications. First, the test verifies whether an exception is rethrown. This is done with the +expected+ attribute of the +@Test+ annotation. Second, the last line verifies that the expected method of the +domainService+ collaborator was called.
+
+NOTE: We should rather strive for SRP but sometimes it makes sense to test more than one thing in one test (e.g. when the setup cost is considerably high which happens with integration and end-to-end tests).
 
 That is exactly what we wanted to have, right? Well, almost, because it does not work!
 
