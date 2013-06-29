@@ -33,12 +33,8 @@ function docbook {
 	echo ""
 	echo "DOCBOOK"
 	echo $MAIN_FILE
-	/home/tomek/bin/asciidoc-8.6.5/asciidoc.py --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --attribute print --verbose --out-file $TARGET/btgt.xml $MAIN_FILE
+	/home/tomek/bin/asciidoc-8.6.5/asciidoc.py --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --verbose --out-file $TARGET/btgt.xml $MAIN_FILE
 	echo "docbook: $TARGET/btgt.xml"
-
-#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --verbose --out-file $TARGET/junit_book.xml $MAIN_FILE
-#--attribute tabsize=16
-#asciidoc --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --atribute print=true --verbose --out-file $TARGET/junit_book.xml $MAIN_FILE
 }
 
 function text {
@@ -79,6 +75,14 @@ function pdfUs {
 	FINAL_FILE_NAME=$TARGET/bad_tests_good_tests_USLetter_$VER.pdf
 	cp $TARGET/btgt_usletter.pdf $FINAL_FILE_NAME
 	echo "PDF A4 final version: $FINAL_FILE_NAME"
+}
+
+function docbookprint {
+	echo ""
+	echo "DOCBOOK"
+	echo $MAIN_FILE
+	/home/tomek/bin/asciidoc-8.6.5/asciidoc.py --backend docbook --doctype book --attribute icons --attribute docinfo1 --attribute tabsize=4 --attribute print --verbose --out-file $TARGET/btgt.xml $MAIN_FILE
+	echo "docbook: $TARGET/btgt.xml"
 }
 
 function paper {
@@ -173,7 +177,7 @@ showopts () {
 			  pdfUs
 		  ;;
 		  "paper")
-			  docbook
+			  docbookprint
 	cp $TARGET/btgt.xml $TARGET/btgt_ready.xml
 	xmllint --nonet --noout --valid /home/tomek/btgt/target/btgt_ready.xml
 	#this is a real deal
