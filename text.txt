@@ -2139,8 +2139,6 @@ TODO use builders instead of adding of constructor to your domain model classes
 
 An utility class used by integration tests (which create a lot of objects then save them to database so they can be further updated, searched, retrieved etc.).
 
-TODO example from DaoTestHelper - construction of objects with few BigDecimal parameters - show how to replace with constants and builders Problems: hard to understand.
-
 === It is so Easy to Make a Mistake
 To finish, let us see yet another example which shows how use of multi-parameter constructors can bring confusion to your test code. Below the two beginnings of test methods from the same test class are presented:
 
@@ -2212,10 +2210,10 @@ List<ProductCategory> categories = Arrays.asList(
 );
 ----
 
-This code creates several objects of the +ProductCategory+ class using the private +product()+ method. The problem with this test code is that it reflects the complexity of the business domain, which requires to use +BigDecimal+ objects (I can suspect that these values represent prices). However, if you look at the values which are used, you will notice that integers would suffice. Which means, that we actually could you integers, if only the +product()+ method would allow as to do so. Since it is us who decide how this API looks like, there is no problem with update of required method. After this change, the test code can look like this:
+This code creates several objects of the +ProductCategory+ class using the private +product()+ method. The problem with this test code is that it reflects the complexity of the business domain, which requires to use +BigDecimal+ objects (I can suspect that these values represent prices). However, if you look at the values which are used, you will notice that integers would suffice. Which means, that we actually could you integers, if only the +product()+ method would allow as to do so. Since it is us who decide how this API looks like, there is no problem with doing this. After the change the test code can look like this:
 
 ----
-List<ProductCategory> categories2 = Arrays.asList(
+List<ProductCategory> categories = Arrays.asList(
 	product("car", 100, 10000),
 	product("bike", 20, 5000),
 	product("plane", 1000, 500000)
