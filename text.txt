@@ -1146,6 +1146,8 @@ But what is a '"happy path"' testing anyway? For our purpose, it is enough to sa
 
 Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for your application. If your application does not handle such simple cases then it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
+// TAGS Parameterized Tests, Happy-path testing
+
 === FizzBuzz
 [quote, FizzBuzz RosettaCode]
 ____
@@ -1233,6 +1235,7 @@ public class FizzBuzzTest {
 	}
 }
 ---- 
+This test is definitely stronger. It tests more than one case for each requirement.
 
 TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
 
@@ -1285,14 +1288,13 @@ A guest can only read, logged users can also write, and admin has all permission
 
 === Object1, Object2, Object3
 Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
-// TODO obfuscate
 
 [source,java]
 ----
-Domain domain1 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domain1 = delper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
 daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
-Domain domain2 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domain2 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
 daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
 
@@ -1303,10 +1305,10 @@ What I hate about this are the names of domain objects suffixed with numbers (+d
 
 [source,java]
 ----
-Domain domainWith1PlClick = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domainWith1PlClick = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "PL", 1, 0);
 daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "US", 2, 1);
-Domain domainWith4PlClicks = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domainWith4PlClicks = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "PL", 4, 2);
 daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "US", 8, 4);
 ----
@@ -1322,21 +1324,23 @@ Surprisingly this simple refactorings of names has helped me to undercover an is
 
 [source,java]
 ----
-Domain domain1 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domain1 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
 daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
-Domain domain2 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domain2 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
 daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
-Domain domain3 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
+Domain domain3 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
 daoTestHelper.domainCountry30DayStatistics(domain3, "PL", 16);
 daoTestHelper.domainCountry30DayStatistics(domain3, "CZ", 32);
-Domain domain4 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
+Domain domain4 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
 daoTestHelper.domainCountry30DayStatistics(domain3, "US", 64);
-Domain domain5 = daoTestHelper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
+Domain domain5 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
 ----
 
-Well, maybe you spotted it (congratulations!) but I hadn't when I worked with the code. Only when I started renaming variables I noticed that in one place +domain3+ is used where +domain4+ should had been used (take a look at the next to last line). It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result), but still it illustrates very well what happens if all variables names differ only so slightly. It is very simple to mix things up.
+Well, maybe you spotted it (congratulations!) but I hadn't when I worked with the code. Only when I started renaming variables I noticed that in one place +domain3+ is used where +domain4+ should had been used (take a look at the next to last line). It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result). But it has done another evil thing: the test has not really tested the intended scenario! +
+
+NOTE: When the names of variables differ only very slightly, then it is very simple to confuse them.
 
 .Conclusion
 It is the same like with classes. At first you begin with useless names like +ClientDAOImpl+ but then you learn that you can have much more intention-revealing names. +HibernateClientDAO+, +InMemoryClientDAO+, +HighPerformanceClientDAO+ or whatever describes this particular implementation. There is always something to say about your class. I believe the same applies to the variables used in tests. I often start with +campaignA+ and +campaignB+ but then it occuress to me that these should be really +campaign+ and +campaignWithSameAdvertiser+ (while in other test method I have +campaign+ and +campaignWithDifferentAdvertiser+). Try it, it makes your test code so much more readable!
@@ -2358,9 +2362,6 @@ verify(async).execute(isA(AddOrganizationAction.class),
 TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
 TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
 
-=== Parametrized Tests
-TODO some test which could be written better with data providers (or happy <<sec_happy_path>> path test because someone did not want to bother writing too many test methods)
-
 === Timeout
 * test which should have timeout annotation
 
@@ -2495,7 +2496,7 @@ TODO not really TODO Also the sleep inside the loop was removed. It wasn't reall
 TODO have doubts if this is a worthy example...
 
 == Test Which Knows Too Much
-Why tests are brittle? Because we put too many details into them. See the following example (this is a slightly shorthened test which from some mailing list discussion).
+Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shorthened test which from some mailing list discussion).
 
 [source,java]
 ----
@@ -2569,12 +2570,7 @@ What can we see here? Few things:
 * no +Thread.sleep()+ - this is also handled internally by +xyzPage+ objects,
 * this test would survive refactorings as long as the general flow of actions remains unchanged.
 
-All this does not mean that the nasty low-level details have miracouleously vanished. No, as we already mentioned, they were moved to +xyzPage+ classes. For example, the +ProjectsPage+ class could look like the following:
-
-[source,java]
-----
-TODO
-----
+All this does not mean that the nasty low-level details have miracouleously vanished. No, as we already mentioned, they were moved to +xyzPage+ classes. The thing is, that we have probably many tests (which verify different business scenarios) which perform some operations related to survey edition. All these tests can now bee freed from low-level details and use the functionality provided by the +xyzPage+ objects.
 
 [[sec_asserting_too_much]]
 == Asserting Too Much
