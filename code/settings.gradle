@@ -6,4 +6,5 @@ include 'localized_exceptions',
     'change_test_after_logic_is_changed',
 	'fizzbuzz',
 	'fizzbuzz_original',
-	'true_false'
+	'true_false',
+    'builders'
