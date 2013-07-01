@@ -2119,14 +2119,36 @@ AccountUpdateParameters updateParameters = new AccountUpdateParameters().externa
 ----
 
 === Test Data Builders Simplify Test Code
-TODO better than private methods because reusable 
+In general tests tend to repeat the same pattern usually known as *arrange*/*act*/*assert*. First we create objects (SUT and DOCs), then we act upon them, and finally we verify whether the expected result was returned. The *act* phase is usually very short and often consists of only single method call. Usually there is not much to fix there. 
+But this is different with *arrange* and *assert* parts. They tend to grow and contain a lot of code, which gives us some room for improvement.
 
-////
-http://code.google.com/p/fluent-builders-generator-eclipse-plugin/
-http://www.jetbrains.com/idea/webhelp/replace-constructor-with-builder.html
-////
+Let us now take a closer look at some examples of the imperfect objects creation within the test code.
 
-TODO use builders instead of adding of constructor to your domain model classes
+The first example is about creation of the objects of the +User+ class. The +User+ class was one of the main entities of this system and it had almost 20 fields. This entity was often used within the integration tests. We created objects of this class, then we persisted it to the database, and then executed methods of some services in order to exercise various parts of the system which involved some interactions with the objects of this +User+ class.
+
+An example of such integration test is shown below.
+
+[source,java]
+----
+TODO 4 methods with User user = ....
+----
+
+The problem with this approach is the following. First, many tests now know about the details of the creation of +User+ objects. This means they have to be changed every time we add a new property to the +User+ class. Second, it is very hard to say which of the parameters passed to the constructor of the +User+ class are really important for each test case. Third, as you can see there are different constructors used in different tests. The thing is, that these constructors were created so it was easier to write tests! In other words, we were adding constructors which set some properties of the +User+ class (and left unused properties untouched - i.e. +null+). Hm, this sounds evil. We were adding means to create crippled objects of the +User+ class to our production code...
+
+Now, what can be done about it? We could have created some +private+ methods. Yes, this would have been better than the constructor-hell that we had. But my experience is that they tend to multiply and repeat among many test classes. So we did something else. We invested in *Test Data Builders*.
+
+The concept is very simple. Such builder is responsible for the creation of objects of the given class. Period.
+
+After we introduced such builders, the code took the following form:
+
+[source,java]
+----
+TODO
+----
+
+TODO 
+
+TIP: Your IDE probably offers some support for creating Test Data Builders.
 
 An utility class used by integration tests (which create a lot of objects then save them to database so they can be further updated, searched, retrieved etc.).
 
