@@ -218,8 +218,6 @@ Now, how to fix it. Basically there are two solutions.
 
 First, you can impose strict order of execution of these two test methods (TestNG will allow you to do this, JUnit won't).
 
-// TODO does it work
-
 [source,java]
 ----
 @Test
@@ -234,7 +232,6 @@ This works as long as there are no more tests which outcome also depend on the v
 
 Another option (and a recommended one) is to clean +logConfig+ system property variable before the +shouldLoadDefaultProperties()+ method is executed. If there are more tests like this then maybe putting the 'cleaning' code some +setUp()+ method would be a good idea. For example:
 
-// TODO does it work
 [source,java]
 ----
 @BeforeMethod
@@ -731,16 +728,6 @@ TIP: Rules are to be broken. ;)
 
 ////
 another SRP-violating example: http://stackoverflow.com/questions/4152539/how-do-i-test-exceptions-in-a-parameterized-test
-////
-
-////
-[[sec_no_logic]]
-== Logic in Tests
-TODO need some good examples of this
-
-avoid by using some features of your testing framework - annotations data provider instead of for loops (TODO ref) and concurrent with annotations
-
-TODO refer to SRP - boolean is also kind of logic
 ////
 
 // TAGS EXCEPTION, SRP
@@ -2231,10 +2218,6 @@ Even though this example has used private methods for objects creation, the advi
 TIP: KISS: Keep It Simple Stupid! :)
 
 == Know Your Tool
-TODO
-
-* test which should be concurrent - not very likely to find a test for this
-
 === Expected Exceptions And Verification
 Consider the following method from production code:
 
@@ -2844,19 +2827,6 @@ Our old test will still pass, won't it? The thing is that it can prevent only *s
 
 NOTE: Test everything that can break. Do not waste your time testing what is 'too simple to break'.
 
-[[sec_fix_the_code_first]]
-=== Fix the Code Then Write Tests
-
-example from CW - complicated factoryWhatever test
-
-should fix the code, not try to somehow test it
-
-TODO of course test-first is better
-
-== Randomness
-TODO ref Randomized Tests{empty}pass:[]footnote:[http://wiki.apidesign.org/wiki/RandomizedTests] by Jaroslav Tulach
-TODO ref RandomizedTesting{empty}pass:[]footnote:[http://labs.carrotsearch.com/randomizedtesting.html] by Carrot Search Labs
-
 == Write the Right Tests
 In contrast to all other sections I have no code to present here. But I have a story to tell.
 
@@ -2864,7 +2834,7 @@ So I worked once upon a really good project. The codebase was above the average 
 
 All of this was really irritating. We had tests, for God's sake! In fact, we had plenty of them. Our code was more OO than ever - every small class was testable and we really had unit tests covering them all! Still, we had so many issues with our project.
 
-In the whole book we have put a lot of attention to writing our tests the right way. We pondered over things like the naming of variables, the lack of implementation details, the clarity of test code and so on. Each of them seems tiny but when you neglect many of them your tests will become a nightmare to maintain. I hope that you understand it very well now based on the examples given in this book (and also on your own experience).
+In the whole book we have put a lot of attention to writing our tests the right way. We pondered over things like the naming of variables, the lack of implementation details, the clarity of test code and so on. Each of them seems tiny but when you neglect many of them your tests will become a nightmare to maintain. I hope that you understand it very well now based on the examples given in this book (and also on your own experience). +
 If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods{empty}pass:[]footnote:[A delegator method is one which does not do anything important on its own, but delegates the work to some collaborator.] and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system works for the users.
 
 Don't just sit and write tests. First think which tests to write.
