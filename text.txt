@@ -26,12 +26,12 @@ THIS IS WORK IN PROGRESS! Whenever you see a *TODO* word it means that this part
 This book is not meant to explain all the reasons of writing tests but there are few things we should know. In short, there are three main reasons for writing tests{empty}pass:[]footnote:[Please forgive the simplifications - I want to make it short!]:
 
 * If we have a complete set of tests, and they all pass, then we know that our application works.
-* Making changes is much easier if we have tests. They will inform us if we break some functionality.
+* Introducing changes is much easier if we have tests. They will inform us if we break some functionality.
 * Tests are probably the only documentation we have which stays up-to-date during the whole life of our software.
 
 You should recall these reasons for writing tests when looking at the examples of *bad* tests presented in this book. Ask questions like '"does it test anything?"', '"is it maintainable"', '"is it easy to understand?"' etc.
 
-The worrying thing about writing tests is that there are numerous accounts of people who introduced tests to their development process... and failed! Why? I guess mainly because they lacked knowledge and understanding on how to write good tests. Tests, which are an asset and not a burden.
+The worrying thing about writing tests is that there are numerous accounts of people who introduced tests to their development process... and ended up with even more junk code to support than they began with! Why? I guess mainly because they lacked knowledge and understanding on how to write good tests. Tests, which are an asset and not a burden.
 
 TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. Remember this phrases as you write tests!
 
@@ -56,7 +56,7 @@ while (iter.hasNext()) {
 
 This is of course wrong. Tests should never require us to do any kind of manual verification. No need to browse logs, no need to query a database. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
 
-A better version is presented below{empty}pass:[]footnote:[Obviously I have no clue what are the expected values, so I made it up.]:
+A better version is presented below:
 
 [source,java]
 ----
@@ -68,6 +68,8 @@ while (iter.hasNext()) {
 	assertThat(r.getMessage()).contains("error");
 }
 ----
+
+Obviously I have no clue what are the expected values, so I made them up. :)
 
 === Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
@@ -118,7 +120,7 @@ ____
 
 Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
 
-First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows. Please note that all the lines all commented out!
+First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows. Please note that all the lines are commented out!
 
 [source,java]
 ----
@@ -180,7 +182,7 @@ There are few things that we can learn from the attempts to write tests presente
 Armed with this basic knowledge we can now move to some more interesting examples.
 
 == Do Not Modify Global State
-For unit tests a rule of thumb is to keep them independent from each other. It is not so bad if we introduce a dependency on purpose (and explicitly declare it e.g. using TestNG +dependsOnMethod+ feature). A worse scenario is when we are not aware of the dependency ourselves. This can bring serious problems on our heads.
+For unit tests a rule of thumb is to keep them independent from each other. And this is right. For integration and end-to-end tests it sometimes makes sense to have some dependencies between tests (e.g. so they run in certain order). It is not so bad if we introduce a dependency conciously (and explicitly declare it e.g. using TestNG +dependsOnMethod+ feature). A worse scenario is when we are not aware of the dependency ourselves. This can bring serious problems on our heads.
 
 TIP: Keep your tests independent from each other. Or at least make the dependency explicit!
 
@@ -230,7 +232,7 @@ public void shouldThrowLoggingException() { ... }
 
 This works as long as there are no more tests which outcome also depend on the value of +logConfig+ system property. If such tests are added you need to remember to also specify their relation (their dependency) to these existing tests. Which means you can end up with a web of tests depending on each other which is not easy to maintain.
 
-Another option (and a recommended one) is to clean +logConfig+ system property variable before the +shouldLoadDefaultProperties()+ method is executed. If there are more tests like this then maybe putting the 'cleaning' code some +setUp()+ method would be a good idea. For example:
+Another option (and a recommended one) is to clean +logConfig+ system property variable before the +shouldLoadDefaultProperties()+ method is executed. If there are more tests like this then maybe putting the 'cleaning' code into some +setUp()+ method would be a good idea. For example:
 
 [source,java]
 ----
@@ -275,7 +277,7 @@ public void shouldAddTimeZoneToModelAndView() {
 }
 ----
 
-The problem with this test is, that what we really care about is whether +modelAndView+ contains certain data, not whether some methods of +modelAndView+ were called! It does not seem to be such a big deal. If it was added then it is probably there, so what is the problem? Right. This test is probably doing its job in verifying that the +modelAndView+ object ends up with +timezone+ set. However as a rule, we should try to verify the outcome, not the way it was achieved. Why? Because this way we leave the possibility to change the implementation details of the tested class without breaking the test.
+The problem with this test is, that what we really care about is whether +modelAndView+ contains certain data, not whether some methods of the +modelAndView+ were called! It does not seem to be such a big deal. If it was added then it is probably there, so what is the problem? Right. This test is probably doing its job in verifying that the +modelAndView+ object ends up with +timezone+ set. However as a rule, we should always try to verify the outcome, and not the way it was achieved. Why? Because this way we leave the possibility to change the implementation details of the tested class without breaking the test.
 
 I will give you an example (even if it is not true in relation to the +ModelAndView+ API). Should we care whether the +timezone+ property was set like this:
 
@@ -292,7 +294,7 @@ or like this:
 ModelAndView mav = new ModelAndView("timezone", "timezone X");
 ----
 
-Is it really important for us, who are interested in the fact of +timezone+ being available? I think not. And the test also shouldn't. Still the version of the test we have just discussed does exactly this: dictates the SUT how it should do things.
+Does it really matter how the +timezone+ value got inside the +modelAndView+ object? I think not. And the test shouldn't also bother with such niuances. Still the version of the test we have just discussed does exactly this: verifies whether the SUT does things in a certain way.
 
 Below you can see an improved version of this test. It treates SUT more like a black box and only cares about its output.
 
@@ -346,8 +348,8 @@ public void shouldGetTrafficTrend() {
 }
 ----
 
-The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and the tests needs to be updated. +
-Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that there are four identical dates passed to the second constructor?
+The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and this test needs to be updated. +
+Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that there are four identical dates (+new Date()+) passed to the second constructor?
 
 Instead I would suggest to cut this blah-blah to the minium and use mocks instead of real objects.
 
@@ -395,7 +397,7 @@ else {
 }
 ----
 
-Well, this one is obvious - you can't test all paths util you control the value of time variable.
+Well, this one is obvious - you can't test all paths util you control the value of the +time+ variable. Which is hard since you create it using +System.currentTimeMillis()+, which is hard to mock using civilized techniques.
 
 But let us see a real, slightly more subtle example. Let us take a look at this fragment of production code (the +Util+ class):
 
@@ -418,33 +420,33 @@ public String getUrl(User user) {
 }
 ----
 
-Testing of such methods should be straightforward - they return some +String+ which we could analyze and verify its correctness. Alas, because the +new Date()+ was used, the programmer responsible for this code was not able to verify the resulting URL. Instead, he came up with the following test:
+Let us say that a programmer wanted to test the second +getUrl()+ method (the one which takes a single +user+ parameter). Testing of such method should be straightforward - it returns +String+ which we could analyze and verify its correctness. Alas, because the +new Date()+ was used, the programmer responsible for this code was not able to verify the resulting URL. Instead, he came up with the following test:
 
 [source,java]
 ----
 @Test
 public void shouldUseTimestampMethod() {
-        //given
+	//given
 	Util util = new Util();
-        Util spyUtil = spy(util);
+	Util spyUtil = spy(util);
 
-        //when
-        spyUtil.getUrl(user);
+	//when
+	spyUtil.getUrl(user);
 
-        //then
-        verify(spyUtil).getUrl(eq(user), anyString());
+	//then
+	verify(spyUtil).getUrl(eq(user), anyString());
 }
 ----
 
-Oh my, this is bad for few reasons. This test:
+Can you believe what you see? This is really, really bad for few reasone. This test:
 
 * tests implementation instead of behaviour (see <<sec_test_behaviour>>),
-* uses partial mocking (+spy+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it),
+* uses partial mocking (+spy+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it{empty]pass:[]footnote:[Please refer to Mockito documentation for the explanation.]),
 * verifies interactions instead of returned values.
 
 And all of this because the production code does not handle properly time!
 
-TIP: See <<sec_fix_the_code_first>> for some more examples of writing tests instead of fixing the code first!
+TIP: Struggling to write a test for a piece of production code? Probably the production code is ugly! Maybe you should improve it first?
 
 After we redesign the production code by replacing call to +new Date()+ with a call to some collaborator, our test starts looking pretty nice:
 
@@ -1421,13 +1423,10 @@ server = new MockServerBuilder()
 ----
 
 Probably the more complex and more frequently created the class in question is, the more we benefit from test data builders.
-// TODO ref to test data builders chapter
 
 [[sec_should]]
 === Should is Better than Test
 Once upon a time, where His Majesty King JUnit the Third ruled the land of Java testing, we were all forced to prefix our test methods with +test+ word. Somehow this custom survived the death of the king{empty}pass:[]footnote:[Some people accuse his younger brother (JUnit the Fourth) of murdering him. Others blame barbaric tribes of TestNG. Java 5 acolytes mention the lack of annotations as the reason of his doom. The rest does not care at all. But all are happy that he is gone.]. Which is really troublesome as we will soon see.
-
-// TODO in relation to "test behaviour not methods" <<sec_test_behaviour>>
 
 Take a look at the following example (looks like Groovy judging by the lack of semicolons):
 
@@ -1785,8 +1784,6 @@ public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 	assertThat(result).hasResultsForDomain(deletedDomainWith0Views, 0);
 }
 ----
-
-TODO refer to test data builders - this is the other side of the same coin
 
 TIP: Let your tests (and assertions) speak with domain language, not in implementation terms.
 
@@ -2365,9 +2362,6 @@ There is one more thing left to point out. I bet *the original test was written 
 
 TIP: Always see the failing test first.
 
-=== Parametrized Test
-TODO StepRoutineTest
-
 === Mockito any() vs. isA()
 TODO make test code snippets bigger
 
@@ -2777,12 +2771,17 @@ As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is
 
 NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
 
-Another option would be to use a test builder pattern, like this:
+Another option would be to use a test data builder pattern, like this:
 
 [source,java]
 ----
-TODO
+Artifact artifact = new ArtifactBuilder()
+	.validArtifact()
+	.withVersion(version)
+	.build();
 ----
+
+However this time I have to say that I would prefer the solution with +CONSTANTS+. I think it is more readable.
 
 == Tests Should Follow the Evolution of Code
 Tests are meant to be a perfect documentation which is always up-to-date. Unfortunately this is not always so.
