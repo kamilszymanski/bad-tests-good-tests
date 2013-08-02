@@ -38,7 +38,7 @@ TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. 
 WARNING: More code written = more code to maintain. It is true also with regards to tests!
 
 == Breaking all The Rules
-We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us has probably no bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are bad.
+We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us hasn't probably bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are bad.
 
 === No Assertions
 These few lines of code are copied from a very old and horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
@@ -54,22 +54,23 @@ while (iter.hasNext()) {
 }
 ----
 
-This is of course wrong. Tests should never require us to do any kind of manual verification. No need to browse logs, no need to query a database. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
+This is of course wrong. Tests should never require us to do any kind of manual verification. No need to browse logs, no need to query a database by hand. Nothing like this. All should happen automatically. A good test fails when the tested functionality is malfunctioning.
 
 A better version is presented below:
 
 [source,java]
 ----
 IResult result = format.execute();
-assertThat(result.size()).isEqualTo(3);
+assertThat(result.size()).isEqualTo(3); <1>
 Iterator iter = result.iterator();
 while (iter.hasNext()) {
 	IResult r = (IResult) iter.next();
-	assertThat(r.getMessage()).contains("error");
+	assertThat(r.getMessage()).contains("error"); <1>
 }
 ----
+<1> Obviously I have no clue what are the expected values, so I made them up. :)
 
-Obviously I have no clue what are the expected values, so I made them up. :)
+This version does not require user to browse any log files. The testing framework will verify the outcome and notify the user in case of failure.
 
 === Autogeneration
 Unit tests are simple, right? All they do is they set some object, call its methods, and verify results, right? So, why don't we make computers write them? Hip-hip hurray, we will save a plenty of time, and have 100% code coverage! Let's do it!
@@ -107,7 +108,7 @@ What kind of bugs do you expect to discover by such tests?
 
 So now repeat after me: '"I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton. I will not autogenerate neither the test code, nor its skeleton..."' (pretty useful mantra if you can't fall asleep, should help after 1000 repetitions).
 
-TIP: Do *NOT* autogenerate neither the test code, nor it skeleton.
+TIP: Do *NOT* autogenerate neither the test code, nor its skeleton.
 
 === It is a Full Time Job
 [verse, Eddy Arnold, from "A Full Time Job"]
@@ -118,9 +119,9 @@ But if your heart don't throb about a full time job
 A part time job will do
 ____
 
-Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is no so.
+Let's face it - writing tests makes sense only if you (and your team) take care about them every day. In this section I present two examples of what happens when it is not so.
 
-First is a short snippet of +SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows. Please note that all the lines are commented out!
+First comes a short snippet of the+SystemAdminSmokeTest+ class. *Smoke test*, mind you, which means this is an important test that intends to give you quick feedback about the health of the system. This test at the time I joined this project looked as follows. Please note that all the lines are commented out!
 
 [source,java]
 ----
@@ -167,7 +168,7 @@ I think you've already guessed the end of this story. Yes, that was the only tes
 
 And what can we learn from these two failures? Few things:
 
-* Do not live with '"broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
+* '"Do not live with broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
 * Writing and maintaining tests is an effort which has to be taken by the whole team (and this effort must be also supported, or at least not hindered, by all stakeholders).
 * Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
 
@@ -176,7 +177,7 @@ There are few things that we can learn from the attempts to write tests presente
 
 * automation is the king! 
 * write tests, do not generate them!
-* writing tests is a full-time job and there is noone else that will do it for you,
+* writing tests is a full-time job and there is no one else that will do it for you,
 * do not live with broken windows - fix things as soon as they break.
 
 Armed with this basic knowledge we can now move to some more interesting examples.
@@ -317,7 +318,7 @@ public void shouldAddTimeZoneToModelAndView() {
 ----
 <1> There is no +contains()+ methods like this, but this is the assertion we would like to have.
 
-As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a container for data, which should not be mocked. Howgh!
+As you can see in the second version we use real object, not a test double. And this is fine, because +ModelAndView+ is not a service, but a container for data{empty}pass:[]footnote:[It is a +Map+ which contains values passed from controllers to views.], which should not be mocked. Howgh!
 
 TIP: Excited that you can mock everything, huh? Slow down and make sure that you really need to verify interactions. Chances are you don't.
 
@@ -393,7 +394,7 @@ if (time.isAfter(5, PM)) {
 	... do some afternoon activity
 }
 else {
-	... do somethig else
+	... do something else
 }
 ----
 
@@ -441,10 +442,10 @@ public void shouldUseTimestampMethod() {
 Can you believe what you see? This is really, really bad for few reasone. This test:
 
 * tests implementation instead of behaviour (see <<sec_test_behaviour>>),
-* uses partial mocking (+spy+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it{empty]pass:[]footnote:[Please refer to Mockito documentation for the explanation.]),
+* uses partial mocking (+spy()+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it{empty}pass:[]footnote:[Please refer to Mockito documentation for the explanation.]),
 * verifies interactions instead of returned values.
 
-And all of this because the production code does not handle properly time!
+And all of this because the production code does not handle the time properly!
 
 TIP: Struggling to write a test for a piece of production code? Probably the production code is ugly! Maybe you should improve it first?
 
@@ -468,7 +469,7 @@ public void shouldAddTimestampToGeneratedUrl() {
 }
 ----
 
-TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl+ method does not use mocks but a stub only!].
+TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl()+ method does not use mocks but a stub only!].
 
 // TAGS INTERACTIONS INSTEAD OF STATE TESTING, BAD CODE -> BAD TESTS
 
@@ -486,11 +487,11 @@ We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[
 Why? Because:
 
 * such test methods are pretty simple to understand,
-* if they fail you know *exactly* which functionality of your software does not work.
+* if they fail you know *exactly* which functionality of your software does not work (this is esecially important when introducin changes to existing software).
 
 NOTE: Writing tests which fullfil the SRP principle is very simple for unit tests, but not always reasonable for other kind of tests. Sometimes you will want to verify few things in one test because of the setup cost.
 
-Still, I observe it being breached frequently. In this section we will take a closer look at some examples.
+Still, I observe the SRP rule being breached frequently. In this section we will take a closer look at some examples.
 
 // TAGS: SRP, NO LOGIC, METHOD NAMES
 
@@ -516,7 +517,7 @@ public void testQueryVerification(String query, boolean expected) {
 At the first sight, it may seem like the test is really focused on one thing (on the verification of query validity), but if you look closer you will see some alarming signals:
 
 * its method name is quite generic, and it would be hard to use a '"should"' prefix (see <<sec_should>>),
-** also the name of data provider{empty}pass:[]footnote:[A 'data provider' is a method which provides data for test cases. See TestNG's +@DataProvider+ annotation or JUnitParams project - +data+ - smells really bad,
+** also the name of data provider{empty}pass:[]footnote:[A 'data provider' is a method which provides data for test cases. See TestNG's +@DataProvider+ annotation or JUnitParams project] - +data+ - smells really bad,
 * it has some kind of logic: assertions depends on passed +expected+ boolean flag,
 * a "generic" assertion - +assertEquals+ - is used to verify the outcome.
 
@@ -552,7 +553,7 @@ public void shouldRejectInvalidQueries(String invalidQuery) {
 }
 ----
 
-This version is longer, but more readable, easier to understand (no boolean flag), and it follows the SRP rule. What I really like here are the names - all of them describe very well the purpose of elements. We have a data provider which provides +validQueries+, and a test method which takes +validQuery+ as a parameter.
+This version is longer, but more readable, easier to understand (no boolean flag), and it follows the SRP rule. What I really like here are the names - all of them describe very well the purpose of elements. We have a data provider which provides +validQueries+, and a test method which takes +validQuery+ as a parameter. And their counterparts - +invalidQueries+ data provider and a method which takes +invalidQuery+ parameter.
 
 TIP: Watch the method names. Are they intention-revealing?
 
@@ -564,7 +565,8 @@ Now another example of a test doing too much. Let us look at the tested method f
 
 [source,java]
 ----
-public ModelAndView registerUser(UserData userData, BindingResult result, HttpServletRequest request) {
+public ModelAndView registerUser(UserData userData, BindingResult result, 
+					HttpServletRequest request) {
 	if (result.hasErrors()) {
 		return showRegisterForm(request, false);
 	}
@@ -603,7 +605,8 @@ public void shouldReturnRedirectViewAndSendEmail() {
 	given(userService.saveNewUser(eq(userData.toEntity()))).willReturn(user);
 
 	//when
-	ModelAndView userRegisterResult = userRegisterController.registerUser(userData, bindingResult, request);
+	ModelAndView userRegisterResult 
+			= userRegisterController.registerUser(userData, bindingResult, request);
 
 	//then
 	assertThat(userRegisterResult.getViewName()).isEqualTo("redirect:/signin");
@@ -628,10 +631,11 @@ public void shouldRedirectToSigninPageWhenBindingResultsHasNoErrors() {
 	given(bindingResult.hasErrors()).willReturn(false);
 
 	//when
-	ModelAndView redirectMav = userRegisterController.registerUser(userData, bindingResult, request);
+	ModelAndView userRegisterResult 
+			= userRegisterController.registerUser(userData, bindingResult, request);
 
 	//then
-	assertThat(redirectMav.getViewName()).isEqualTo("redirect:/signin");
+	assertThat(userRegisterResult.getViewName()).isEqualTo("redirect:/signin");
 }
 ----
 
@@ -655,9 +659,11 @@ public void shouldNotifyAboutNewUserRegistration() {
 
 The second test verifies whether the +sendRegistrationInfo()+ method of the +mailSender+ object was invoked.
 
-The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two tests, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registation. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it. I'm sure the responsibility of the class does not end there (for example I guess it also prints errors when the registration form lacks some data). Good. We can always add more tests to cover the rest of responsibilities. Responsibilities, not methods!
+The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two test methods, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registation. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it.
 
-By analogy to the production code we should try to keep our tests small and focused. We should also abstract from the implementation so the refactorings does not break the tests. The changes we have just introduced to the initial test allowed us to achieve both. The tests are so focused that some modifications of the +registerSubmit+ method implementation might fail only a selected test. Then it will be very simple to see what is not working anymore. I like it.
+I'm sure the responsibility of the class does not end there (for example I guess it also prints errors when the registration form lacks some data). Good. We can always add more tests to cover the rest of responsibilities. Responsibilities, not methods!
+
+By analogy to the production code we should try to keep our tests small and focused. We should also abstract from the implementation so the refactorings does not break the tests. The changes we have just introduced to the initial test allowed us to achieve both. The tests are so focused that some modifications of the +registerSubmit()+ method implementation might fail only a selected test. Then it will be very simple to see what is not working anymore. I like it.
 
 TIP: Forget about methods. Test responsibilities of the class.
 
@@ -690,7 +696,7 @@ It verifies two things, namely:
 * whether +CampaignBid+ is capable of recognizing the same domain (which it was constructed with - I haven't presented the constructor, but it takes +Domain+ as one of parameters),
 * whether +CampaignBid+ is capable of recognizing domains which are different from the one it was constructed with.
 
-Should we split it in two tests then? My answer is no.
+Should we split this test into two then? My answer is no.
 
 In contrast to the previous example, there are not many cases to test here, so the test method is very concise and simple to understand. In other words, the size of this method (taking into account the number of test cases it verifies, not only number of lines it has) has not exceeded my private safety limit. And thus, I do not feel like having two testing methods instead.
 
@@ -724,7 +730,7 @@ public void shouldRecognizeDifferentCampaign() {
 }
 ----
 
-Make your own decision about this and choose the approach which suits you better.
+For me this is an overkill. But that is only my subjective opinion. Make your own decision about this and choose the approach which suits you better.
 
 TIP: Rules are to be broken. ;)
 
@@ -767,7 +773,7 @@ public void testNegative() {
 
 What is important here is that these two test methods are the only ones which verify whethere the +MyList+ class works fine.
 
-As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+ which means they will not pass if this exception is not thrown. Unfortunately both *will pass* if such exception is thrown at any point of test method executions. This all boils down to this, that even such flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
+As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+. This means both will pass *only if this exception is thrown*. The poin is that it does not matter when this exception is thrown as long as any of the statements executed within each test method does throw it. So, such a flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
 
 [source,java]
 ----
@@ -788,7 +794,7 @@ public class MyList<T> {
 
 Well, this is embarassing... Apparently we need to do something about the exception verification. There are two main techniques we could use. First is to split the test into few smaller tests (see <<sec_srp>>). Second is to better localize the exception.
 
-The first approach would result in few small test methods each of them occupied with different functionality of the +MyList+ class, like +shouldKeepValuesInOrder+ or +shouldAcceptDuplicateValues+ and so on. Now having this verified we would also create a test method especially for the verification of what happens when we try to retrieve element which is not there. Like this:
+The first approach would result in few small test methods each of them occupied with different functionality of the +MyList+ class, like +shouldKeepValuesInOrder()+ or +shouldAcceptDuplicateValues()+ and so on. Now having this verified we would also create a test method especially for the verification of what happens when we try to retrieve element which is not there. Like this:
 
 [source,java]
 ----
@@ -802,9 +808,9 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 }
 ----
 
-This does not differ much from the original test, but thanks to having other test methods we are in much safer position. We *know* the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
+This does not differ much from the original test, but thanks to having other test methods we are in much safer position. We have already verified the constructor and basic +add+/+get+ functionality works, so we can assume the +IndexOutOfBoundsException+ will be cause by the last line of this test method.
 
-The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied when an exception thrown at any point of the test method.
+The other approach says we should localize the exception. To do it we need to get rid of the +expected+ attribute of the +@Test+ annotation which is satisfied when an exception is thrown at any point of the test method.
 
 The first thing we could do is to use the +try-catch+ statement and fail the test if we do not enter the +catch+ clause. However, there are some nicer options.
 
@@ -823,7 +829,8 @@ public void shouldThrowExceptionWhenTryingToGetElementOutsideTheList() {
 	list.add(2);
 
 	catchException(list).get(3);
-	assertThat(caughtException()).isExactlyInstanceOf(IndexOutOfBoundsException.class);
+	assertThat(caughtException())
+		.isExactlyInstanceOf(IndexOutOfBoundsException.class);
 }
 ----
 
@@ -859,7 +866,8 @@ But let us look at the next tests.
 [source,java]
 ----
 @Test
-public void shouldNotProcessIfPacketParameterIsMissing() throws IOException, ServletException {
+public void shouldNotProcessIfPacketParameterIsMissing() 
+				throws IOException, ServletException {
 	//given
 	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
 
@@ -871,7 +879,7 @@ public void shouldNotProcessIfPacketParameterIsMissing() throws IOException, Ser
 }
 ----
 
-So this is a "negative" case. One of the required parameters is missing and there should be no processing. Seems ok, but... there is one thing bothering me. Why the verification assumes that the +packetDataProcessor+ could be asked to process +PACKET+? This value does not appear anywhere in the test so why the verification uses it? Aha! It does not appear in the test, but it surely is still in the head of the developer who wrote the previous test (see the previous listing).
+So this is a "negative" case. One of the required parameters is missing{empty}pass:[]footnote:[This required parameter +PACKET_PARAMETER+ is not mentioned in the tests, and Mockito will by default return +null+ when asked for it. Which is something you probably know. :)] and there should be no processing. Seems ok, but... there is one thing bothering me. Why the verification assumes that the +packetDataProcessor+ could be asked to process +PACKET+? This value does not appear anywhere in the test so why the verification uses it? Aha! It does not appear in the test, but it surely is still in the head of the developer who wrote the previous test (see the previous listing).
 
 Anyway, this is too specific. I would suggest that this test took a form of '"if one of the required parameters is missing then +packetDataProcessor+ should process nothing"', which, after translation into Java/Mockito/JUnit language looks like this:
 
@@ -890,14 +898,15 @@ public void shouldProcessIfPacketParameterIsMissing() throws IOException, Servle
 }
 ----
 
-The +verifyZeroInteractions+ method of Mockito is exactly for such purposes. We want to know that there were no calls to +packetDataProcessor+ because a validation mechanism should reject incomplete request beforehand.
+The +verifyZeroInteractions()+ method of Mockito is meant exactly for such purposes. We want to know that there were no calls to +packetDataProcessor+ because a validation mechanism should reject incomplete request beforehand.
 
 Another example from the same test class. This time it is about the servlet's behaviour after a processing error. 
 
 [source,java]
 ----
 @Test
-public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOException, ServletException {
+public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() 
+				throws IOException, ServletException {
 	//given
 	given(request.getParameter(PacketApiServlet.PACKET_PARAMETER)).willReturn(PACKET);
 	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
@@ -918,7 +927,8 @@ Similarly to the previous example this test is too specific. Instead of verifyin
 [source,java]
 ----
 @Test
-public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() throws IOException, ServletException {
+public void shouldReturnStatus500IfThereWasAnErrorDuringProcessing() 
+				throws IOException, ServletException {
 	//given
 	given(request.getParameter(PacketApiServlet.PACKET_PARAMETER)).willReturn(PACKET);
 	given(request.getParameter(PacketApiServlet.TYPE_PARAMETER)).willReturn(TYPE);
