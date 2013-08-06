@@ -2096,79 +2096,12 @@ When verifying specified properties instead of objects you are sure to get a mor
 TIP: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
 
 == Creation of Objects
-We haven't really discussed the part of the test which is responsible for objects creation.
-
-=== Polluting Production Code
-First of all, the weak organisation of this part of tests often influences the production code. Take for example the following part of the +User+ class:
-
-[source,java]
-----
-public User() {
-}
-
-public User(String firstName, String lastName, String password, String email, 
-		String activationCode, Date registered, UserState state, Address address) {
-	this.firstName = firstName;
-	this.lastName = lastName;
-	... etc.
-}
-
-public User(String email, String firstName, String lastName, String password, 
-		UserState userState, Address address) {
-	this.email = email;
-	this.firstName = firstName;
-	... etc.
-}
-
-public User(String email, String firstName, String lastName, String password, 
-		String timezone, UserState userState, Address address) {
-	this.email = email;
-	this.firstName = firstName;
-	... etc.
-}
-
-public User(String email, String firstName, String lastName, Date registered, 
-		String activationCode, Date activationDate, String password, 
-		String timezone, BigDecimal accountBalance, UserState userState, 
-		Address address, BigDecimal currentBalance) {
-	this.email = email;
-	this.firstName = firstName;
-	... etc.
-}
-----
-
-As you can see there are five different constructors there! All of them - with the exception of the parameterless one - were created for testing purposes. Different tests required object of the +User+ class to have different properties set and this is how all these constructors were created. Later on, the same constructors were also used in the code. +
-This is not good. Objects creation code is now a mess of constructor calls with additional setters calls (because after some time it had occured that two more properties were also required). Also, the order of parameters is different: sometimes the first one is +email+, sometimes it is +firstName+. This is confusing. The 12-parameters constructor with many +String+ and +BigDecimal+ parameters is also confusing.
-
-TIP: Do not add constructors to your domain classes only to make your test code simpler.
-
-The problem with the code above is that no one stopped and criticly looked at the emerging constructors. If a proper code review had been performed, then this bad code would had been stopped at the very beginning with relatively low cost.
-
-And the solution? Create a +UserBuilder+ class which takes care of construction of the +User+ objects. This way the production code would had only single parameterless constructor.
-
-If you do not do that, you will end up with your tests filled with the objects construction looking like this:
-
-[source,java]
-----
-AccountUpdateParameters updateParameters 
-	= new AccountUpdateParameters(false, null, beforeUpdateAccount.isExternal(),
-                false, null, false, null, false, null, false, null);
-----
-
-In case of builders you have a chance to create objects using more meaningful methods. Like this:
-
-[source,java]
-----
-AccountUpdateParameters updateParameters = new AccountUpdateParameters().external().build();
-----
-
-=== Test Data Builders Simplify Test Code
 In general tests tend to repeat the same pattern usually known as *arrange*/*act*/*assert*. First we create objects (SUT and DOCs), then we act upon them, and finally we verify whether the expected result was returned. The *act* phase is usually very short and often consists of only single method call. Usually there is not much to fix there. 
 But this is different with *arrange* and *assert* parts. They tend to grow and contain a lot of code, which gives us some room for improvement.
 
-Let us now take a closer look at some examples of the imperfect objects creation within the test code.
+Let us now take a closer look at some examples of the imperfect objects creation (the *arrange* part) within the test code.
 
-The first example is about creation of the objects of the +User+ class. The +User+ class was one of the main entities of this system and it had almost 20 fields. This entity was often used within the integration tests. We created objects of this class, then we persisted it to the database, and then executed methods of some services in order to exercise various parts of the system which involved some interactions with the objects of this +User+ class.
+The +User+ class was one of the main entities of this system and it had almost 20 fields. This entity was often used within the integration tests. We created objects of this class, then we persisted it to the database, and then executed methods of some services in order to exercise various parts of the system which involved some interactions with the objects of this +User+ class.
 
 Some excerpts of different integration and end-to-end tests are shown below.
 
@@ -2202,14 +2135,14 @@ public void shouldGetUserByCompanyData() {
 ----
 
 There are few problems with this approach. First, many tests now know about the details of the creation of +User+ objects. This means they have to be changed every time we add a new property to the +User+ class. +
-Second, it is very hard to say which of the parameters passed to the constructor of the +User+ class are really important for each test case. In some cases you can *guess*- that some of them are completely irrelevant, but you never know for sure. +
-Third, as you can see there are different constructors used in different tests. The thing is, that these constructors were created so it was easier to write tests! In other words, we were adding constructors which set some properties of the +User+ class (and left unused properties untouched - i.e. +null+). Hm, this sounds evil. We were adding means to create crippled objects of the +User+ class to our production code... +
+Second, it is very hard to say which of the parameters passed to the constructor of the +User+ class are really important for each test case. In some cases you can *guess* that some of them are completely irrelevant, but you never know for sure. +
+Third, as you can see there are different constructors used in different tests. The thing is, that these constructors were created so it was easier to write tests! In other words, we created constructors which set selected properties of the +User+ class (and left unused properties untouched - i.e. with +null+ values). Hm, this sounds evil. We added means to create crippled objects of the +User+ class to our production code... +
 Fourth, in addition to use of the constructors, also some setter methods are used. This is not something evil, but it makes the code which creates +User+ objects longer.
 
-Now, what can be done about it? We could have created some +private+ methods. Yes, this would have been better than the constructor-hell that we had. But my experience is that they tend to multiply and repeat among many test classes. Also such +private+ methods are usually not flexible enough to express the intent of a specific test. So the next step is to parameterized these private methods, but finally we end up with private methods *and* the setters following them. +
-So we decided not to use them Instead, we invested in *Test Data Builders*.
+Now, what can be done about it? We could have created some +private+ methods. Yes, this would have been better than the constructor-hell that we had. But my experience is that they tend to multiply and repeat among many test classes. Also such +private+ methods are usually not flexible enough to express the intent of a specific test. So the next step is to parameterized these private methods, but eventually we ended up with private methods *and* the setters following them. +
+So we decided not to use them. Instead, we invested in *Test Data Builders*.
 
-The concept is very simple. Such builder is responsible for the creation of objects of the given class. Period.
+The concept is very simple. A builder class is responsible for the creation of objects of the given class. Period.
 
 After we introduced such builders, the code took the following form:
 
@@ -2237,9 +2170,16 @@ public void shouldGetUserByCompanyData() {
 	...
 }
 ----
+
+Now what have we gained. Let me list the benefits of this approach:
+
+* your domain objects can be immutable, because no setters are required, only a parameterless constructor,
+* only one class (the builder) knows how to build objects of given class, so every change is localized to this one builder class,
+* the DSL is up to you, so you can create methods which describe precisely the properties of created object.
+
 Convinced? Not convinced? The problem is that the advantages of Test Data Builders are hard to present with few lines of code. But when you start using them for your important domain objects, you will soon learn about the improved readability they bring to your test code.
 
-TIP: Your IDE probably offers some support for creating Test Data Builders.
+TIP: Your IDE probably offers some support for creating Test Data Builders. Try it.
 
 === It is so Easy to Make a Mistake
 To finish, let us see yet another example which shows how use of multi-parameter constructors can bring confusion to your test code. Below the two beginnings of test methods from the same test class are presented:
@@ -2263,7 +2203,7 @@ public void shouldUpdateUser() {
 
 Hm... what is going on here? What is the first parameter - email or name? Because you can not see into the production code I will tell you. It is the email. And the second parameter is (surprise, surprise!) a password! Yes, a password. Wasn't that clear to you? Nor to me. :) That is what happens when you use silly values for parameters and you use multi-parameters constructors instead of builders.
 
-NOTE: I was really surprised to see a mistake in use of the two-parameters only constructore! I thought such mistakes happen if you have more than 5 parameters or so...
+NOTE: I was really surprised to see a mistake in use of the two-parameters only constructor! I thought such mistakes happen if you have more than 5 parameters or so...
 
 A better version would create user objects like this:
 
@@ -2312,7 +2252,7 @@ List<ProductCategory> categories = Arrays.asList(
 );
 ----
 
-This code creates several objects of the +ProductCategory+ class using the private +product()+ method. The problem with this test code is that it reflects the complexity of the business domain, which requires to use +BigDecimal+ objects (I can suspect that these values represent prices). However, if you look at the values which are used, you will notice that integers would suffice. Which means, that we actually could you integers, if only the +product()+ method would allow as to do so. Since it is us who decide how this API looks like, there is no problem with doing this. After the change the test code can look like this:
+This code creates several objects of the +ProductCategory+ class using the private +product()+ method. The problem with this test code is that it reflects the complexity of the business domain, which requires to use +BigDecimal+ objects (I can suspect that these values represent prices). However, if you look at the values which are used, you will notice that integers would suffice. Which means, that we actually could use integers, if only the +product()+ method would allow as to do so. Since it is us who decide what parameters should the +product()+ method accept, there is no problem with doing this. After the change the test code can look like this:
 
 ----
 List<ProductCategory> categories = Arrays.asList(
