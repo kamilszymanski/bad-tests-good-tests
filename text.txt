@@ -951,11 +951,11 @@ Let us consider the following factory method:
 
 [source,java]
 ----
-public PayoutCalculator create() {
+public PriceCalculator create() {
 	BigDecimal minMargin = settings.getMinMargin();
 	BigDecimal maxMargin = settings.getMaxMargin();
 	BigDecimal premiumShare = settings.getPremiumShare();
-	return new PayoutCalculator(minMargin, maxMargin, premiumShare);
+	return new PriceCalculator(minMargin, maxMargin, premiumShare);
 }
 ----
 
@@ -965,62 +965,62 @@ This test does exactly this:
 
 [source,java]
 ----
-public class PayoutCalculatorFactoryTest {
-	PayoutSettingsService settings = mock(PayoutSettingsService.class);
+public class PriceCalculatorFactoryTest {
+	SettingsService settings = mock(SettingsService.class);
 
 	@Test
-	public void shouldCreatePayoutCalculator() {
+	public void shouldCreatePriceCalculator() {
 		//given
 		given(settings.getMinMargin()).willReturn(new BigDecimal(20));
 		given(settings.getMaxMargin()).willReturn(new BigDecimal(50));
 		given(settings.getPremiumShare()).willReturn(new BigDecimal(50));
 
 		//when
-		PayoutCalculator calculator = new PayoutCalculatorFactory(settings).create();
+		PriceCalculator calculator = new PriceCalculatorFactory(settings).create();
 
 		//then
 		assertThat(calculator)
-			.isEqualTo(new PayoutCalculator(new BigDecimal(20), 
+			.isEqualTo(new PriceCalculator(new BigDecimal(20), 
 			new BigDecimal(50), new BigDecimal(50)));
 	}
 }
 ----
 
-Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). Imagine the +maxMargin+ parameter is assigned to +premiumShare+ and vice versa. This test would still pass even in case of such implementation error.
+Even if the values used in test (+minMargin+ = 20, +maxMargin+ = 50, +premiumShare+ = 50) makes business sense, they should not be used in test. Why? Because there is always a chance, that the tested method is flawed and values are improperly assigned (this can happen if someone created it with *copy&paste* approach). Imagine the +maxMargin+ parameter is assigned to +premiumShare+ and vice versa. This test would still pass even in case of such implementation error, because both parameters are assigned with the same value of +50+.
 
 To minimize the risk use different values for each parameter. The following code shows this (also there is some refactoring done so the values are extracted as +static final+ fields):
 
 [source,java]
 ----
-public class PayoutCalculatorFactoryTest {
-	PayoutSettingsService settings = mock(PayoutSettingsService.class);
+public class PriceCalculatorFactoryTest {
+	SettingsService settings = mock(SettingsService.class);
 	
 	private static final BigDecimal MIN_MARGIN = new BigDecimal(20);
 	private static final BigDecimal MAX_MARGIN = new BigDecimal(30);
 	private static final BigDecimal PREMIUM_SHARE = new BigDecimal(40);
 
 	@Test
-	public void shouldCreatePayoutCalculator() {
+	public void shouldCreatePriceCalculator() {
 		//given
 		given(settings.getMinMargin()).willReturn(MIN_MARGIN);
 		given(settings.getMaxMargin()).willReturn(MAX_MARGIN);
 		given(settings.getPremiumShare()).willReturn(PREMIUM_SHARE);
 
 		//when
-		PayoutCalculator calculator = new PayoutCalculatorFactory(settings).create();
+		PriceCalculator calculator = new PriceCalculatorFactory(settings).create();
 
 		//then
 		assertThat(calculator)
-			.isEqualTo(new PayoutCalculator(MIN_MARGIN, MAX_MARGIN, PREMIUM_SHARE);
+			.isEqualTo(new PriceCalculator(MIN_MARGIN, MAX_MARGIN, PREMIUM_SHARE);
 	}
 }
 ----
-Thanks to this change now the test will fail if the values are misplaced in the constructor of the +PayoutCalculator+ class.
+Thanks to this change, now the test fails if the values are misplaced in the constructor of the +PriceCalculator+ class.
 
-TIP: Avoid using same numbers/strings for different variables/properties in your tests method! Often power of 2 are quite convenient (they do not sum up to each other easily).
+TIP: Avoid using same numbers/strings for different variables/properties in your tests method! Often power of 2 (1, 2, 4, 8, ...) are quite convenient as they do not sum up to each other easily.
 
 == Database Assumptions
-Take a look at this test:
+Take a look at this test. This is an integration test with +userService+ and +dao+ talking to some real database.
 
 [source,java]
 ----
@@ -1031,8 +1031,6 @@ public void shouldAddUser() {
 	assertEquals(dao.getNbOfUsers(), 1);
 }
 ----
-
-The test looks like an integration test (seems like +userService+ and +dao+ talk with real database), which adds a new user to the database.
 
 What is bothering me here is that:
 
@@ -1056,16 +1054,16 @@ public void shouldAddUser() {
 
 Now the content of the test method reflects its name (+shouldAddUser()+). Good.
 
-It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to se the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
+It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to see the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
 
 TIP: Do not make assumptions about the database content. Use relative rather than absolute values.
 
 TIP: Make sure the test does exactly what its (method) name promises.
 
 == Self-Test
-In one application there was a need to implement many payment methods. Their list, along with the information about the countries where each method is accepted, was kept by the +PaymentMethod+ enum.
+In one application there was a need to implement many payment methods. Their list, along with the information about the countries where each payment method is accepted, was kept by the +PaymentMethod+ enum.
 
-The test below verifies whether the +getMethodsForCountry()+ method of the +PaymentMethod+ class returns valid methods for Poland. First it creates the list of expected payment methods, then calls the method in question, and eventually compares expected list with the result of the tested method invocation.
+The test below verifies whether the +getMethodsForCountry()+ method of the +PaymentMethod+ class returns valid methods for Poland. First it creates the list of expected payment methods, then calls the method in question, and eventually compares the expected list with the result of the tested method invocation.
 
 [source,java]
 ----
@@ -1082,14 +1080,14 @@ public void shouldGetMethodsForPoland() {
 
 	//when
 	List<PaymentMethod> methodsForCountry = PaymentMethod
-		.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+		.getMethodsForCountry("PL", all);
 
 	//then
 	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
 }
 ----
 
-The test seems right... but there is something disturbing about its +given+ part. It uses two methods of the +PaymentMethod+ enum (+values()+ and +isEligibleForCountry()+) in order to prepare the list of expected methods. Let us have a look now at the implementation of the +getMethodsForCountry()+ method to see if our fears are justified.
+The test seems right... but there is something disturbing about its +given+ part. It uses two methods of the +PaymentMethod+ enum (+values()+ and +isEligibleForCountry()+) in order to prepare the list of expected methods. Let us have a look now at the implementation of the +getMethodsForCountry()+ method of the +PaymentMethod+ class to see if our fears are justified.
 
 [source,java]
 ----
@@ -1141,7 +1139,7 @@ ____
 
 The issue of writing '"happy path"' tests is so common, that it is probably the most popular antipattern of all.
 
-But what is a '"happy path"' testing anyway? For our purpose, it is enough to say that '"happy paths"' tests cover the simplest, even obvious, scenarios. It is like testing that our calculator can add +2+ and +2+, and that if you add user +John Doe+ to the database then you can found it there.
+But what is a '"happy path"' testing anyway? For our purpose, it is enough to say that '"happy paths"' tests cover the simplest, even obvious, scenarios. It is like testing that our calculator can add +2+ and +2+, and that if you add user +John Doe+ to the database then you can find it there.
 
 Let me stress one thing though. Such tests are not evil. There is nothing wrong with having them. On the contrary *there are essential*. Why? Because the scenarios they cover are the most important for your application. If your application does not handle such simple cases then it is useless. So the problem is not with writing such tests, but with the fact that they are often the only tests there are. This of course leads to the problems as soon as the real data comes in - suddenly it occurs that your calculator can't handle negative values, and that your database is not prepared to handle a surname longer than 20 characters or so. And your clients will notice it really soon.
 
@@ -1182,7 +1180,7 @@ public class FizzBuzzTest {
 
 Looks decent, doesn't it? Each requirement is covered by testing it with one piece of test data.
 
-However I would still call it a "happy path" test. The number of test cases is not enough to deduce whether the +FizzBuzz+ class gives correct answers for all integers from 1 to 100. It might, but it might not. I could even come with very simple implementation which pass this test but does not really fulfill the FizzBuzz requirements.
+However I would still call it a '"happy path"' test. The number of test cases is not enough to deduce whether the +FizzBuzz+ class gives correct answers for all integers from 1 to 100. It might, but it might not. I could even come with very simple implementation which pass this test but does not really fulfill the FizzBuzz requirements.
 
 I do not say we should test every integer from the given range (even thought that would not be hard as there are only 100 of them), but I would definitely write some more test cases. The nice thing is that I do not have to write more test methods. All I have to do is to use more data. The next listing presents how to do it with TestNG.
 
@@ -1244,7 +1242,7 @@ ____
 To give the proper word - to thing!
 ____
 
-This is interesting issue because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
+This is interesting issue because we are usually very good at giving good names to methods and variables in production code. However when it comes to tests we drop the good habits and often perform a bad job. I suspect this is because in tests it is quite normal to have few objects of them same type which results in simple naming schemas like +productA+, +productB+, +productC+ etc. Sometimes it is good enough, but sometimes it could be well improved.
 
 === A Rose by any Other Name... Not Really!
 The first example presents a simple case of a test related to permission-checking module. The next listing shows a small fragment of this test - a data provider which feeds test methods with data.
@@ -1286,58 +1284,67 @@ public static Object[][] userPermissions() {
 A guest can only read, logged users can also write, and admin has all permissions. Now the error message - e.g. '"+admin+ was expected to have +DELETE+ permission"' makes sense.
 
 === Object1, Object2, Object3
-Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +Domain+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
+Now let us consider another example. This is a (tiny) part of a complex integration test which creates a bunch of objects (mainly of the +User+ class). It uses a lot of helper methods which are responsible for creation of objects and also for saving them into the database.
 
 [source,java]
 ----
-Domain domain1 = delper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
-daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
-Domain domain2 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
-daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
+User user1 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(user1, "PL", 1);
+daoTestHelper.userCountry30DayStatistics(user1, "US", 2);
+User user2 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(user2, "PL", 4);
+daoTestHelper.userCountry30DayStatistics(user2, "US", 8);
 
-// ... and so on till domain5 or so
+// ... and so on till user5 or so
 ----
 
-What I hate about this are the names of domain objects suffixed with numbers (+domain1+, +domain2+ etc.). They bring no information about the state (role, properties) of the objects. Here comes an updated version:
+What I hate about this test are the names of user objects suffixed with numbers (+user1+, +user2+ etc.). They bring no information about the state (role, properties) of the objects. Here comes an updated version:
 
 [source,java]
 ----
-Domain domainWith1PlClick = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "PL", 1, 0);
-daoTestHelper.domainCountry30DayStatistics(domainWith1PlClick, "US", 2, 1);
-Domain domainWith4PlClicks = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "PL", 4, 2);
-daoTestHelper.domainCountry30DayStatistics(domainWith4PlClicks, "US", 8, 4);
+User userWith1PlClick = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(userWith1PlClick, "PL", 1, 0);
+daoTestHelper.userCountry30DayStatistics(userWith1PlClick, "US", 2, 1);
+User userWith4PlClicks = helper.addUserAndAssociateWithCampaign(
+	campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(userWith4PlClicks, "PL", 4, 2);
+daoTestHelper.userCountry30DayStatistics(userWith4PlClicks, "US", 8, 4);
 ----
 
-Believe me, these names makes perfect sense for this particular scenario and for the problem domain. They allow to come with very readable custom assertions similar to this:
-
-[source,java]
-----
-assertThat(result).hasResultsForDomain(domainWith4PlClicks, 4);
-----
-
-Surprisingly this simple refactorings of names has helped me to undercover an issue hidden within the test code. I admit I haven't seen it when the original names of variables (+domain1+, +domain2+ etc.) were used. Look at the longer snippet of the original code. It repeats the same pattern of first creating a domain and then creating some statistics for it. However there is one place in which this pattern breaks. Can you spot it?
+Believe me, these names makes perfect sense for this particular scenario and for the problem domain. They allow to come with very readable custom assertions (see <<sec_custocustomassertions>>  similar to this:
 
 [source,java]
 ----
-Domain domain1 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domain1, "PL", 1);
-daoTestHelper.domainCountry30DayStatistics(domain1, "US", 2);
-Domain domain2 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domain2, "PL", 4);
-daoTestHelper.domainCountry30DayStatistics(domain2, "US", 8);
-Domain domain3 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
-daoTestHelper.domainCountry30DayStatistics(domain3, "PL", 16);
-daoTestHelper.domainCountry30DayStatistics(domain3, "CZ", 32);
-Domain domain4 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.ACTIVE);
-daoTestHelper.domainCountry30DayStatistics(domain3, "US", 64);
-Domain domain5 = helper.addDomainAndAssociateWithCampaign(campaign, 30l, CampaignDomainAssocState.DELETED);
+assertThat(result).hasResultsForUser(userWith4PlClicks, 4);
 ----
 
-Well, maybe you spotted it (congratulations!) but I hadn't when I worked with the code. Only when I started renaming variables I noticed that in one place +domain3+ is used where +domain4+ should had been used (take a look at the next to last line). It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result). But it has done another evil thing: the test has not really tested the intended scenario! +
+Surprisingly this simple refactoring of names has helped me to undercover an issue hidden within the test code. I admit I haven't seen it when the original names of variables (+user1+, +user2+ etc.) were used. Look at the longer snippet of the original code. It repeats the same pattern of first creating a user and then creating some statistics for it. However there is one place in which this pattern breaks. Can you spot it?
+
+[source,java]
+----
+User user1 = daoTestHelperhelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(user1, "PL", 1);
+daoTestHelper.userCountry30DayStatistics(user1, "US", 2);
+User user2 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(user2, "PL", 4);
+daoTestHelper.userCountry30DayStatistics(user2, "US", 8);
+User user3 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.DELETED);
+daoTestHelper.userCountry30DayStatistics(user3, "PL", 16);
+daoTestHelper.userCountry30DayStatistics(user3, "CZ", 32);
+User user4 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.ACTIVE);
+daoTestHelper.userCountry30DayStatistics(user3, "US", 64);
+User user5 = daoTestHelper.addUserAndAssociateWithCampaign(
+			campaign, 30l, CampaignUserState.DELETED);
+----
+
+Well, maybe you spotted it (congratulations!) but I hadn't when I worked with the code. Only when I started renaming variables I noticed that in one place +user3+ is used where +user4+ should had been used (take a look at the next to last line). It hasn't influenced the outcome of the test (because this line is responsible for adding data which should not be included in the final result). But it has done another evil thing: the test has not really tested the intended scenario! +
 
 NOTE: When the names of variables differ only very slightly, then it is very simple to confuse them.
 
@@ -1422,7 +1429,7 @@ server = new MockServerBuilder()
 		.create();
 ----
 
-Is this approach better than the previous ones? Not necessarily, as it definitely requires more work. However the fact that we control the API allows us to shape it according to our liking. Maybe in the domain that this +MockServer+ works, this is a perfect solution (this one implicitly sets the '"no-SSL"' option, and shortens type and url setting):
+Is this approach better than the previous ones? Not necessarily, as it definitely requires more work. However the fact that we control the API allows us to shape it according to our liking. Maybe in the domain that this +MockServer+ is used, this is a perfect solution (this one implicitly sets the '"no-SSL"' option, and shortens type and url setting):
 
 [source,java]
 ----
@@ -1496,9 +1503,9 @@ This test:
 
 but all in all, it is a valuable test. Believe me, I analyzed every part of it, and it all makes some sense. However, I hate the way it looks. It is too long and it verifies too many scenarios.
 
-And here we come to the second problem which often occurs in +test+ prefixed test methods. Once you write something like +testQuery()+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
+And here we come to the second problem which often occurs in the +test+ prefixed test methods. Once you write something like +testQuery()+ it feels natural to put there every test related to query. That is how such monstrous methods are born. Bad thing, really bad.
 
-I'm convinced that this would never have happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull()+ or with +shouldReturnSingleValueReturnedByDao()+ and so on, but you won't end up with +shouldTestQuery()+ unless you are really trying to anger me. ;)
+I'm convinced that this would had never happened if only the developer had started with +should+ prefix. When you type +should...+ it makes you think about some specific scenarios. And you end up with +shouldReturnNullWhenDaoReturnsNull()+ or with +shouldReturnSingleValueReturnedByDao()+ and so on, but you won't end up with +shouldTestQuery()+ unless you are really trying to anger me. ;)
 
 The test would be much better if splitted into few test methods, like this:
 
@@ -1668,6 +1675,7 @@ public void shouldBeAdministrator() {
 
 TIP: KISS. Keep It Simple Stupid!
 
+[[sec_customassertions]]
 == Assertions
 Assertions part is where the real testing happens. This is where you verify whether things worked out as expected. Apart from being crucial to make the test valid and valuable, assertions have also great impact on documentation value of your tests.
 
@@ -1717,9 +1725,9 @@ public void shouldPreDeployApplication() {
 ----
 
 As you can see the 'then' part is pretty huge and rather unpleasant. It contains a lot of implementation details which clutter the view. It is not so simple to read the test and understand the scenario it verifies. +
-An interesting observation is that the real assertion happens in the last line of the test method. The rest of "then" part is only preparing for this final line.
+An interesting observation is that the real assertion happens in the last line of the test method. The rest of '"then"' part is only preparing for this final line.
 
-How to make it better? Many of us would extract assertion part as private method. Ok, this would be better, but as we see in a minute (see <<sec_assertions_vs_private_methods>>) it can lead to some problems as well, so let us do something different.
+How to make it better? Many of us would extract assertion part as private method. Ok, this would be better, but as we see in a minute (see <<sec_assertions_vs_private_methods>>) it can lead to some problems as well, so let us take a different approach.
 
 [source,java]
 ----
@@ -1742,13 +1750,13 @@ public void shouldPreDeployApplication() {
 
 Better, isn't it? Now the test code speaks in terms of the requested functionality and not in terms of implementation. Good.
 
-My advice is that when you see the assertion part of your test code growing, you should stop and write the assertion as you would like it to be. Then replace all the current asserting code with this one-liner and try to implement your custom assertion. It is easier and less work than you think (no matter if you use Hamcrest or FEST Fluent Assertions).
+My advice is that when you see the assertion part of your test code growing you should stop and write the assertion as you would like it to be. Then replace all the current asserting code with this one-liner and try to implement your custom assertion. It is easier and less work than you think (no matter if you use Hamcrest or FEST Fluent Assertions).
 
 TIP: Just say it. Write the assertions as you would like it to be. Then implement it.
 
 Let us see another example of an overly complicated assertions.
 
-As you can see below an indexing variable +i+ is used to navigate through the resulting list. Assertions are rather cryptic. At least for me it is not obvious that the third element of this list should have twelve views.
+As you can see below an indexing variable +i+ is used to navigate through the resulting list. Assertions are rather cryptic. At least for me it is not obvious that for example the third element of this list should have twelve views.
 
 [source,java]
 ----
@@ -1772,7 +1780,7 @@ public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 }
 ----
 
-As usual when it comes to making assertions more readable we can use private methods (not really recommended - see <<sec_assertions_vs_private_methods>>) or write our custom assertions. Since in this case the test verifies some very important part of the system, I decided it was worthwile to implement custom assertion. The result is shown on the next listing.
+As usual when it comes to making assertions more readable we can use private methods (not really recommended - see <<sec_assertions_vs_private_methods>>) or write our custom assertions. Since in this case the test verifies some very important part of the system, I decided it was worthwile to implement a custom assertion. The result is shown on the next listing.
 
 [source,java]
 ----
@@ -1785,15 +1793,19 @@ public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 	List<DomainObject> result = someDao.getStatistics(campaign, WITH_EXCLUDED, 100, 0);
 
 	//then
-	assertThat(result).hasStatisticsForDomains(5).allStatisticsAreForCampaign(campaign.getId());
-	assertThat(result).isSortedByViews();
-	assertThat(result).hasResultsForDomain(domainWith3Views, 3);
-	assertThat(result).hasResultsForDomain(domainWith12Views, 12);
-	assertThat(result).hasResultsForDomain(deletedDomainWith16Views, 16);
-	assertThat(result).hasResultsForDomain(domainWith0Views, 0);
-	assertThat(result).hasResultsForDomain(deletedDomainWith0Views, 0);
+	assertThat(result)
+		.hasStatisticsForDomains(5)
+		.allStatisticsAreForCampaign(campaign.getId())
+		.isSortedByViews()
+		.hasResultsForDomain(domainWith3Views, 3)
+		.hasResultsForDomain(domainWith12Views, 12)
+		.hasResultsForDomain(deletedDomainWith16Views, 16)
+		.hasResultsForDomain(domainWith0Views, 0)
+		.hasResultsForDomain(deletedDomainWith0Views, 0);
 }
 ----
+
+In my humble opinion it is much more clear now why we expect +12+ at some point. Would you agree?
 
 TIP: Let your tests (and assertions) speak with domain language, not in implementation terms.
 
@@ -1825,8 +1837,25 @@ public void testChargeInRetryingState() throws Exception {
 }
 ----
 
-So far so good. Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written (they only differ by expected states - for example some another test method expects +AndroidTransactionState.SUBMITTED+ instead of +AndroidTransactionState.CHARGE_PENDING+). '"Reuse is good"' you think and you do the most obvious thing: you create a private method (which takes expected states as parameter) and call it from both tests. As you write more test code the same method is being called from more test method. +
-This seems right. There is no code duplication among test methods because all assertions are done by this separated private method.
+So far so good. The test is complex, but so is the problem domain, so you decide you have no choice but to bear with it.
+
+Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written (they only differ by expected states - for example some another test method expects +AndroidTransactionState.SUBMITTED+ instead of +AndroidTransactionState.CHARGE_PENDING+). '"Reuse is good"' you think and you do the most obvious thing: you create a private method (which takes expected states as parameter) and call it from both tests. As you write more test code the same method is being called from more test methods. +
+This seems right. There is no code duplication among test methods because all assertions are done by this separated private method. Ans exxemplary test looks like this one:
+
+[source,java]
+----
+@Test
+public void testChargeInRetryingState() throws Exception {
+	// given
+	...
+
+	// when
+	...
+
+	// then
+	assertState(ResultCode.SUCCESS, androidTransaction, AndroidTransactionState.CHARGE_PENDING, ClientMessage.SUCCESS;
+}
+----
 
 And all is good and well at least for some time. You write more tests still reusing this one assertion method. But soon you encounter problems. The assertions in the method are not exactly what you need in some particular test cases. They are very close to what you want, but not exactly. '"Reuse is good"' you say and make your private method more generic so it can handle more test cases. The resulting assertion method is presented below:
 
@@ -1864,7 +1893,8 @@ private void assertState(TxDTO txDTO, AndroidTransaction androidTransaction,
 }
 ----
 
-Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes 7 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations).
+Oh my, this has come too far... Now we have a monster-method which verifies every possible scenario! It takes 7 parameters and has some logic. This is unmaintainable. You can't read your tests now and understand what scenario is really tested (without doing some serious investigations). +
+You can't understand it even if you know the business domain pretty well!
 
 And what is the right way to do it? I would suggest to write a custom assertion. This allows to write the test in the following way:
 
@@ -1890,7 +1920,7 @@ public void testChargeInRetryingState() throws Exception {
 }
 ----
 
-What is the difference with the previous test? I do not claim to be super-simple but that is because the business domain of the tested system was complicated! I think that this version makes it much easier to understand what is the expected outcome of this test. There is no logic involved (no +if+ statements in the assertions part) which leaves no doubts about what is being asserted.
+What is the difference with the previous test? I do not claim to be super-simple but that is because the business domain of the tested system was complex! I think that this version makes it much easier to understand what is the expected outcome of this test. There is no logic involved (no +if+ statements in the assertions part) which leaves no doubts about what is being asserted.
 
 TIP: Whenever your assertions are growing beyond your safety limit (2 lines? 3 lines? 5 lines? I do not know, it is *yours safety limit* not mine) then introduce custom assertions instead. In fact, it seems reasonable to come with custom assertions for the main objects from your domain (because you will probably have many tests which involve them - both on unit and integration level).
 
@@ -1901,9 +1931,11 @@ And how to come with good custom assertions method? My trick is simply to write 
 assertThat(client).isVip().and().hasDiscount(0.2)
 ----
 
-And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined.
+And then I implement it. Of course sometimes it happens that I need to deviate from the original plan and that the resulting fluent interface differs in details, but usually I'm able to come quite close to what I imagined. 
 
-In another test that I have seen many test methods like this one:
+Let us have another look at private methods used for assertions.
+
+In another test that I have seen many test methods looked like this one:
 
 [source,java]
 ----
@@ -1963,7 +1995,7 @@ There is a question which could be asked by an inquisitive reader. Custom assert
 Ok, I admit. I do not test my custom assertions. This comes from few facts.
 
 First of all the logic of custom assertions is *very* limited (if any at all). Usually they boil down to fetching some properties of an object and comparing it with expected result. Writing custom assertions for your domain objects you will rarely find a need for a +for+ loop there or anything more complex. It often happens that the majority of code is devoted to the creation of custom error messages. +
-This looks different for custom assertions which are more related to integration tests - like the one discussed in <<sec_asserting_too_much>>. In such case you can consider writing of tests for your assertions.
+This looks different for custom assertions which are more related to integration tests - like the one discussed in <<sec_asserting_too_much>>. In such case you can consider writing tests for your assertions.
 
 Secondly, custom assertions are often written after you have already written assertions in your tests. This is rather natural. At some point of writing your test you realize that the assertion part of it is getting too big and/or too complicated. Then you create your custom assertion class and copy there parts of your assertions. This usually happens when you verified your assertions working (by running tests). 
 
@@ -1975,9 +2007,12 @@ Ending your test with +assert+ is not enough. The point is to have assertion(s) 
 @Test
 public void shouldRemoveEmailsByState() {
 	//given
-	Email pending = createAndSaveEmail("pending","content pending","abc@def.com", Email.PENDING);
-	Email failed = createAndSaveEmail("failed","content failed","abc@def.com", Email.FAILED);
-	Email sent = createAndSaveEmail("sent","content sent","abc@def.com", Email.SENT);
+	Email pending = createAndSaveEmail("pending","content pending",
+			"abc@def.com", Email.PENDING);
+	Email failed = createAndSaveEmail("failed","content failed",
+			"abc@def.com", Email.FAILED);
+	Email sent = createAndSaveEmail("sent","content sent",
+			"abc@def.com", Email.SENT);
 
 	//when
 	emailDAO.removeByState(Email.FAILED);
@@ -1991,7 +2026,7 @@ This test first creates three email entities and stores them in database. Then i
 
 The assertion makes sure that the +failed+ email is not in the database anymore. However it does not prove that the +removeByState()+ works as expected. In particular, if it is flawed and removes all emails, then the test still passes.
 
-My suggestion would be to protect ourselves against such issues by writing slightly more challenging. For example like this:
+My suggestion would be to protect ourselves against such issues. For example like this:
 
 [source,java]
 ----
@@ -2010,7 +2045,7 @@ This way we verify exactly what was removed from database.
 == Expected Objects
 Each test should tell a story of what happens and what is expected. The story spans through the whole test and every part of the test takes part in its telling.
 
-I find some tests which fail to tell the story when it comes to assertion. Have a look at the following test. Only a tiny part of it is presented so we can concentrate on the issue at hand.
+I find some tests which fail to tell the story when it comes to assertion. Have a look at the following test which introduces this issue.
 
 [source,java]
 ----
@@ -2027,6 +2062,8 @@ public void shouldReturnModelWithCorrectValuesCalculated() {
 	assertThat(result).isEqualTo(expectedResult); // value should be (1+5+50+75=131)/(10+10+10+10=40) = 3.275
 }
 ----
+
+I have omitted the '"given"' and '"when"' parts, because the interesting things happen at the very end of this test.
 
 The name of the test says that the SUT +shouldReturnModelWithCorrectValuesCalculated()+. The comment at the end of the last assertion line tells me exactly what was important for the creator of the test. There is some average value calculated, and it is essential that it is equal to 3.275. If so, then instead of comparing full objects, let us verify this one value:
 
@@ -2054,7 +2091,7 @@ Now you have few options:
 * add reasonable +toString()+ method to the +DataModel+ class,
 * write custom assertions.
 
-When verifying specified properties instead of objects you are sure to get a valuable error message which tells exactly which of them is different than expected.
+When verifying specified properties instead of objects you are sure to get a more precise error message which tells exactly which of them is different than expected.
 
 TIP: Comparison of objects brings the scenario of the test to technical aspect. The story behind the test is gone, all we know that two objects should match at the end. I suggest to put few assertions (or even better to write custom one) instead of comparing objects.
 
