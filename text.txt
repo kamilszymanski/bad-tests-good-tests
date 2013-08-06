@@ -2453,9 +2453,6 @@ verify(async).execute(isA(AddOrganizationAction.class),
 TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
 TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
 
-=== Timeout
-* test which should have timeout annotation
-
 [[sec_thread_sleep]]
 == Thread.sleep()
 [verse, The New England Primer, 1697]
@@ -2587,7 +2584,7 @@ TODO not really TODO Also the sleep inside the loop was removed. It wasn't reall
 TODO have doubts if this is a worthy example...
 
 == Test Which Knows Too Much
-Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shorthened test which from some mailing list discussion).
+Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shorthened test from some mailing list discussion).
 
 [source,java]
 ----
@@ -2665,9 +2662,7 @@ All this does not mean that the nasty low-level details have miracouleously vani
 
 [[sec_asserting_too_much]]
 == Asserting Too Much
-TODO comparison of objects with +equals+
-
-Take a look at this test. Only the last lines of it are presented, but believe me - it was a really complex end-to-end test. It involved the SUT (the whole system) receive some requests and generate answers in form of CSV files.
+Take a look at this test. Only the last lines of it are presented, but believe me - it was a really complex end-to-end test. It involved the SUT (the whole system) receive some requests and generate answers in form of the CSV files.
 
 [source,java]
 ----
@@ -2683,9 +2678,9 @@ public void invalidTxShouldBeCanceled() {
 }
 ----
 
-Look at the method name - +invalidTxShouldBeCanceled()+ (hint: 'Tx' stands for 'transaction') - and at the assertion made. Hm, do they match? Do you feel like the assertion really verifies if the invalid transaction was canceled? Well, it probably does, but it seem to test much more than this. In fact it verifies whether the received file conforms to some data pattern.
+Look at the method name - +invalidTxShouldBeCanceled()+ (hint: 'Tx' stands for 'transaction') - and at the assertion made. Hm, do they match? Do you feel like the assertion really verifies whether the invalid transaction was canceled? Well, it probably does, but it seem to test much more than this. In fact it verifies whether the received file conforms to some data pattern.
 
-Another variant, which I would recommend, relies on - surprise, surprise! - custom annotations.
+Another variant, which I would recommend, relies on - surprise, surprise! - custom assertions.
 
 [source,java]
 ----
@@ -2709,7 +2704,7 @@ Now when the CSV format changes, all you need to do is to fix the code encapsula
 This section contains examples which illustrate another common issue with our tests. I see them often specify too many things which are not really related to the tested scenario. This reduces the readability of tests, and also influences their maintainability by increasing the number of things which force us to update the test code.
 
 === Mocking Is Not About Repeating Everything
-The code below - copied from Mockito mailing list - is definitely breaking one of the rules of mocking: '"mock only types you own"'. But what it also does is that it is so very detailed that it describes every single bit of the production code (I say it without actually seeing the production code, but I bet this is the case!). This is bad. The test code is so tightly coupled to implementation that you can't introduce any changes there without breaking it.
+The code below - copied from the Mockito mailing list - is definitely breaking one of the rules of mocking: '"mock only types you own"'. But what it also does is that it is so very detailed that it describes every single bit of the production code (I say it without actually seeing the production code, but I bet this is the case!). This is bad. The test code is so tightly coupled to implementation that you couldn't introduce any changes there without breaking it.
 
 And what does it really test? Well, everything and nothing at all at the same time. It verifies all the interactions between the SUT and its collaborators, but it even goes further: it stubs the SUT and then it verifies if it was stubbed! This is really useless unless your goal is to test Mockito's stubbing abilities (do not do that, thousands of people has already proved Mockito works fine!).
 
@@ -2762,7 +2757,7 @@ TIP: Writing test for exisiting code is *NOT* about repeating it line by line!
 
 Ok, that would be unfair to leave this test like this. I think we deserve at least few hints about testing your DAO layer.
 
-The rule of thumb is, that your DAOs are something you should rather not unit test. Why? Because there is usually no logic there (DAO should be a thin wrapper over database stuff). Instead have integration tests which set up a real database. If your DAO is not vendor-specific, it can be any database which is convenient for testig - e.g. H2{empty}pass:[]footnote:[http://www.h2database.com]. Then verify that the entites inserted and fetched by your DAOs are what you expect them to be. Concentrate on the complicated stuff (provided that your DAO layer have such). Do not test simple CRUD functionality that your ORM is doing for you (if there is something wrong here - which is very unlikely - you will find out when running end-to-end tests).
+The rule of thumb is, that your DAOs are something you should rather not unit test. Why? Because there is usually no logic there (DAO should be a thin wrapper over database stuff). Instead have integration tests which set up a real database. If your DAO is not vendor-specific, it can be any database which is convenient for testing - e.g. H2{empty}pass:[]footnote:[http://www.h2database.com]. Then verify that the entites inserted and fetched by your DAOs are what you expect them to be. Concentrate on the complicated stuff (provided that your DAO layer have such). Do not test simple CRUD functionality that your ORM is doing for you (if there is something wrong here - which is very unlikely - you will find out when running end-to-end tests).
 
 TIP: Go search on http://stackoverflow.com/search?q=dao%20testing[Stack Overflow] for '"dao testing"' - you will find many good tips there.
 
@@ -2790,7 +2785,7 @@ public void shouldRecognizeSnapshots(
 }
 ----
 
-All is good and well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of which are provided by +snapshotArtifacts()+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when only thing which matters is the version?
+All is good and well but... If you look at the core of what the test tries to verify you will soon notice that only one parameter out of four which are provided by +snapshotArtifacts()+ data provider is really relevant. Who cares about +groupId+, +artifactId+ and +type+ when the only thing that matters is the version?
 
 After the refactor the same test took the following form:
 
@@ -2816,7 +2811,7 @@ public void shouldRecognizeSnapshots(String version) {
 
 As you can see it uses a lot of static values (e.g. +VALID_GROUP+) which role is to announce '"I'm a right value and I'm really not important for this test scenario"'.
 
-NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with "copy&paste" of data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
+NOTE: As I've confessed, this (bad) test was mine. After I discovered its weakness I asked myself how it happened that I wrote such a code. The answer was simple. It all started with '"copy&paste"' of data provider which was used in another test. For this another test the four parameters were required. However they were not appropriate for this one. Once again: when copying code make sure it really fits!
 
 Another option would be to use a test data builder pattern, like this:
 
@@ -2897,6 +2892,7 @@ And BTW. if you think about it some more... Shouldn't test evolve before the cod
 == Waste of Time
 There are some things which are not worth unit-testing. Really, there are. Getters/Setters and delegators are the best examples.
 
+[[sec_too_simple_to_break]]
 === Things Too Simple to Break
 Take for example this test (which, as all other tests in this book is real, however obfuscated).
 
@@ -2924,7 +2920,7 @@ public BigDecimal getImportantValue() {
 }
 ----
 
-Hm.... What kind of error do we expect to catch by writing this kind of tests?
+Hm.... This is a delegator method{empty}pass:[]footnote:[A delegator methods is one which does not do anything on its own but delegates the call to some collaborator.]. What kind of error do we expect to catch by writing this kind of tests?
 
 I often hear that the real reason for writing such tests is because of the future evolution of code. Once upon a time a simple getter or delegator method will be updated and then we will find out whether its current functionality has been broken. I do not share this view. First of all it goes against the YAGNI principle{empty}pass:[]footnote:[See http://en.wikipedia.org/wiki/You_ain%27t_gonna_need_it]. I can't give precise numbers but I would say that the vast majority (99%?) of such simple methods will not evolve. Which means that 99 times of 100 you wasted your time writing tests. Second, any mature developer understands that when introducing some logic into existing method she/he needs to review the tests and update them. Third, there is a chance that even if your unit tests won't notice the change, your higher level tests will. +
 Fourth, the hope that the future change of such method will be caught by our test is... well, it is only a hope. The thing is that you can not predict the future evolution of the code. What if the code evolves like this:
@@ -2932,7 +2928,8 @@ Fourth, the hope that the future change of such method will be caught by our tes
 [source,java]
 ----
 public BigDecimal getImportantValue() {
-	return (settings.getImportantValue() != null) ? settings.getImportantValue() : DEFAULT_VALUE;
+	return (settings.getImportantValue() != null) 
+		? settings.getImportantValue() : DEFAULT_VALUE;
 }
 ----
 
@@ -2948,7 +2945,7 @@ So I worked once upon a really good project. The codebase was above the average 
 All of this was really irritating. We had tests, for God's sake! In fact, we had plenty of them. Our code was more OO than ever - every small class was testable and we really had unit tests covering them all! Still, we had so many issues with our project.
 
 In the whole book we have put a lot of attention to writing our tests the right way. We pondered over things like the naming of variables, the lack of implementation details, the clarity of test code and so on. Each of them seems tiny but when you neglect many of them your tests will become a nightmare to maintain. I hope that you understand it very well now based on the examples given in this book (and also on your own experience). +
-If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods{empty}pass:[]footnote:[A delegator method is one which does not do anything important on its own, but delegates the work to some collaborator.] and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system works for the users.
+If you spent your time just writing tests, you probably loose a lot of it. Some parts of your system need it more than others. Depending on the type of the application you write some type of tests (unit, integration, end-to-end, performance etc.) are probably more important than the rest. In the story I have just told you we put too much effort into unit testing but neglected end-to-end test. And we paid the price. We lost time writing useless tests for delegators methods and introducing hundreds of +Factory+ classes (so our code would be so very OO and beautifuly testable!) but we skipped the tests which would really tell us if all aspects of our system work for the users.
 
 Don't just sit and write tests. First think which tests to write.
 
