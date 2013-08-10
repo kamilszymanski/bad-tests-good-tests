@@ -7,4 +7,5 @@ include 'localized_exceptions',
 	'fizzbuzz',
 	'fizzbuzz_original',
 	'true_false',
-    'builders'
+    'builders',
+	'pager'

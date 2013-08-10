@@ -1236,6 +1236,68 @@ This test is definitely stronger. It tests more than one case for each requireme
 
 TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
 
+=== Not Enough Testing
+Once upon a time I was developing a web application. This application presented some data in form of paged lists to the user. My task was to develop a component which would privide all the data required "paging controls", for example this:
+
+----
+<< < 1 2 3 ... 99 > >>
+----
+
+Basically the component (based on the information about the current page, the number of elements per page and the total number of elements) had to provide information like:
+
+* which pages to print,
+* what are the offsets for each page (so the links could be generated),
+* which pages should not be linked (i.e. the current one).
+
+The algorithms were rather simple but there were some danger of off-by-one errors{empty}pass:[]footnote:[See http://en.wikipedia.org/wiki/Off-by-one_error.] so I decided to write unit tests. There were many of them. The ones presented below are related to the "next" button (the +>+ sign which takes you one page forward).
+
+[source,java]
+----
+@Test
+public class PagerTest {
+
+	private static final int PER_PAGE = 10;
+
+	public void shouldGiveOffsetZeroWhenOnZeroPage() {
+		Pager pager = new Pager(PER_PAGE);
+
+		assertThat(pager.getOffset()).isEqualTo(0);
+	}
+
+	public void shouldIncreaseOffsetWhenGoingToPageOne() {
+		Pager pager = new Pager(PER_PAGE);
+
+		pager.goToNextPage();
+
+		assertThat(pager.getOffset()).isEqualTo(PER_PAGE);
+	}
+}
+----
+Both tests are verifying whethere the right data will be fetched from the database. The queries to the database are based on the value of the +offset+ variable. So these tests verify that when moving "upward" (from page 0 to page 1) the +offset+ gets increased appropariately.
+
+So, the tests were green so I was convinced everything is fine. After some time, when clicking through the web pages of this application I have realised (to my horror and dismay!) that the "paging" is not working properly! All the pages from 1 to the very end were showing the same set of items! This was radiculous! I *knew* it worked, I had my tests after all!
+
+Well, not right, not at all!
+
+Take a look at the tests once again. What do they test? If you can go from page 0 to page 1. And what does not work? Going from page 1 to page 2, and going from page 2 to page 3 and so on. Uh... so it is not tested after all, right? Well yes, but if you can go from 0 to 1, then by all means you should be also able to move from 2 to 3! And this is so obvious, that it is a waste of time to write tests for other values, because if it works for '"from-0-to-1"' it would also work for '"from-1-to-2"', right? Well, in theory maybe so, but in practice definitely not!
+
+Now take a look at the production code:
+
+[source,java]
+----
+public void goToNextPage() {
+	this.offset = +perPage;
+}
+----
+
+Can you see the bug now? Well, clearly you can see it, because you know it is there! But it wasn't so simple to spot for me even though this method is a one-liner! I guess this was mainly because the voice inside my head kept on shouting drivels like '"it works! it has to work! it works!"' (against all the obvious evidence that it is not so). And you can't think clearly about the bug when your own mind is trying to persuade you that there is no bug at all!
+
+TIP: (A mental note to myself, but maybe you will find it useful as well.) Do not be an idiot! If it does not work do not claim that it does! :)
+
+Now, what can we learn from this example? I believe the main lesson is that you should be not satisfied with the simplest possible test case.
+
+TODO 
+
 == Naming is the King
 [verse, Cyprian Kamil Norwid, Vade-mecum: In lieu of introduction]
 ____
