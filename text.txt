@@ -2476,136 +2476,6 @@ verify(async).execute(isA(AddOrganizationAction.class),
 
 TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
 
-[[sec_thread_sleep]]
-== Thread.sleep()
-[verse, The New England Primer, 1697]
-____
-Now I lay me down to sleep,
-I pray the Lord my soul to keep,
-If I shall die before I wake,
-I pray the Lord my soul to take. Amen.
-____
-
-TODO any example of such things?
-
-* got selenium one - mention it can leverage what frameworks provide
-* need something else to introduce awaitility
-
-=== Await
-TODO e2e recent test
-
-=== ExecutorService
-TODO algorithm.storeSuccess
-
-[source,java]
-----
-public class SynchronousExecutorService extends AbstractExecutorService {
-	private boolean shutdown;
-
-	@Override
-	public void shutdown() {
-		shutdown = true;
-	}
-
-	@Override
-	public List<Runnable> shutdownNow() {
-		shutdown = true;
-		return Collections.emptyList();
-	}
-
-	@Override
-	public boolean isShutdown() {
-		shutdown = true;
-		return shutdown;
-	}
-
-	@Override
-	public boolean isTerminated() {
-		return shutdown;
-	}
-
-	@Override
-	public boolean awaitTermination(final long timeout, final TimeUnit unit) {
-		return true;
-	}
-
-	@Override
-	public void execute(final Runnable command) {
-		command.run();
-	}
-}
-----
-
-=== Timeout
-Take a look at the following test. It verifies whether an object is removed from memcached repository after given time period passes.
-
-[source,java]
-----
-public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
-	//given
-	memcachedRepository.setValue("key", 1, "value");
-	memcachedRepository.setValue("key2", 10, "value2");
-	Thread.sleep(1000);
-
-	//when
-	Object value = null;
-	for (int i = 0; i < 10; i++) {
-		value = memcachedRepository.getValue("key");
-		if (value != null) {
-			Thread.sleep(100);
-		} else {
-			break;
-		}
-	}
-
-	//then
-	assertThat(value).isNull();
-	assertThat(memcachedRepository.getValue("key2")).isEqualTo("value2");
-}
-----
-
-There are few things which make this test more complicated than it should be. First of all, it is unclear what is the meaning of numbers in the +given+ section. Let us refactor.
-
-[source,java]
-----
-        //given
-	memcachedRepository.setValue("key", ONE_SECOND_TTL, "value");
-        memcachedRepository.setValue("key2", TEN_SECONDS_TTL, "value2");
-        Thread.sleep(ONE_SECOND);
-----
-
-Now it is easier to understand the idea behind this test method. First it puts two elements into memcached with different TTL values{empty}pass:[]footnote:[TTL - Time To Live, which in this case refers to the time that given object should be kept in memcached.]. Then it waits one second (+Thread.sleep(ONE_SECOND)+) and a little bit more (the +for+ loop) so the first object is (automatically) removed from memcached (because its TTL was set to one second). The last part verifies that the first object was removed from memcached, while the other one is still there.
-
-What bothers me still is this for loop. It seems complicated (as for a test code!). Let us try to do something about it.
-
-[source,java]
-----
-@Test(timeout = 1500)
-public void shouldAddEntryAndRemoveAfterExpire() throws InterruptedException {
-	//given
-	memcachedRepository.setValue("key", ONE_SECOND_TTL, "value");
-	memcachedRepository.setValue("key2", TEN_SECONDS_TTL, "value2");
-	Thread.sleep(ONE_SECOND);
-
-	//when
-	Object value = null;
-	while (value == null) {
-		value = memcachedRepository.getValue("key");
-		Thread.sleep(100);
-	}
-
-	//then
-	assertThat(value).isNull();
-	assertThat(memcachedRepository.getValue("key2")).isEqualTo("value2");
-}
-----
-
-Hm, the loop is simpler - that is for sure. 
-
-TODO not really TODO Also the sleep inside the loop was removed. It wasn't really necessary.
-
-TODO have doubts if this is a worthy example...
-
 == Test Which Knows Too Much
 Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shorthened test from some mailing list discussion).
 
@@ -2646,15 +2516,19 @@ public void createSurvey() throws InterruptedException {
 }
 ----
 
-Before we get to the main point, let us discuss the idea of having +Thread.sleep()+ calls in your tests once again. We already did this in <<sec_thread_sleep>> but here situation is slightly different. The main reason of making the test so sloooooooow is because we are not sure when the browser will finish rendering the page so we can proceed the next click. True, we do not know that, so a defensive strategy is to set up some high values (5 seconds in this case) to stay on the safe side. It works, but makes your tests execution time horrible!
+Before we get to the main point, let us discuss the idea of having +Thread.sleep()+ calls in your tests. The main reason of making the test so sloooooooow is because we are not sure when the browser will finish rendering the page so we can proceed the next click. True, we do not know that, so a defensive strategy is to set up some high values (5 seconds in this case) to stay on the safe side. It works, but makes your tests execution time horrible!
 
-So, what can we do about it?  We can't make browser speed up, but we can wait actively, that is wait and repeatedly verify whether we can move do the next click. TODO about internal selenium mechanisms and about awaitility
+So, what can we do about it?  We can't make browser speed up, but we can wait actively, that is wait and repeatedly verify whether we can move do the next click.{empty}pass:[]footnote:[Selenium offers some mechanisms to do that; consult its documentation for more information.]
 
-TODO about Page objects
+The main issue about this code is that it describe the webpage in details. Any change to this website will cause this test to fail. And the website *will change*, that is for sure! The XPath expressions used in the tests will not last long!
 
-TODO about same pattern like builders and custom assertions - decoupling what changes from what is stable
+NOTE: I can suspect that there are many more tests written in the same manner. This means that the information about the details of some webpages is scattered among many tests. Which in turn means, that the change of the website will make many tests fail.
 
-So, putting these two together, the resulting test could look like this (it is hard to me to guess what was the business requirement of the test presented above, but I guess it was something like this):
+What can we do about it? First thing, we could improve the website (e.g. add some IDs to important elements) so they we could easily point out to them without using XPath expressions. This would be better, but still not good enough.
+
+What we should really do is to free our test code from any detailed information about the website. End-to-end tests should be preoccupied with business scenarios, not with the implementation details!
+
+In the world of Selenium tests, the pattern we should use is called 'Page Objects'{empty}pass:[]footnote:[See http://code.google.com/p/selenium/wiki/PageObjects for more information about Page Objects.]. By doing so we would end up with a test like this:
 
 [source,java]
 ----
