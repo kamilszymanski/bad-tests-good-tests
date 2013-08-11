@@ -1237,7 +1237,7 @@ This test is definitely stronger. It tests more than one case for each requireme
 TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
 
 === Not Enough Testing
-Once upon a time I was developing a web application. This application presented some data in form of paged lists to the user. My task was to develop a component which would privide all the data required "paging controls", for example this:
+Once upon a time I was developing a web application. This application presented some data in form of paged lists to the user. My task was to develop a component which would privide all the data required to create "paging controls", for example this:
 
 ----
 << < 1 2 3 ... 99 > >>
@@ -1273,13 +1273,14 @@ public class PagerTest {
 	}
 }
 ----
-Both tests are verifying whethere the right data will be fetched from the database. The queries to the database are based on the value of the +offset+ variable. So these tests verify that when moving "upward" (from page 0 to page 1) the +offset+ gets increased appropariately.
+Both tests verify whether the right +offset+ is given. This information is later used by database queries to decide which rows should be retrieved from the database. So, given that there should be 10 elements printed on each page (+PER_PAGE = 10+) we should have offset 0 on the 0 page, and that we should have offset 10 on the first page. Simple, isn't it?
 
-So, the tests were green so I was convinced everything is fine. After some time, when clicking through the web pages of this application I have realised (to my horror and dismay!) that the "paging" is not working properly! All the pages from 1 to the very end were showing the same set of items! This was radiculous! I *knew* it worked, I had my tests after all!
+So I implemented this feature, and all the tests were green so I was convinced everything is fine. After some time, when clicking through the web pages of this application I have discovered (to my horror and dismay!) that the "paging" is not working properly! Starting from page 1 every page presented exactly the same set of items! This was radiculous! I *knew* it worked, I had my tests after all!
 
-Well, not right, not at all!
+TIP: The problem with such situation is, that you can not really find a bug as long as the voice inside your head keeps on shouting drivels like '"it works! it has to work! it works!"' (against all the obvious evidence that it is not so). Stop doing this, and find the bug!
 
-Take a look at the tests once again. What do they test? If you can go from page 0 to page 1. And what does not work? Going from page 1 to page 2, and going from page 2 to page 3 and so on. Uh... so it is not tested after all, right? Well yes, but if you can go from 0 to 1, then by all means you should be also able to move from 2 to 3! And this is so obvious, that it is a waste of time to write tests for other values, because if it works for '"from-0-to-1"' it would also work for '"from-1-to-2"', right? Well, in theory maybe so, but in practice definitely not!
+So after the initial period of confusion I take a look at the tests once again. I asked myself 'what do they test?'. Well, they test that you can go from page 0 to page 1. And in my opinion (at least at the time of writing the tests), the fact that you can can go from 0 to 1, meant, that you should be also able to move from 1 to 2, and then from 2 to 3 and so on. And this *seemed so obvious* to me, that I hadn't bothered with writing more testsbecause if it works for '"from-0-to-1"' it would also work for '"from-1-to-2"', right? Well, in theory maybe so, but I was proven wrong on this one!
+If you look at these tests with clear mind you will notice what they *do not* test. They do not test going from page 1 to page 2, and going from page 2 to page 3 and so on. Uh.. and the problems with the production code showed me clearly that they should!
 
 Now take a look at the production code:
 
@@ -1290,13 +1291,25 @@ public void goToNextPage() {
 }
 ----
 
-Can you see the bug now? Well, clearly you can see it, because you know it is there! But it wasn't so simple to spot for me even though this method is a one-liner! I guess this was mainly because the voice inside my head kept on shouting drivels like '"it works! it has to work! it works!"' (against all the obvious evidence that it is not so). And you can't think clearly about the bug when your own mind is trying to persuade you that there is no bug at all!
+It passes all my tests with flying colors, still it has a bug! BTW. can you spot it?
 
-TIP: (A mental note to myself, but maybe you will find it useful as well.) Do not be an idiot! If it does not work do not claim that it does! :)
+To better expose this bug you could write a test like this:
 
-Now, what can we learn from this example? I believe the main lesson is that you should be not satisfied with the simplest possible test case.
+[source,java]
+----
+public void shouldIncreaseOffsetTwiceWhenGoingToPageTwo() {
+	Pager pager = new Pager(PER_PAGE);
 
-TODO 
+	pager.goToNextPage();
+	pager.goToNextPage();
+
+	assertThat(pager.getOffset()).isEqualTo(2 * PER_PAGE);
+}
+----
+
+Now, what can we learn from this example? I believe the main lesson is that you should be not satisfied with the simplest possible test case. One test is not enough to verify whether some functionality works properly. Take at least two cases.
+
+NOTE: The cases should differ as much as possible so the probability of finding some bugs is really increased. Adding test cases only to have more test cases makes no sense. In facts it smells like the violation of the DRY principle and should be avoided!
 
 == Naming is the King
 [verse, Cyprian Kamil Norwid, Vade-mecum: In lieu of introduction]
