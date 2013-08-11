@@ -1389,7 +1389,7 @@ daoTestHelper.userCountry30DayStatistics(userWith4PlClicks, "PL", 4, 2);
 daoTestHelper.userCountry30DayStatistics(userWith4PlClicks, "US", 8, 4);
 ----
 
-Believe me, these names makes perfect sense for this particular scenario and for the problem domain. They allow to come with very readable custom assertions (see <<sec_custocustomassertions>>  similar to this:
+Believe me, these names makes perfect sense for this particular scenario and for the problem domain. They allow to come with very readable custom assertions (see <<sec_customassertions>>  similar to this:
 
 [source,java]
 ----
@@ -2425,16 +2425,14 @@ There is one more thing left to point out. I bet *the original test was written 
 TIP: Always see the failing test first.
 
 === Mockito any() vs. isA()
-TODO make test code snippets bigger
-
-NOTE: This example is a courtesy of Bartek Zdanowski (http://blog.bartekzdanowski.pl/). Thank you!
+NOTE: This example is a courtesy of Bartek Zdanowski (http://touk.pl/blog/author/bzd/). Thank you!
 
 Let us consider the following production code:
 
 [source,java]
 ----
-public class AddOrganizationAction implements Action {}
-public class AddPersonToOrganizationAction implements Action {}
+public class AddOrganizationAction implements Action { ... }
+public class AddPersonToOrganizationAction implements Action { ... }
 
 public interface DispatchAsync {
 	void execute(Action action, AsyncCallback callback);
@@ -2457,8 +2455,19 @@ verify(async).execute(any(AddPersonToOrganizationAction.class),
 	any(AsyncCallback.class));
 ----
 
-To our surprise the test will still pass! Why is that? TODO finish
+To our surprise the test will still pass! Why is that?
 
+The mystery is revealed once you look into the JavaDocs of the Mockito's +Matchers+ class. It says the following:
+
+[quote, Mockito JavaDocs]
+____
+This method *don't do any type checks*, it is only there to avoid casting in your code.
+____
+So, every time you say you expect +any(SomeClass.class)+ hoping that it will verify whether an object of +SomeClass+ was passed as an argument you are doing it wrong!
+
+TIP: Read the documentation of the frameworks you use. And help the authors make them better if something is unclear!
+
+In our case, to really verify the execution of the +execute()+ method we should use another matcher: +isA()+. This one, unlike the +any()+ matcher, performs type checking.
 [source,java]
 ----
 verify(async).execute(isA(AddOrganizationAction.class),
@@ -2466,7 +2475,6 @@ verify(async).execute(isA(AddOrganizationAction.class),
 ----
 
 TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
-TODO http://blog.bartekzdanowski.pl/2011/08/mockito-catch.html
 
 [[sec_thread_sleep]]
 == Thread.sleep()
