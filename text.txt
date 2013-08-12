@@ -24,7 +24,7 @@ TIP: Whatever you do, do it good. If it is worth doing, it is worth doing well. 
 WARNING: More code written = more code to maintain. It is true also with regards to tests!
 
 == Breaking all The Rules
-We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us hasn't probably bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are bad.
+We will start with some really useless tests. Some of them were written a long time ago (10 years or so), in the era when many of us hasn't probably bothered to write any tests at all. So with all the respect to the (unknown) authors, today we can say that these tests are *really bad*.
 
 === No Assertions
 These few lines of code are copied from a very old and horrible (truly horrible!) test. Among other things, it had no assertions. Nothing. Null. Zero. Instead, it printed a lot of information to the +System.out+ so that developers could verify whether the tested functionality works or not.
