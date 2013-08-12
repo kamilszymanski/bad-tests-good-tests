@@ -152,19 +152,15 @@ public class ExampleTest {
 
 I think you've already guessed the end of this story. Yes, that was the only test there...
 
-And what can we learn from these two failures? Few things:
+=== Conclusions
+There are few things that we can learn from the attempts to write tests presented so far:
 
 * '"Do not live with broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
 * Writing and maintaining tests is an effort which has to be taken by the whole team (and this effort must be also supported, or at least not hindered, by all stakeholders).
 * Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
-
-=== Conclusions
-There are few things that we can learn from the attempts to write tests presented so far:
-
-* automation is the king! 
-* write tests, do not generate them!
-* writing tests is a full-time job and there is no one else that will do it for you,
-* do not live with broken windows - fix things as soon as they break.
+* Aautomation is the king! 
+* Write tests, do not generate them!
+* Writing tests is a full-time job and there is no one else that will do it for you,
 
 Armed with this basic knowledge we can now move to some more interesting examples.
 
