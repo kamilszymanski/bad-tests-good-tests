@@ -309,7 +309,7 @@ TIP: Excited that you can mock everything, huh? Slow down and make sure that you
 == Mocks Are Good
 And now the opposite of what was presented in the previous section (<<sec_mock_em_all>>).
 
-In the following test four objects are created. One of them is a mock of the +TrafficTrendProvider+ class, which is used by the SUT (object of the +TrafficService+ class). The remaining two are real objects created using the +new+ keyword. If we look closer we can notice that the +report+ variable is used solely for the creation of the other real object - +trafficTrend+.
+In the following test four objects are created. One of them is a mock of the +TrafficTrendProvider+ class, which is used by the SUT (object of the +TrafficService+ class). The remaining two are real objects created using the +new+ keyword. If we look closer we can notice that the +report+ object is used solely for the creation of the other real object - +trafficTrend+.
 
 [source,java]
 ----
@@ -421,7 +421,7 @@ public void shouldUseTimestampMethod() {
 }
 ----
 
-Can you believe what you see? This is really, really bad for few reasone. This test:
+Can you believe what you see? This is really, really bad for few reasons. This test:
 
 * tests implementation instead of behaviour (see <<sec_test_behaviour>>),
 * uses partial mocking (+spy()+ method on real object) which is rarely required (a [red]#red# lamp should start blinking in your head when you see it{empty}pass:[]footnote:[Please refer to Mockito documentation for the explanation.]),
@@ -451,7 +451,11 @@ public void shouldAddTimestampToGeneratedUrl() {
 }
 ----
 
-TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required{empty}pass:[]footnote:[Please note that the +shouldAddTimestampToGeneratedUrl()+ method does not use mocks but a stub only!].
+Please note that the +shouldAddTimestampToGeneratedUrl()+ method does not use mocks but a stub only!
+
+TIP: If tested method return some values then try to use this values to verify whether the method works fine. Use mocks/spies only if it is really required.
+
+And one more thing: this could have never happened if the developer had coded test-first!
 
 // TAGS INTERACTIONS INSTEAD OF STATE TESTING, BAD CODE -> BAD TESTS
 
