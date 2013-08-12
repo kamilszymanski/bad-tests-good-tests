@@ -21,8 +21,6 @@ From time to time I use term 'SUT' which denotes 'System Under Test', that is *t
 
 Throughout the book I often use FEST Fluent Assertions{empty}pass:[]footnote:[https://github.com/alexruiz/fest-assert-2.x/wiki] (e.g. +assertThat(...)+) instead of those provided by JUnit or TestNG (e.g. +assertEquals(...)+). After writing thousands of tests (of each kind) I can say they are simply better.
 
-// TODO about +setUp()+ what I mean by this - do I really write about setUp methods?
-
 [float]
 ==== Icons
 The following icons appear within the text:
@@ -40,26 +38,22 @@ All three icons were designed by http://www.webdesignerdepot.com/[Webdesigner De
 To really benefit from reading this book you should:
 
 * have some experience in writing tests, especially unit tests,
-* know a testing framework; preferably TestNG, but any other will also be fine (but you have to scan TestNG documentation to understand some code samples),
+* know a testing framework; preferably TestNG or JUnit, but any other will also be fine,
 * be interested in improving your tests-writing skills,
 * understand the value of clean test code.
 
 TIP: You could gain some of the required knowledge by reading my other books (visit http://practicalunittesting.com).
 
 [float]
-==== Book Site
-Please visit the TODO http://practicalunittesting.com[official book site] for news and information on downloadable extras etc.
-
-[float]
 ==== Contributors
-Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski, Jakub Nabrdalik TODO who else?,
+Thanks to Bartosz Ocytko, Martin, Bartek Zdanowski, Jakub Nabrdalik, Tomasz Borek TODO who else?,
 
 ifndef::print[]
 [float]
 ==== Why This Book is For Free?
-This book is for free because I decided so. :) This is possible thanks to many of you, who have bought my previous books from the '"Practical Unit Testing"' serie. Now I'm so filthy rich I can spent my time on non-profit activities. ;) 
+This book is for free because I decided so. :) This is possible thanks to many of you, who have bought my previous books from the http://practicalunittesting.com['"Practical Unit Testing"'] serie. Thank you very much!
 
-By giving this book for free I would also like to pay my debts to the community. I have gained a lot from many bloggers, open-source contributors and forums participants. Thanks to your engagement and the willingness to share your knowledge and experience I'm a better developer today, and I use many super open-source tools that you have prepared. Thank you very much!
+By giving this book for free I would also like to pay my debts to the community. I have gained a lot from many bloggers, open-source contributors and forums participants. Thanks to your engagement and the willingness to share your knowledge and experience I'm a better developer today, and I can benefit from many open-source tools. Thank you very much!
 
 Least but not least, it is real fun to give gifts. And I'm enjoying it very much! :)
 endif::print[]
@@ -68,3 +62,8 @@ ifdef::print[]
 ==== Free e-Book Available
 Visit http://practicalunittesting.com to download a free e-book version of this book.
 endif::print[]
+
+[float]
+==== Book Site
+Please visit the  http://practicalunittesting.com[official book site] for news and information on downloadable extras etc.
+
