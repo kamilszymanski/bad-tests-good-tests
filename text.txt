@@ -1,5 +1,3 @@
-// TODO all source code with tabs
-
 [preface]
 About the Author
 ----------------
@@ -9,18 +7,6 @@ About the Author
 Tomek believes that by working with legacy code, and improving it, he can make the world a better place. To his disappointment, the world does not seem to care all that much about his efforts.
 
 Apart from all this weirdness, he is a pretty normal person – a husband, father of two, and cat owner.
-
-Work in progress
-----------------
-ifndef::print[]
-image::images/72/work_in_progress.png[width="200", float="right"]
-endif::print[]
-ifdef::print[]
-image::images/600/work_in_progress.png[width="200", float="right"]
-endif::print[]
-The book has not been proofreaded (yet)! There are probably many typos and many language mistakes (my apologies!).
-
-THIS IS WORK IN PROGRESS! Whenever you see a *TODO* word it means that this particular part/sentence/paragraph is not finished.
 
 == Why Bother?
 This book is not meant to explain all the reasons of writing tests but there are few things we should know. In short, there are three main reasons for writing tests{empty}pass:[]footnote:[Please forgive the simplifications - I want to make it short!]:
@@ -2864,13 +2850,3 @@ TIP: Write tests which make you confident that your system works.
 [float]
 == Help
 Send me your tests!
-
-<<<
-[float]
-== Practical Unit Testing with TestNG and Mockito
-image::images/put_cover.jpg[width="200", float="right"]
-If you feel like you want to know more about writing unit tests, mocking, assertions and all this stuff, then have a look at my previous book - http://practicalunittesting.com['"Practical Unit Testing with TestNG and Mockito"'] (2012). You can learn a lot from it!
-
-Learn to write *high-quality unit tests* with the finest technologies of the Java world!
-
-Please visit http://practicalunittesting.com[book's website] for more information.

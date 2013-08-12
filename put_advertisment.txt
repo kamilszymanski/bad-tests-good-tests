@@ -1,0 +1,20 @@
+<<<
+[float]
+== Practical Unit Testing
+ifndef::print[]
+image::images/put/cover_testng_a4_300.jpg[width="300", float="right"]
+image::images/put/cover_junit_a4_300.jpg[width="300", float="right"]
+endif::print[]
+ifdef::print[]
+image::images/put/cover_testng_a4_3000.jpg[width="300", float="right"]
+image::images/put/cover_junit_a4_3000.jpg[width="300", float="right"]
+endif::print[]
+
+If you feel like you want to know more about writing unit tests, mocking, assertions and all this stuff, then have a look at my previous books:
+
+* http://practicalunittesting.com['"Practical Unit Testing with *TestNG* and Mockito"'] (2012),
+* http://practicalunittesting.com['"Practical Unit Testing with *JUnit* and Mockito"'] (2013),
+
+By reading these books you can learn to write *high-quality unit tests* with the finest technologies of the Java world!
+
+Please visit http://practicalunittesting.com[book's website] for more information.

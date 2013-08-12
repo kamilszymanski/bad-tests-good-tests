@@ -7,6 +7,8 @@ include::preface.txt[]
 
 include::text.txt[]
 
+include::put_advertisment.txt[]
+
 //:numbered!:
 
 //include::appendix_automated_tests.txt[]
