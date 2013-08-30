@@ -399,7 +399,7 @@ public String getUrl(User user) {
 	Date date=new Date();
 	Long time=(date.getTime()/1000); //convert ms to seconds
 	String timestamp=time.toString();
-	return getZendeskUrl(user, timestamp);
+	return getUrl(user, timestamp);
 }
 ----
 
@@ -1108,7 +1108,7 @@ public void shouldGetMethodsForPoland() {
 
 	//when
 	List<PaymentMethod> methodsForCountry = PaymentMethod
-		.getMethodsForCountry(new CountryBuilder().withCode("Pl").build(), all);
+		.getMethodsForCountry(new CountryBuilder().withCode("PL").build(), all);
 
 	//then
 	assertThat(methodsForCountry).isEqualTo(methodsAvailableInPoland);
