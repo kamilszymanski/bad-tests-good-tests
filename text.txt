@@ -158,7 +158,7 @@ There are few things that we can learn from the attempts to write tests presente
 * '"Do not live with broken windows"'{empty}pass:[]footnote:[See http://c2.com/cgi/wiki?FixBrokenWindows]; fix things immediately!
 * Writing and maintaining tests is an effort which has to be taken by the whole team (and this effort must be also supported, or at least not hindered, by all stakeholders).
 * Good intentions are not enough. You also need knowledge, time and determination to meet the goal of well-tested software.
-* Aautomation is the king! 
+* Automation is the king!
 * Write tests, do not generate them!
 * Writing tests is a full-time job and there is no one else that will do it for you,
 
@@ -277,7 +277,7 @@ or like this:
 ModelAndView mav = new ModelAndView("timezone", "timezone X");
 ----
 
-Does it really matter how the +timezone+ value got inside the +modelAndView+ object? I think not. And the test shouldn't also bother with such niuances. Still the version of the test we have just discussed does exactly this: verifies whether the SUT does things in a certain way.
+Does it really matter how the +timezone+ value got inside the +modelAndView+ object? I think not. And the test shouldn't also bother with such nuances. Still the version of the test we have just discussed does exactly this: verifies whether the SUT does things in a certain way.
 
 Below you can see an improved version of this test. It treates SUT more like a black box and only cares about its output.
 
@@ -334,7 +334,7 @@ public void shouldGetTrafficTrend() {
 The major issue with this test is that it creates real objects which are irrelevant to the tested scenario! This is bad because the test becomes very fragile this way. Any change in constructor of the +Report+ or +TrafficTrend+ classes and this test needs to be updated. +
 Another downside of this test is that it distracts the reader from the testing scenario by providing too many details which are not important at all. For example, what is the empty +String+ parameter (+""+) of the +Report+ constructor, and does it matter that there are four identical dates (+new Date()+) passed to the second constructor?
 
-Instead I would suggest to cut this blah-blah to the minium and use mocks instead of real objects.
+Instead I would suggest to cut this blah-blah to the minimum and use mocks instead of real objects.
 
 [source,java]
 ----
@@ -380,7 +380,7 @@ else {
 }
 ----
 
-Well, this one is obvious - you can't test all paths util you control the value of the +time+ variable. Which is hard since you create it using +System.currentTimeMillis()+, which is hard to mock using civilized techniques.
+Well, this one is obvious - you can't test all paths until you control the value of the +time+ variable. Which is hard since you create it using +System.currentTimeMillis()+, which is hard to mock using civilized techniques.
 
 But let us see a real, slightly more subtle example. Let us take a look at this fragment of production code (the +Util+ class):
 
@@ -473,9 +473,9 @@ We are all familiar with Single Responsibility Principle{empty}pass:[]footnote:[
 Why? Because:
 
 * such test methods are pretty simple to understand,
-* if they fail you know *exactly* which functionality of your software does not work (this is esecially important when introducin changes to existing software).
+* if they fail you know *exactly* which functionality of your software does not work (this is especially important when introducing changes to existing software).
 
-NOTE: Writing tests which fullfil the SRP principle is very simple for unit tests, but not always reasonable for other kind of tests. Sometimes you will want to verify few things in one test because of the setup cost.
+NOTE: Writing tests which fulfill the SRP principle is very simple for unit tests, but not always reasonable for other kind of tests. Sometimes you will want to verify few things in one test because of the setup cost.
 
 Still, I observe the SRP rule being breached frequently. In this section we will take a closer look at some examples.
 
@@ -509,7 +509,7 @@ At the first sight, it may seem like the test is really focused on one thing (on
 
 //(see <<sec_no_logic>>).
 
-To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what fuctionality of my software is broken just by reading the name of the failed test method?"'.
+To discover if your test fulfills SPR ask the following question: '"if it fails will I be able to discover what functionality of my software is broken just by reading the name of the failed test method?"'.
 
 Here is the same tests (meaning, test which verifies exactly the same scenarios) but divided into two parts:
 
@@ -645,11 +645,11 @@ public void shouldNotifyAboutNewUserRegistration() {
 
 The second test verifies whether the +sendRegistrationInfo()+ method of the +mailSender+ object was invoked.
 
-The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two test methods, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registation. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it.
+The main difference between the first presented version and the one we have now, is that the first one tried to *test method* while the latter *tests responsibility* of the class. The current version consists of two test methods, and each of them is focused on one responsibility of the tested class. The class should redirect user to a specific page after the successful registration. And there is a test which verifies it. Some actors should be notified about the fact of the successful registration - and there is a test which verifies whether a specific collaborator was asked for it.
 
 I'm sure the responsibility of the class does not end there (for example I guess it also prints errors when the registration form lacks some data). Good. We can always add more tests to cover the rest of responsibilities. Responsibilities, not methods!
 
-By analogy to the production code we should try to keep our tests small and focused. We should also abstract from the implementation so the refactorings does not break the tests. The changes we have just introduced to the initial test allowed us to achieve both. The tests are so focused that some modifications of the +registerSubmit()+ method implementation might fail only a selected test. Then it will be very simple to see what is not working anymore. I like it.
+By analogy to the production code we should try to keep our tests small and focused. We should also abstract from the implementation so the refactorings does not break the tests. The changes we have just introduced to the initial test allowed us to achieve both. The tests are so focused that some modifications of the +registerSubmit()+ method implementation might fail only a selected test. Then it will be very easy to see what is not working anymore. I like it.
 
 TIP: Forget about methods. Test responsibilities of the class.
 
@@ -757,9 +757,9 @@ public void testNegative() {
 }
 ----
 
-What is important here is that these two test methods are the only ones which verify whethere the +MyList+ class works fine.
+What is important here is that these two test methods are the only ones which verify whether the +MyList+ class works fine.
 
-As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+. This means both will pass *only if this exception is thrown*. The poin is that it does not matter when this exception is thrown as long as any of the statements executed within each test method does throw it. So, such a flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
+As you have noticed both test methods are decorated with +@Test(expected=IndexOutOfBoundsException.class)+. This means both will pass *only if this exception is thrown*. The point is that it does not matter when this exception is thrown as long as any of the statements executed within each test method does throw it. So, such a flawed implementation of the +MyList+ class as presented below passes both test methods with flying colors.
 
 [source,java]
 ----
@@ -778,7 +778,7 @@ public class MyList<T> {
 }
 ----
 
-Well, this is embarassing... Apparently we need to do something about the exception verification. There are two main techniques we could use. First is to split the test into few smaller tests (see <<sec_srp>>). Second is to better localize the exception.
+Well, this is embarrassing... Apparently we need to do something about the exception verification. There are two main techniques we could use. First is to split the test into few smaller tests (see <<sec_srp>>). Second is to better localize the exception.
 
 The first approach would result in few small test methods each of them occupied with different functionality of the +MyList+ class, like +shouldKeepValuesInOrder()+ or +shouldAcceptDuplicateValues()+ and so on. Now having this verified we would also create a test method especially for the verification of what happens when we try to retrieve element which is not there. Like this:
 
@@ -1023,7 +1023,7 @@ What is bothering me here is that:
 1. it does not really verify if the user was added,
 2. it makes some assumptions regarding the state of the database before it is executed,
 
-Regarding the first point, this should be probably done by verifying that the user in the database is equal to the +user+ object. This can be straigforward provided that +userService+ or +dao+ provides appropriate method(s) to fetch the user, or can require much more work (e.g. writing custom JDBC queries directly to database and parsing results in your test code... yuck!).
+Regarding the first point, this should be probably done by verifying that the user in the database is equal to the +user+ object. This can be straightforward provided that +userService+ or +dao+ provides appropriate method(s) to fetch the user, or can require much more work (e.g. writing custom JDBC queries directly to database and parsing results in your test code... yuck!).
 
 As for the second issue the solution is quite simple - replace absolute values with relative ones:
 
@@ -1040,7 +1040,7 @@ public void shouldAddUser() {
 
 Now the content of the test method reflects its name (+shouldAddUser()+). Good.
 
-It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occured that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to see the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
+It happened that such assumption about the database state (i.e. the assumption that there are no users at all at the beginning of the test) caused some additional work for my team some time ago. At some point it occurred that we need to add a 'fake' user to the system (the reason was to handle some extra-cases so it was easier to filter them out from reports etc.). And this user had to be always available. So we created a database patch which added this fake user to the system. It was applied along with all other patches to see the database in the initial state before integration tests were run. And then we observed (with amazement) that many tests started to fail. Why? Because they assumed that the database has no users at all!
 
 TIP: Do not make assumptions about the database content. Use relative rather than absolute values.
 
@@ -1118,7 +1118,7 @@ Ah, better now! :) This test does not use the logic of +PaymentMethod+ enum anym
 
 [[sec_happy_path]]
 == Happy Path
-[quote, Wikipedie]
+[quote, Wikipedia]
 ____
 Happy path testing is a well-defined test case using known input, which executes without exception and produces an expected output.
 ____
@@ -1223,7 +1223,7 @@ This test is definitely stronger. It tests more than one case for each requireme
 TIP: Play BizzBuzz with your friends. See http://en.wikipedia.org/wiki/Bizz_buzz for game instruction. :)
 
 === Not Enough Testing
-Once upon a time I was developing a web application. This application presented some data in form of paged lists to the user. My task was to develop a component which would privide all the data required to create "paging controls", for example this:
+Once upon a time I was developing a web application. This application presented some data in form of paged lists to the user. My task was to develop a component which would provide all the data required to create "paging controls", for example this:
 
 ----
 << < 1 2 3 ... 99 > >>
@@ -1261,11 +1261,11 @@ public class PagerTest {
 ----
 Both tests verify whether the right +offset+ is given. This information is later used by database queries to decide which rows should be retrieved from the database. So, given that there should be 10 elements printed on each page (+PER_PAGE = 10+) we should have offset 0 on the 0 page, and that we should have offset 10 on the first page. Simple, isn't it?
 
-So I implemented this feature, and all the tests were green so I was convinced everything is fine. After some time, when clicking through the web pages of this application I have discovered (to my horror and dismay!) that the "paging" is not working properly! Starting from page 1 every page presented exactly the same set of items! This was radiculous! I *knew* it worked, I had my tests after all!
+So I implemented this feature, and all the tests were green so I was convinced everything is fine. After some time, when clicking through the web pages of this application I have discovered (to my horror and dismay!) that the "paging" is not working properly! Starting from page 1 every page presented exactly the same set of items! This was ridiculous! I *knew* it worked, I had my tests after all!
 
 TIP: The problem with such situation is, that you can not really find a bug as long as the voice inside your head keeps on shouting drivels like '"it works! it has to work! it works!"' (against all the obvious evidence that it is not so). Stop doing this, and find the bug!
 
-So after the initial period of confusion I take a look at the tests once again. I asked myself 'what do they test?'. Well, they test that you can go from page 0 to page 1. And in my opinion (at least at the time of writing the tests), the fact that you can can go from 0 to 1, meant, that you should be also able to move from 1 to 2, and then from 2 to 3 and so on. And this *seemed so obvious* to me, that I hadn't bothered with writing more testsbecause if it works for '"from-0-to-1"' it would also work for '"from-1-to-2"', right? Well, in theory maybe so, but I was proven wrong on this one!
+So after the initial period of confusion I took a look at the tests once again. I asked myself 'what do they test?'. Well, they test that you can go from page 0 to page 1. And in my opinion (at least at the time of writing the tests), the fact that you can can go from 0 to 1, meant, that you should be also able to move from 1 to 2, and then from 2 to 3 and so on. And this *seemed so obvious* to me, that I hadn't bothered with writing more tests because if it works for '"from-0-to-1"' it would also work for '"from-1-to-2"', right? Well, in theory maybe so, but I was proven wrong on this one!
 If you look at these tests with clear mind you will notice what they *do not* test. They do not test going from page 1 to page 2, and going from page 2 to page 3 and so on. Uh.. and the problems with the production code showed me clearly that they should!
 
 Now take a look at the production code:
@@ -1677,7 +1677,7 @@ public void shouldBuildEmailSender() {
 }
 ----
 
-When I look at the content of +given+, +when+ and +then+ sections I feel like they were added only to honor the tradition of BDD. It is like adding desing patterns to your production code not because they are required, but because someone told you should do so. With all respect to BDD ideas why not stick with something much simpler? For example like this:
+When I look at the content of +given+, +when+ and +then+ sections I feel like they were added only to honor the tradition of BDD. It is like adding design patterns to your production code not because they are required, but because someone told you should do so. With all respect to BDD ideas why not stick with something much simpler? For example like this:
 
 [source,java]
 ----
@@ -1841,7 +1841,7 @@ public void shouldGetDomainsFromCampaignWithStatisticsAndWithDeleted() {
 }
 ----
 
-As usual when it comes to making assertions more readable we can use private methods (not really recommended - see <<sec_assertions_vs_private_methods>>) or write our custom assertions. Since in this case the test verifies some very important part of the system, I decided it was worthwile to implement a custom assertion. The result is shown on the next listing.
+As usual when it comes to making assertions more readable we can use private methods (not really recommended - see <<sec_assertions_vs_private_methods>>) or write our custom assertions. Since in this case the test verifies some very important part of the system, I decided it was worthwhile to implement a custom assertion. The result is shown on the next listing.
 
 [source,java]
 ----
@@ -1901,7 +1901,7 @@ public void testChargeInRetryingState() throws Exception {
 So far so good. The test is complex, but so is the problem domain, so you decide you have no choice but to bear with it.
 
 Now you write other tests. You soon discover that the assertions are very similar to the ones you have already written (they only differ by expected states - for example some another test method expects +AndroidTransactionState.SUBMITTED+ instead of +AndroidTransactionState.CHARGE_PENDING+). '"Reuse is good"' you think and you do the most obvious thing: you create a private method (which takes expected states as parameter) and call it from both tests. As you write more test code the same method is being called from more test methods. +
-This seems right. There is no code duplication among test methods because all assertions are done by this separated private method. Ans exxemplary test looks like this one:
+This seems right. There is no code duplication among test methods because all assertions are done by this separated private method. And exemplary test looks like this one:
 
 [source,java]
 ----
@@ -2018,7 +2018,7 @@ private void testCompile_FakeSourceFile(CompilerSupport compilerSupport) {
 }
 ----
 
-Hm... clear? Not to me. I still can not tell you what is story behind +testCompile_32Bit_FakeSourceFile+. Is it because I know nothing about the domain of the problem? To some extente the answer is yes. However I suspect that even if I knew it very well I still would had to figure out the purpose of this method. It seems to me that some improvement is possible.
+Hm... clear? Not to me. I still can not tell you what is story behind +testCompile_32Bit_FakeSourceFile+. Is it because I know nothing about the domain of the problem? To some extent the answer is yes. However I suspect that even if I knew it very well I still would had to figure out the purpose of this method. It seems to me that some improvement is possible.
 
 The trouble with this test is because the +testCompile_FakeSourceFile+ is doing two things at once: it executes the tested functionality of the SUT and also asserts on it.
 What I would suggest is to get rid of this helper private method by inlining it.
@@ -2200,7 +2200,7 @@ Second, it is very hard to say which of the parameters passed to the constructor
 Third, as you can see there are different constructors used in different tests. The thing is, that these constructors were created so it was easier to write tests! In other words, we created constructors which set selected properties of the +User+ class (and left unused properties untouched - i.e. with +null+ values). Hm, this sounds evil. We added means to create crippled objects of the +User+ class to our production code... +
 Fourth, in addition to use of the constructors, also some setter methods are used. This is not something evil, but it makes the code which creates +User+ objects longer.
 
-Now, what can be done about it? We could have created some +private+ methods. Yes, this would have been better than the constructor-hell that we had. But my experience is that they tend to multiply and repeat among many test classes. Also such +private+ methods are usually not flexible enough to express the intent of a specific test. So the next step is to parameterized these private methods, but eventually we ended up with private methods *and* the setters following them. +
+Now, what can be done about it? We could have created some +private+ methods. Yes, this would have been better than the constructor-hell that we had. But my experience is that they tend to multiply and repeat among many test classes. Also such +private+ methods are usually not flexible enough to express the intent of a specific test. So the next step was to parameterize these private methods, but eventually we ended up with private methods *and* the setters following them. +
 So we decided not to use them. Instead, we invested in *Test Data Builders*.
 
 The concept is very simple. A builder class is responsible for the creation of objects of the given class. Period.
@@ -2323,9 +2323,9 @@ List<ProductCategory> categories = Arrays.asList(
 );
 ----
 
-Not a big deal, but if you have many tests which use the complex objects (like +BigDecimal+) to create other object (which is not so unusal for complex integration tests) then the difference might be significant.
+Not a big deal, but if you have many tests which use the complex objects (like +BigDecimal+) to create other object (which is not so unusual for complex integration tests) then the difference might be significant.
 
-Even though this example has used private methods for objects creation, the advice given here also applied to Test Data Builders. Similarly, we should equipe them with methods which allow us to use simple objects. For example, I have learned that adding methods which takes +String+ representation of dates (e.g. '"2013-05-23"') instead of +Date+ objects makes test code much more readable.
+Even though this example has used private methods for objects creation, the advice given here also applied to Test Data Builders. Similarly, we should equip them with methods which allow us to use simple objects. For example, I have learned that adding methods which takes +String+ representation of dates (e.g. '"2013-05-23"') instead of +Date+ objects makes test code much more readable.
 
 TIP: KISS: Keep It Simple Stupid! :)
 
@@ -2463,7 +2463,7 @@ verify(async).execute(isA(AddOrganizationAction.class),
 TIP: Search for +any()+ usages in your Mockito-powered tests and think about changing them to +isA()+.
 
 == Test Which Knows Too Much
-Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shorthened test from some mailing list discussion).
+Why tests are brittle? Because we put too many details into them! See the following example (this is a slightly shortened test from some mailing list discussion).
 
 [source,java]
 ----
@@ -2506,7 +2506,7 @@ Before we get to the main point, let us discuss the idea of having +Thread.sleep
 
 So, what can we do about it?  We can't make browser speed up, but we can wait actively, that is wait and repeatedly verify whether we can move do the next click.{empty}pass:[]footnote:[Selenium offers some mechanisms to do that; consult its documentation for more information.]
 
-The main issue about this code is that it describe the webpage in details. Any change to this website will cause this test to fail. And the website *will change*, that is for sure! The XPath expressions used in the tests will not last long!
+The main issue about this code is that it describes the webpage in details. Any change to this website will cause this test to fail. And the website *will change*, that is for sure! The XPath expressions used in the tests will not last long!
 
 NOTE: I can suspect that there are many more tests written in the same manner. This means that the information about the details of some webpages is scattered among many tests. Which in turn means, that the change of the website will make many tests fail.
 
@@ -2514,7 +2514,7 @@ What can we do about it? First thing, we could improve the website (e.g. add som
 
 What we should really do is to free our test code from any detailed information about the website. End-to-end tests should be preoccupied with business scenarios, not with the implementation details!
 
-In the world of Selenium tests, the pattern we should use is called 'Page Objects'{empty}pass:[]footnote:[See http://code.google.com/p/selenium/wiki/PageObjects for more information about Page Objects.]. By doing so we would end up with a test like this:
+In the world of Selenium tests, the pattern we should use is called 'Page Object'{empty}pass:[]footnote:[See http://code.google.com/p/selenium/wiki/PageObjects for more information about Page Objects.]. By doing so we would end up with a test like this:
 
 [source,java]
 ----
@@ -2541,7 +2541,7 @@ What can we see here? Few things:
 * no +Thread.sleep()+ - this is also handled internally by +xyzPage+ objects,
 * this test would survive refactorings as long as the general flow of actions remains unchanged.
 
-All this does not mean that the nasty low-level details have miracouleously vanished. No, as we already mentioned, they were moved to +xyzPage+ classes. The thing is, that we have probably many tests (which verify different business scenarios) which perform some operations related to survey edition. All these tests can now bee freed from low-level details and use the functionality provided by the +xyzPage+ objects.
+All this does not mean that the nasty low-level details have miraculously vanished. No, as we already mentioned, they were moved to +xyzPage+ classes. The thing is, that we have probably many tests (which verify different business scenarios) which perform some operations related to survey edition. All these tests can now bee freed from low-level details and use the functionality provided by the +xyzPage+ objects.
 
 [[sec_asserting_too_much]]
 == Asserting Too Much
@@ -2579,7 +2579,7 @@ public void invalidTxShouldBeCanceled() {
 }
 ----
 
-I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfuly (meaning, the cancelation of this transaction succeeded)'. 
+I like this version much more. It hides implementation details. Inside custom assertion code there is a logic which handles the file content (and extracts the status from single line of this CSV file) but it is hidden there, and does not clutter the test. It also reads much nicer: 'assert that response file contains entry about the transaction +123cancel+ which says it has finished successfully (meaning, the cancellation of this transaction succeeded)'. 
 
 Now when the CSV format changes, all you need to do is to fix the code encapsulated within the +TxDTOAssert+ class. In other case you would have to fix it in (many) tests which verify the content of the CSV file.
 
@@ -2636,7 +2636,7 @@ public void test() throws Exception {
 <1> Stubbing of the SUT.
 <2> This line verifies whether the stubbing was successful.
 
-TIP: Writing test for exisiting code is *NOT* about repeating it line by line!
+TIP: Writing test for existing code is *NOT* about repeating it line by line!
 
 Ok, that would be unfair to leave this test like this. I think we deserve at least few hints about testing your DAO layer.
 
